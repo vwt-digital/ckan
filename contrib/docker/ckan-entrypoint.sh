@@ -44,6 +44,8 @@ write_config () {
 while ! pg_isready -h db -U postgres; do
   sleep 1;
 done
+#startup redis server 
+nohup redis-server &
 
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
@@ -61,10 +63,6 @@ fi
 
 if [ -z "$CKAN_REDIS_URL" ]; then
     abort "ERROR: no CKAN_REDIS_URL specified in docker-compose.yml"
-fi
-
-if [ -z "$CKAN_DATAPUSHER_URL" ]; then
-    abort "ERROR: no CKAN_DATAPUSHER_URL specified in docker-compose.yml"
 fi
 
 set_environment

@@ -20,7 +20,7 @@ debug = false
 [server:main]
 use = egg:Paste#http
 host = 0.0.0.0
-port = 5000
+port = 8080
 
 [app:main]
 use = egg:ckan
@@ -58,7 +58,7 @@ ckan.datastore.default_fts_index_method = gist
 
 ## Site Settings
 
-ckan.site_url =
+ckan.site_url = https://127.0.0.1:80
 #ckan.use_pylons_response_cleanup_middleware = true
 
 ## Authorization Settings

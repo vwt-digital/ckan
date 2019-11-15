@@ -25,6 +25,7 @@ RUN apt-get -q -y update \
         git-core \
         vim \
         wget \
+	redis-server \
     && apt-get -q clean \
     && rm -rf /var/lib/apt/lists/*
 
