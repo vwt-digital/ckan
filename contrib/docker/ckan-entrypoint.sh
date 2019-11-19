@@ -41,9 +41,9 @@ write_config () {
 }
 
 # Wait for PostgreSQL
-while ! pg_isready -h db -U postgres; do
-  sleep 1;
-done
+#while ! pg_isready -h db -U postgres; do
+#  sleep 1;
+#done
 #startup redis server 
 nohup redis-server &
 
