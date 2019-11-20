@@ -9,7 +9,7 @@ RUN mkdir -p /opt/solr/server/solr/$SOLR_CORE/conf
 RUN mkdir -p /opt/solr/server/solr/$SOLR_CORE/data
 
 # Adding Files
-ADD ./ckan/contrib/docker/solr/solrconfig.xml \
+ADD ./solrconfig.xml \
 ./ckan/ckan/config/solr/schema.xml \
 https://raw.githubusercontent.com/apache/lucene-solr/releases/lucene-solr/6.6.5/solr/server/solr/configsets/basic_configs/conf/currency.xml \
 https://raw.githubusercontent.com/apache/lucene-solr/releases/lucene-solr/6.6.5/solr/server/solr/configsets/basic_configs/conf/synonyms.txt \
