@@ -134,7 +134,6 @@ def package_list(context, data_dict):
     if offset:
         query = query.offset(offset)
     
-    model.repo.commit()
     ## Returns the first field in each result record
     return [r[0] for r in query.execute()]
 
@@ -919,6 +918,7 @@ def package_show(context, data_dict):
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
+        item.after_create(context, package_dict)
 
     return package_dict
 
