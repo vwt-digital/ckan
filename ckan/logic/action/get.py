@@ -919,9 +919,7 @@ def package_show(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
 
-    return _get_action('package_show')(
-        context.copy(), {'id': pkg.id}
-    )
+    return package_dict
 
 
 def _add_tracking_summary_to_resource_dict(resource_dict, model):
