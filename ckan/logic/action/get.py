@@ -39,10 +39,10 @@ log = logging.getLogger('ckan.logic')
 _validate = ckan.lib.navl.dictization_functions.validate
 _table_dictize = ckan.lib.dictization.table_dictize
 _check_access = logic.check_access
+_get_action = logic.get_action
 NotFound = logic.NotFound
 ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
-
 _select = sqlalchemy.sql.select
 _aliased = sqlalchemy.orm.aliased
 _or_ = sqlalchemy.or_
@@ -919,7 +919,9 @@ def package_show(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
 
-    return package_dict
+    return _get_action('package_show')(
+        context.copy(), {'id': pkg.id}
+    )
 
 
 def _add_tracking_summary_to_resource_dict(resource_dict, model):
