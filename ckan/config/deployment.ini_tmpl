@@ -80,7 +80,7 @@ ckan.auth.public_activity_stream_detail = true
 ## Search Settings
 
 ckan.site_id = default
-ckan.simple_search = true
+ckan.simple_search = 1
 #solr_url = http://127.0.0.1:8983/solr
 
 
