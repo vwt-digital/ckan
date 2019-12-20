@@ -46,7 +46,8 @@ write_config () {
 #done
 #startup redis server 
 nohup redis-server &
-
+#fill up solr
+ckan-paster search-index rebuild --config=/etc/ckan/std/std.ini
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
   write_config
