@@ -47,7 +47,7 @@ write_config () {
 #startup redis server 
 nohup redis-server &
 #fill up solr
-python update_solr.py
+python /workspace/update_solr.py
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
   write_config
