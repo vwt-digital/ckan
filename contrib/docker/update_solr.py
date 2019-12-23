@@ -5,7 +5,7 @@ import requests
 # Use the json module to dump the dictionary to a string for posting.
 url = 'https://ckan.test-app.vwtelecom.com/api/action/package_list'
 # We'll use the package_create function to create a new dataset.
-decrypted = open("/workspace/ckan_api_key.txt")
+decrypted = open("ckan_api_key.txt")
 api_key = decrypted.read()
 print(api_key)
 headers = {
