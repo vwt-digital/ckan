@@ -5,7 +5,7 @@ import time
 from google.cloud import kms_v1
 
 # decrypt api key
-f = open("/workspace/ckan_api_key.enc", "r")
+f = open("ckan_api_key.enc", "rb")
 key = f.read()
 client = kms_v1.KeyManagementServiceClient()
 name = client.crypto_key_path_path('vwt-d-gew1-dat-solutions-cat', 'europe', 'ckan-api-key', 'ckan-api-key')
@@ -33,7 +33,7 @@ if request.status_code == 200:
             while delete_request.status_code == 500:
                 delete_request = requests.post(delete_url, json=payload, headers=headers)
                 print(delete_request.status_code)
-                time.sleep(5)
+                time.sleep(1)
             else:
                 print('succeed')
         except delete_request:
