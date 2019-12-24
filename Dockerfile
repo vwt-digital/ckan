@@ -43,6 +43,7 @@ RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan
 
 #add files 
 RUN pip install requests
+RUN pip install google-cloud
 ADD ./contrib/docker/update_solr.py /workspace/
 # Setup virtual environment for CKAN
 RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
