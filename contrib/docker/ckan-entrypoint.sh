@@ -44,10 +44,8 @@ write_config () {
 #while ! pg_isready -h db -U postgres; do
 #  sleep 1;
 #done
-#startup redis server 
+#startup redis server
 nohup redis-server &
-#fill up solr
-python /workspace/update_solr.py
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
   write_config
@@ -68,4 +66,6 @@ fi
 
 set_environment
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
+#fill up solr
+python /workspace/update_solr.py
 exec "$@"
