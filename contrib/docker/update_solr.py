@@ -6,13 +6,11 @@ from google.cloud import kms_v1
 # decrypt api key
 f = open("/workspace/ckan_api_key.enc", "r")
 key = f.read()
-key = key.strip("\n")
-print(key)
 client = kms_v1.KeyManagementServiceClient()
 name = client.crypto_key_path_path('vwt-d-gew1-dat-solutions-cat', 'europe', 'ckan-api-key', 'ckan-api-key')
 response = client.decrypt(name, key)
-print(response.plaintext)
 api_key = response.plaintext
+api_key = api_key.strip()
 # Use the json module to dump the dictionary to a string for posting.
 url = 'https://ckan.test-app.vwtelecom.com/api/action/package_list'
 # We'll use the package_create function to create a new dataset
