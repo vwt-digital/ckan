@@ -4,7 +4,7 @@ import requests
 from google.cloud import kms_v1
 
 # decrypt api key
-f = open("ckan_api_key.enc", "r")
+f = open("/workspace/ckan_api_key.enc", "r")
 key = f.read().splitlines()
 print(key)
 client = kms_v1.KeyManagementServiceClient()
