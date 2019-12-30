@@ -47,7 +47,7 @@ RUN pip install google-cloud
 RUN pip install --upgrade google-cloud-kms
 ADD ./contrib/docker/ckan_api_key.enc /workspace/
 ADD ./contrib/docker/update_solr.py /workspace/
-ADD ./contrib/docker/Create_dataset.py /workspace/
+ADD ./contrib/docker/Dataset_create.py /workspace/
 # Setup virtual environment for CKAN
 RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
     virtualenv $CKAN_VENV && \
