@@ -45,6 +45,7 @@ RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan
 RUN pip install requests
 RUN pip install google-cloud
 RUN pip install --upgrade google-cloud-kms
+RUN pip install --upgrade google-cloud-storage
 ADD ./contrib/docker/ckan_api_key.enc /workspace/
 ADD ./contrib/docker/update_solr.py /workspace/
 ADD ./contrib/docker/Dataset_create.py /workspace/
