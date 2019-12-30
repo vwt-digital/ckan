@@ -918,7 +918,7 @@ def package_show(context, data_dict):
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
-    context.copy(), {'id': package_dict['id']}
+
     return package_dict
     
 
