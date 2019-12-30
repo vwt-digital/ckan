@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import json
 import requests
+import logging
 from google.cloud import kms_v1
 from google.cloud import storage
 
@@ -12,6 +13,7 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
     blob.download_to_filename(destination_file_name)
 
     print("blob {} downloaded to {}. " .format(source_blob_name, destination_file_name))
+    logging.debug("blob {} downloaded to {}. " .format(source_blob_name, destination_file_name))
 
 
 def is_downloadable(url):
@@ -63,8 +65,10 @@ for data in j['dataset']:
     request = requests.post(url, json=dataDict, headers=headers)
     if request.status_code == 200:
         print("succes")
+        logging.debug(request.status_code)
     else:
         print("Request failed")
+        logging.debug(request.status_code)
         print(request.status_code)
         print(request.text)
     # create resource for dataset
