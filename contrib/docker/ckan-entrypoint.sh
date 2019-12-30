@@ -66,8 +66,11 @@ fi
 
 set_environment
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
+echo "pre passed"
 exec "$@"
 #empty db
 python /workspace/update_solr.py
-#fill db again 
+echo "passed 1"
+#fill db again
 python /workspace/Dataset_create.py
+echo "passed 2"
