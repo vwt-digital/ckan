@@ -39,8 +39,8 @@ response = client.decrypt(name, key)
 api_key = response.plaintext
 api_key = api_key.strip()
 # download from google cloud storage
-download_blob("vwt-d-gew1-dat-solutions-cat-dcat-deployed-stg", "data_catalog.json", "/workspace/data_catalog.json")
-file = open("/workspace/data_catalog.json", "r")
+download_blob("vwt-d-gew1-dat-solutions-cat-dcat-deployed-stg", "data_catalog.json", "data_catalog.json")
+file = open("data_catalog.json", "r")
 j = json.loads(file.read())
 for data in j['dataset']:
     # Put the details of the dataset we're going to create into a dict.
