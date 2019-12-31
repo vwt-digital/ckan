@@ -41,7 +41,7 @@ ARG CKAN_SITE_URL
 # Create ckan user
 RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan
 
-#add files 
+#add files
 RUN pip install requests
 RUN pip install google-cloud
 RUN pip install --upgrade google-cloud-kms
@@ -49,6 +49,7 @@ RUN pip install --upgrade google-cloud-storage
 ADD ./contrib/docker/ckan_api_key.enc /workspace/
 ADD ./contrib/docker/update_solr.py /workspace/
 ADD ./contrib/docker/Dataset_create.py /workspace/
+ADD ./contrib/docker/data_catalog.json /workspace/
 # Setup virtual environment for CKAN
 RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
     virtualenv $CKAN_VENV && \
