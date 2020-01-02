@@ -71,6 +71,6 @@ echo "pre passed"
 python /workspace/update_solr.py
 echo "passed 1"
 # fill db again
-#ython /workspace/Dataset_create.py
+python /workspace/Dataset_create.py
 echo "passed 2"
 exec "$@"
