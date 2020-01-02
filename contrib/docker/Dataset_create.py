@@ -2,6 +2,7 @@
 import json
 import requests
 import logging
+import time
 from google.cloud import kms_v1
 from google.cloud import storage
 
@@ -63,6 +64,15 @@ for data in j['dataset']:
         'Host': "ckan.test-app.vwtelecom.com"
     }
     request = requests.post(url, json=dataDict, headers=headers)
+    try:
+        while request.status_code == 500:
+            request = requests.post(url, json=dataDict, headers=headers)
+            print(request.status_code)
+            time.sleep(1)
+        else:
+            print("succes")
+    except request:
+        print("exception")
     if request.status_code == 200:
         print("succes")
         logging.debug(request.status_code)
