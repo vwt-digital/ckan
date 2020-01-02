@@ -47,4 +47,3 @@ if request.status_code == 200:
 else:
     print("Request failed")
     print(request.status_code)
-    print(request.text)
