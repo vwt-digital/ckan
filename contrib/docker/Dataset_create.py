@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import json
 import requests
-import logging
 import time
 from google.cloud import kms_v1
 from google.cloud import storage
@@ -14,25 +13,10 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
     blob.download_to_filename(destination_file_name)
 
     print("blob {} downloaded to {}. " .format(source_blob_name, destination_file_name))
-    logging.debug("blob {} downloaded to {}. " .format(source_blob_name, destination_file_name))
-
-
-def is_downloadable(url):
-    """
-    Does the url contain a downloadable resource
-    """
-    h = requests.head(url, allow_redirects=True)
-    header = h.headers
-    content_type = header.get('content-type')
-    if 'text' in content_type.lower():
-        return False
-    if 'html' in content_type.lower():
-        return False
-    return True
 
 
 # decrypt api key
-f = open("/workspace/ckan_api_key.enc", "r")
+f = open("ckan_api_key.enc", "rb")
 key = f.read()
 client = kms_v1.KeyManagementServiceClient()
 name = client.crypto_key_path_path('vwt-d-gew1-dat-solutions-cat', 'europe', 'ckan-api-key', 'ckan-api-key')
@@ -40,8 +24,8 @@ response = client.decrypt(name, key)
 api_key = response.plaintext
 api_key = api_key.strip()
 # download from google cloud storage
-download_blob("vwt-d-gew1-dat-solutions-cat-dcat-deployed-stg", "data_catalog.json", "/workspace/data_catalog.json")
-file = open("/workspace/data_catalog.json", "r")
+download_blob("vwt-d-gew1-dat-solutions-cat-dcat-deployed-stg", "data_catalog.json", "data_catalog.json")
+file = open("data_catalog.json", "r")
 j = json.loads(file.read())
 for data in j['dataset']:
     # Put the details of the dataset we're going to create into a dict.
@@ -75,10 +59,8 @@ for data in j['dataset']:
         print("exception")
     if request.status_code == 200:
         print("succes")
-        logging.debug(request.status_code)
     else:
         print("Request failed")
-        logging.debug(request.status_code)
         print(request.status_code)
         print(request.text)
     # create resource for dataset
