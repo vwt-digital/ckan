@@ -1,5 +1,4 @@
 #!/bin/sh
-set -e
 
 # URL for the primary database, in the format expected by sqlalchemy (required
 # unless linked to a container called 'db')
