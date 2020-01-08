@@ -76,7 +76,7 @@ fi
 
 set_environment
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
-exec run $
+run "$@"
 sleep(10)
 site_update()
 wait
