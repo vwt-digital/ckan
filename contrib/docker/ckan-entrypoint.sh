@@ -72,5 +72,7 @@ echo "passed update"
 # fill db again
 python /workspace/Dataset_create.py
 echo "passed create"
+echo "dit is het @"
+echo "$@"
 exec "$@"
 
