@@ -1,5 +1,5 @@
 #!/bin/sh
-#set -e
+set -e
 
 # URL for the primary database, in the format expected by sqlalchemy (required
 # unless linked to a container called 'db')
@@ -66,7 +66,7 @@ fi
 
 set_environment
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
-
+exec "$@" $
 echo "pre passed"
 # empty db
 python /workspace/update_solr.py
@@ -74,4 +74,4 @@ echo "passed update"
 # fill db again
 python /workspace/Dataset_create.py
 echo "passed create"
-exec "$@"
+wait
