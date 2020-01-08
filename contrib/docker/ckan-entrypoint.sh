@@ -18,6 +18,16 @@ abort () {
   exit 1
 }
 
+site_update () {
+  echo "pre passed"
+  # empty db
+  python /workspace/update_solr.py
+  echo "passed update"
+  # fill db again
+  python /workspace/Dataset_create.py
+  echo "passed create"
+}
+
 set_environment () {
   export CKAN_SITE_ID=${CKAN_SITE_ID}
   export CKAN_SITE_URL=${CKAN_SITE_URL}
@@ -66,13 +76,7 @@ fi
 
 set_environment
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
-nohup "$@"
+exec $
 sleep(10)
-echo "pre passed"
-# empty db
-python /workspace/update_solr.py
-echo "passed update"
-# fill db again
-python /workspace/Dataset_create.py
-echo "passed create"
+site_update()
 wait
