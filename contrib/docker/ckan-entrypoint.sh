@@ -72,3 +72,5 @@ echo "passed update"
 # fill db again
 python /workspace/Dataset_create.py
 echo "passed create"
+wait
+
