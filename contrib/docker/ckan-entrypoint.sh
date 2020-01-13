@@ -66,9 +66,7 @@ fi
 set_environment
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
 echo "pre passed"
-# empty db
-nohup /workspace/update_solr.py &
-echo "passed update"
+nohup python -u /workspace/update_solr.py &
 echo "$@"
 exec "$@"
 
