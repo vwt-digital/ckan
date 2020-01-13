@@ -37,15 +37,15 @@ print("api key stripped and ready")
 headers = {
     'Content-Type': "application/json",
     'Authorization': api_key,
-    'Host': "127.0.0.1:8081"
+    'Host': "127.0.0.1:8080"
 }
 
 # Use the json module to dump the dictionary to a string for posting.
-url = 'http://127.0.0.1:8081/api/action/package_list'
+url = 'http://127.0.0.1:8080/api/action/package_list'
 request = requests.post(url, headers=headers)
 print("requested 1 time")
 print(request.status_code)
-delete_url = 'http://127.0.0.1:8081/api/action/dataset_purge'
+delete_url = 'http://127.0.0.1:8080/api/action/dataset_purge'
 if request.status_code == 200:
     data = json.loads(request.text)
     print(data['result'])
@@ -98,7 +98,7 @@ for data in j['dataset']:
     dataDict["name"] = dataDict["name"].replace("/", "_")
     dataDict["name"] = dataDict["name"].lower()
     # Use the json module to dump the dictionary to a string for posting.
-    url = 'http://127.0.0.1:8081/api/action/package_create'
+    url = 'http://127.0.0.1:8080/api/action/package_create'
     # We'll use the package_create function to create a new dataset.
     request = requests.post(url, json=dataDict, headers=headers)
     try:
@@ -129,7 +129,7 @@ for data in j['dataset']:
             "format": resource['format'],
             "mediaType": mediatype
         }
-        resource_url = 'http://127.0.0.1:8081/api/action/resource_create'
+        resource_url = 'http://127.0.0.1:8080/api/action/resource_create'
         resource_request = requests.post(resource_url, json=resourceDict, headers=headers)
         if resource_request.status_code == 200:
             print("success!")
