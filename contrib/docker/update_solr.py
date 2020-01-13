@@ -18,7 +18,7 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
 
 
 # decrypt api key
-f = open("ckan_api_key.enc", "rb")
+f = open("/workspace/ckan_api_key.enc", "rb")
 key = f.read()
 client = kms_v1.KeyManagementServiceClient()
 name = client.crypto_key_path_path('vwt-d-gew1-dat-solutions-cat', 'europe', 'ckan-api-key', 'ckan-api-key')
@@ -75,8 +75,8 @@ else:
         print("nothing")
 
 # download from google cloud storage
-download_blob("vwt-d-gew1-dat-solutions-cat-dcat-deployed-stg", "data_catalog.json", "data_catalog.json")
-file = open("data_catalog.json", "r")
+download_blob("vwt-d-gew1-dat-solutions-cat-dcat-deployed-stg", "data_catalog.json", "/workspace/data_catalog.json")
+file = open("/workspace/data_catalog.json", "r")
 j = json.loads(file.read())
 for data in j['dataset']:
     # Put the details of the dataset we're going to create into a dict.
