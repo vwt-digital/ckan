@@ -37,7 +37,7 @@ print("api key stripped and ready")
 headers = {
     'Content-Type': "application/json",
     'Authorization': api_key,
-    'Host': "127.0.0.1:8080"
+    'Host': "https://ckan.test-app.vwtelecom.com"
 }
 
 # Use the json module to dump the dictionary to a string for posting.
