@@ -2,13 +2,13 @@
 
 # URL for the primary database, in the format expected by sqlalchemy (required
 # unless linked to a container called 'db')
-: ${CKAN_SQLALCHEMY_URL:=}
+: "${CKAN_SQLALCHEMY_URL:=}"
 # URL for solr (required unless linked to a container called 'solr')
-: ${CKAN_SOLR_URL:=}
+: "${CKAN_SOLR_URL:=}"
 # URL for redis (required unless linked to a container called 'redis')
-: ${CKAN_REDIS_URL:=}
+: "${CKAN_REDIS_URL:=}"
 # URL for datapusher (required unless linked to a container called 'datapusher')
-: ${CKAN_DATAPUSHER_URL:=}
+: "${CKAN_DATAPUSHER_URL:=}"
 
 CONFIG="${CKAN_CONFIG}/production.ini"
 
@@ -65,7 +65,6 @@ fi
 
 set_environment
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
-echo "pre passed"
 nohup python -u /workspace/update_solr.py &
 echo "$@"
 exec "$@"
