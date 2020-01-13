@@ -18,26 +18,19 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
 
 
 # decrypt api key
-f = open("/workspace/ckan_api_key.enc", "rb")
-print("api key open")
+f = open("ckan_api_key.enc", "rb")
 key = f.read()
-print("api key read")
 client = kms_v1.KeyManagementServiceClient()
-print("api key client")
 name = client.crypto_key_path_path('vwt-d-gew1-dat-solutions-cat', 'europe', 'ckan-api-key', 'ckan-api-key')
-print("api key key path")
 response = client.decrypt(name, key)
-print("api key decrypted")
 api_key = response.plaintext
-print("api key plaintext")
 api_key = api_key.strip()
-print("api key stripped and ready")
 
 # We'll use the package_create function to create a new dataset
 headers = {
     'Content-Type': "application/json",
     'Authorization': api_key,
-    'Host': "https://ckan.test-app.vwtelecom.com"
+    'Host': "ckan.test-app.vwtelecom.com"
 }
 
 # Use the json module to dump the dictionary to a string for posting.
@@ -77,14 +70,13 @@ else:
             i = i+1
             request = requests.post(url, headers=headers)
             print(request.status_code)
-            print("requested time "+i)
-            time.sleep(5)
+            time.sleep(1)
     except request.status_code:
         print("nothing")
 
 # download from google cloud storage
-download_blob("vwt-d-gew1-dat-solutions-cat-dcat-deployed-stg", "data_catalog.json", "/workspace/data_catalog.json")
-file = open("/workspace/data_catalog.json", "r")
+download_blob("vwt-d-gew1-dat-solutions-cat-dcat-deployed-stg", "data_catalog.json", "data_catalog.json")
+file = open("data_catalog.json", "r")
 j = json.loads(file.read())
 for data in j['dataset']:
     # Put the details of the dataset we're going to create into a dict.
