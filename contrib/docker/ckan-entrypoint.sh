@@ -39,10 +39,6 @@ write_config () {
   ckan-paster make-config --no-interactive ckan "$CONFIG"
 }
 
-# Wait for PostgreSQL
-#while ! pg_isready -h db -U postgres; do
-#  sleep 1;
-#done
 #startup redis server
 nohup redis-server &
 # If we don't already have a config file, bootstrap
@@ -66,7 +62,6 @@ fi
 set_environment
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
 nohup python -u /workspace/update_solr.py &
-echo "$@"
 exec "$@"
 
 
