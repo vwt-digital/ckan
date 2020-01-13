@@ -5,8 +5,6 @@ import time
 from google.cloud import kms_v1
 from google.cloud import storage
 
-print("start update_solr.pu")
-
 
 def download_blob(bucket_name, source_blob_name, destination_file_name):
     storage_client = storage.Client()
@@ -25,7 +23,7 @@ def files_in_bucket(bucket_name):
 
 
 # decrypt api key
-f = open("/workspace/ckan_api_key.enc", "rb")
+f = open("ckan_api_key.enc", "rb")
 key = f.read()
 client = kms_v1.KeyManagementServiceClient()
 name = client.crypto_key_path_path('vwt-d-gew1-dat-solutions-cat', 'europe', 'ckan-api-key', 'ckan-api-key')
@@ -43,7 +41,6 @@ headers = {
 # Use the json module to dump the dictionary to a string for posting.
 url = 'https://ckan.test-app.vwtelecom.com/api/action/package_list'
 request = requests.post(url, headers=headers)
-print("requested 1 time")
 print(request.status_code)
 delete_url = 'https://ckan.test-app.vwtelecom.com/api/action/dataset_purge'
 if request.status_code == 200:
@@ -84,8 +81,8 @@ else:
 # download from google cloud storage
 file_names = files_in_bucket("vwt-d-gew1-dat-solutions-cat-dcats")
 for file in file_names:
-    download_blob("vwt-d-gew1-dat-solutions-cat-dcats", file.name, "/workspace/data_catalog.json")
-    file = open("/workspace/data_catalog.json", "r")
+    download_blob("vwt-d-gew1-dat-solutions-cat-dcats", file.name, "data_catalog.json")
+    file = open("data_catalog.json", "r")
     j = json.loads(file.read())
     for data in j['dataset']:
         # Put the details of the dataset we're going to create into a dict.
@@ -97,7 +94,9 @@ for file in file_names:
         }
         # name is used for url and cant have uppercase or spaces so we have to replace space with _ or - and upper to lower
         dataDict["name"] = dataDict["name"].replace("/", "_")
+        dataDict["name"] = dataDict["name"].replace(".", "-")
         dataDict["name"] = dataDict["name"].lower()
+        print(dataDict['name'])
         # Use the json module to dump the dictionary to a string for posting.
         url = 'https://ckan.test-app.vwtelecom.com/api/action/package_create'
         # We'll use the package_create function to create a new dataset.
