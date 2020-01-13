@@ -43,6 +43,7 @@ headers = {
 # Use the json module to dump the dictionary to a string for posting.
 url = 'http://127.0.0.1:8081/api/action/package_list'
 request = requests.post(url, headers=headers)
+print("requested 1 time")
 print(request.status_code)
 delete_url = 'http://127.0.0.1:8081/api/action/dataset_purge'
 if request.status_code == 200:
@@ -70,11 +71,14 @@ if request.status_code == 200:
 else:
     print("Request failed")
     print(request.status_code)
+    i = 0
     try:
         while request.status_code == 500 or request.status_code == 503:
+            i = i+1
             request = requests.post(url, headers=headers)
             print(request.status_code)
-            time.sleep(1)
+            print("requested time "+i)
+            time.sleep(5)
     except request.status_code:
         print("nothing")
 
