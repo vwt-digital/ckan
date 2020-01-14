@@ -46,7 +46,7 @@ RUN pip install requests
 RUN pip install google-cloud
 RUN pip install --upgrade google-cloud-kms
 RUN pip install --upgrade google-cloud-storage
-ADD ./workspace/ckan_api_key.txt /workspace/
+ADD /workspace/ckan_api_key.txt /workspace/
 ADD ./contrib/docker/update_solr.py /workspace/
 ADD ./contrib/docker/data_catalog.json /workspace/
 RUN chmod 777 /workspace/data_catalog.json
