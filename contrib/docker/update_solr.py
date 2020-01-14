@@ -21,7 +21,7 @@ def files_in_bucket(bucket_name):
 
 
 # decrypt api key
-f = open("ckan_api_key.enc", "rb")
+f = open("/workspace/ckan_api_key.enc", "rb")
 key = f.read()
 client = kms_v1.KeyManagementServiceClient()
 name = client.crypto_key_path_path('vwt-d-gew1-dat-solutions-cat', 'europe', 'ckan-api-key', 'ckan-api-key')
@@ -65,8 +65,8 @@ else:
 # download from google cloud storage
 file_names = files_in_bucket("vwt-d-gew1-dat-solutions-cat-dcats")
 for file in file_names:
-    download_blob("vwt-d-gew1-dat-solutions-cat-dcats", file.name, "data_catalog.json")
-    file = open("data_catalog.json", "r")
+    download_blob("vwt-d-gew1-dat-solutions-cat-dcats", file.name, "/workspace/data_catalog.json")
+    file = open("/workspace/data_catalog.json", "r")
     j = json.loads(file.read())
     for data in j['dataset']:
         # Put the details of the dataset we're going to create into a dict.
