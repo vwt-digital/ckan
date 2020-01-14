@@ -2,7 +2,6 @@
 import json
 import requests
 import time
-from google.cloud import kms_v1
 from google.cloud import storage
 
 
@@ -21,25 +20,24 @@ def files_in_bucket(bucket_name):
 
 
 # decrypt api key
-f = open("/workspace/ckan_api_key.enc", "rb")
+f = open("/workspace/ckan_api_key.txt", "r")
 key = f.read()
-client = kms_v1.KeyManagementServiceClient()
-name = client.crypto_key_path_path('vwt-d-gew1-dat-solutions-cat', 'europe', 'ckan-api-key', 'ckan-api-key')
-response = client.decrypt(name, key)
-api_key = response.plaintext
-api_key = api_key.strip()
+api_key = key.strip()
 
+# get hostname
+host = open("/workspace/hostname.txt", "r")
+host = host.read()
 # We'll use the package_create function to create a new dataset
 headers = {
     'Content-Type': "application/json",
     'Authorization': api_key,
-    'Host': "ckan.test-app.vwtelecom.com"
+    'Host': host
 }
 
 # Use the json module to dump the dictionary to a string for posting.
-url = 'https://ckan.test-app.vwtelecom.com/api/action/package_list'
+url = 'https://{}/api/action/package_list'.format(host)
 request = requests.post(url, headers=headers)
-delete_url = 'https://ckan.test-app.vwtelecom.com/api/action/dataset_purge'
+delete_url = 'https://{}/api/action/dataset_purge'.format(host)
 if request.status_code == 200:
     data = json.loads(request.text)
     for i in data['result']:
@@ -51,10 +49,6 @@ if request.status_code == 200:
                 time.sleep(1)
         except delete_request:
             print(delete_request.status_code)
-        else:
-            if delete_request.status_code != 200:
-                print(delete_request.status_code)
-                print("not deleted")
 else:
     try:
         while request.status_code == 500 or request.status_code == 503:
@@ -81,7 +75,7 @@ for file in file_names:
         dataDict["name"] = dataDict["name"].replace(".", "-")
         dataDict["name"] = dataDict["name"].lower()
         # Use the json module to dump the dictionary to a string for posting.
-        url = 'https://ckan.test-app.vwtelecom.com/api/action/package_create'
+        url = 'https://{}/api/action/package_create'.format(host)
         # We'll use the package_create function to create a new dataset.
         request = requests.post(url, json=dataDict, headers=headers)
         try:
@@ -102,5 +96,5 @@ for file in file_names:
                 "format": resource['format'],
                 "mediaType": mediatype
             }
-            resource_url = 'https://ckan.test-app.vwtelecom.com/api/action/resource_create'
+            resource_url = 'https://{}/api/action/resource_create'.format(host)
             resource_request = requests.post(resource_url, json=resourceDict, headers=headers)
