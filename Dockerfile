@@ -46,12 +46,10 @@ RUN pip install requests
 RUN pip install google-cloud
 RUN pip install --upgrade google-cloud-kms
 RUN pip install --upgrade google-cloud-storage
+COPY ckan_api_key.txt /workspace/ckan_api_key.txt
 ADD ./contrib/docker/update_solr.py /workspace/
 ADD ./contrib/docker/data_catalog.json /workspace/
 RUN chmod 777 /workspace/data_catalog.json
-
-VOLUME /workspace/
-RUN cp /workspace/ckan_api_key.txt /workspace/
 # Setup virtual environment for CKAN
 RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
     virtualenv $CKAN_VENV && \
