@@ -20,13 +20,12 @@ def files_in_bucket(bucket_name):
 
 
 # decrypt api key
-key = "${_API_KEY}"
+key = '${API_KEY}'
 print(key)
 api_key = key.strip()
-
 # get hostname
-# host = open("/workspace/hostname.txt", "r")
-host = 'ckan.test-app.vwtelecom.com'
+host = '${CKAN_SITE_URL}'
+host.replace("https://", "")
 # We'll use the package_create function to create a new dataset
 headers = {
     'Content-Type': "application/json",
