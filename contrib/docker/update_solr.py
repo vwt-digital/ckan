@@ -19,9 +19,7 @@ def files_in_bucket(bucket_name):
     return blobs
 
 
-download_blob("vwt-d-gew1-dat-solutions-cat-config-deployed-stg", "ckan_api_key.enc", "/workspace/ckan_api_key.enc")
 # decrypt api key
-f = open("/workspace/ckan_api_key.txt", "r")
 key = "${_API_KEY}"
 print(key)
 api_key = key.strip()
