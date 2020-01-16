@@ -2,6 +2,7 @@
 import json
 import requests
 import time
+import sys
 from google.cloud import storage
 
 
@@ -20,16 +21,15 @@ def files_in_bucket(bucket_name):
 
 
 # decrypt api key
-key = '${API_KEY}'
+key = sys.argv[1]
 print(key)
-api_key = key.strip()
 # get hostname
-host = '${CKAN_SITE_URL}'
+host = sys.argv[2]
 host.replace("https://", "")
 # We'll use the package_create function to create a new dataset
 headers = {
     'Content-Type': "application/json",
-    'Authorization': api_key,
+    'Authorization': key,
     'Host': host
 }
 
