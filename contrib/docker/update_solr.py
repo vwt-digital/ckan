@@ -26,7 +26,7 @@ print(key)
 # get hostname
 host = sys.argv[2]
 print(host)
-host.replace("https://", "")
+host.strip("https://")
 print(host)
 # We'll use the package_create function to create a new dataset
 headers = {
