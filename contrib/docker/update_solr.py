@@ -35,28 +35,6 @@ headers = {
     'Host': host
 }
 
-# Use the json module to dump the dictionary to a string for posting.
-# url = 'https://{}/api/action/package_list'.format(host)
-# request = requests.post(url, headers=headers)
-# delete_url = 'https://{}/api/action/dataset_purge'.format(host)
-# if request.status_code == 200:
-#    data = json.loads(request.text)
-#   for i in data['result']:
-#        payload = {'id': i}
-#        delete_request = requests.post(delete_url, json=payload, headers=headers)
-#       try:
-#            while delete_request.status_code == 500:
-#                delete_request = requests.post(delete_url, json=payload, headers=headers)
-#                time.sleep(1)
-#        except delete_request:
-#            print(delete_request.status_code)
-# else:
-#    try:
-#        while request.status_code == 500 or request.status_code == 503:
-#            request = requests.post(url, headers=headers)
-#            time.sleep(1)
-#    except request:
-#        print(request.status_code)
 # download from google cloud storage
 file_names = files_in_bucket("vwt-d-gew1-dat-solutions-cat-dcats")
 for file in file_names:
