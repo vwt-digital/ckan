@@ -28,6 +28,7 @@ host = sys.argv[2]
 print(host)
 host = host.strip("https://")
 print(host)
+project_id = sys.argv[3]
 # We'll use the package_create function to create a new dataset
 headers = {
     'Content-Type': "application/json",
@@ -36,9 +37,9 @@ headers = {
 }
 
 # download from google cloud storage
-file_names = files_in_bucket("vwt-d-gew1-dat-solutions-cat-dcats")
+file_names = files_in_bucket("{}-dcats".format(project_id))
 for file in file_names:
-    download_blob("vwt-d-gew1-dat-solutions-cat-dcats", file.name, "/workspace/data_catalog.json")
+    download_blob("{}-dcats".format(project_id), file.name, "/workspace/data_catalog.json")
     file = open("/workspace/data_catalog.json", "r")
     j = json.loads(file.read())
     for data in j['dataset']:

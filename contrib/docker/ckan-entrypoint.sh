@@ -62,7 +62,7 @@ fi
 set_environment
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
 ckan-paster --plugin=ckan search-index rebuild -o --config="${CKAN_CONFIG}/production.ini"
-nohup python -u /workspace/update_solr.py "${API_KEY}" "${CKAN_SITE_URL}" &
+nohup python -u /workspace/update_solr.py "${API_KEY}" "${CKAN_SITE_URL}" "${PROJECT_ID}" &
 exec "$@"
 
 
