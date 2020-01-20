@@ -64,6 +64,7 @@ for file in file_names:
                 time.sleep(1)
         except request:
             print(request.status_code)
+            print("bestaat al?")
         # create resource for dataset
         if request.status_code == 200:
             for resource in data['distribution']:
