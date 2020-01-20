@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import json
 import requests
-import time
 import sys
 from google.cloud import storage
 
@@ -58,13 +57,6 @@ for file in file_names:
         url = 'https://{}/api/action/package_create'.format(host)
         # We'll use the package_create function to create a new dataset.
         request = requests.post(url, json=dataDict, headers=headers)
-        try:
-            while request.status_code == 500:
-                request = requests.post(url, json=dataDict, headers=headers)
-                time.sleep(1)
-        except request:
-            print(request.status_code)
-        # create resource for dataset
         if request.status_code == 200:
             for resource in data['distribution']:
                 description = resource.get('description')
@@ -80,5 +72,7 @@ for file in file_names:
                 resource_url = 'https://{}/api/action/resource_create'.format(host)
                 resource_request = requests.post(resource_url, json=resourceDict, headers=headers)
         elif request.status_code == 409:
+            # if dataset exist we want to update it
+            print(request.text)
             update_url = 'https://{}/api/action/package_update'.format(host)
             update_request = requests.post(update_url, json=dataDict, headers=headers)
