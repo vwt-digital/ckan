@@ -64,7 +64,6 @@ for file in file_names:
                 time.sleep(1)
         except request:
             print(request.status_code)
-            print("bestaat al?")
         # create resource for dataset
         if request.status_code == 200:
             for resource in data['distribution']:
@@ -80,3 +79,5 @@ for file in file_names:
                 }
                 resource_url = 'https://{}/api/action/resource_create'.format(host)
                 resource_request = requests.post(resource_url, json=resourceDict, headers=headers)
+        elif request.status_code == 409:
+            print("bestaat al")
