@@ -19,12 +19,9 @@ def files_in_bucket(bucket_name):
 
 # decrypt api key
 key = sys.argv[1]
-print(key)
 # get hostname
 host = sys.argv[2]
-print(host)
 host = host.strip("https://")
-print(host)
 project_id = sys.argv[3]
 # We'll use the package_create function to create a new dataset
 headers = {
@@ -36,8 +33,8 @@ headers = {
 # download from google cloud storage
 file_names = files_in_bucket("{}-dcats".format(project_id))
 for file in file_names:
-    with open(download_blob("{}-dcats".format(project_id), file.name), "rb") as file:
-        j = file.read()
+    f = open(download_blob("{}-dcats".format(project_id), file.name), "rb")
+    j = f.read()
     # j = json.loads(file.read())
     for data in j['dataset']:
         # Put the details of the dataset we're going to create into a dict.
