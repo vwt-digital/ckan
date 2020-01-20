@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import json
 import requests
 import sys
 from google.cloud import storage
@@ -37,8 +36,9 @@ headers = {
 # download from google cloud storage
 file_names = files_in_bucket("{}-dcats".format(project_id))
 for file in file_names:
-    file = open(download_blob("{}-dcats".format(project_id), file.name), "r")
-    j = json.loads(file.read())
+    with open(download_blob("{}-dcats".format(project_id), file.name), "rb") as file:
+        j = file.read()
+    # j = json.loads(file.read())
     for data in j['dataset']:
         # Put the details of the dataset we're going to create into a dict.
         dataDict = {
