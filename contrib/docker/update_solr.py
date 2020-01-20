@@ -5,11 +5,10 @@ import sys
 from google.cloud import storage
 
 
-def download_blob(bucket_name, source_blob_name, destination_file_name):
+def download_blob(bucket_name, source_blob_name):
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(source_blob_name)
-    blob.download_to_filename(destination_file_name)
+    return bucket.blob(source_blob_name)
 
 
 def files_in_bucket(bucket_name):
@@ -38,8 +37,7 @@ headers = {
 # download from google cloud storage
 file_names = files_in_bucket("{}-dcats".format(project_id))
 for file in file_names:
-    download_blob("{}-dcats".format(project_id), file.name, "/workspace/data_catalog.json")
-    file = open("/workspace/data_catalog.json", "r")
+    file = open(download_blob("{}-dcats".format(project_id), file.name), "r")
     j = json.loads(file.read())
     for data in j['dataset']:
         # Put the details of the dataset we're going to create into a dict.
