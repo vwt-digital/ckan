@@ -80,4 +80,5 @@ for file in file_names:
                 resource_url = 'https://{}/api/action/resource_create'.format(host)
                 resource_request = requests.post(resource_url, json=resourceDict, headers=headers)
         elif request.status_code == 409:
-            print("bestaat al")
+            update_url = 'https://{}/api/action/package_update'.format(host)
+            update_request = requests.post(update_url, json=dataDict, headers=headers)
