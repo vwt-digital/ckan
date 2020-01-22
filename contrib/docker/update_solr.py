@@ -74,3 +74,17 @@ for file in file_names:
             print(request.text)
             update_url = 'https://{}/api/action/package_update'.format(host)
             update_request = requests.post(update_url, json=dataDict, headers=headers)
+            if update_request.status_code == 200:
+                for resource in data['distribution']:
+                    description = resource.get('description')
+                    mediatype = resource.get('mediaType')
+                    resourceDict = {
+                        "package_id": dataDict["name"],
+                        "url": resource['accessURL'],
+                        "description": description,
+                        "name": resource['title'],
+                        "format": resource['format'],
+                        "mediaType": mediatype
+                    }
+                    resource_url = 'https://{}/api/action/resource_update'.format(host)
+                    resource_request = requests.post(resource_url, json=resourceDict, headers=headers)
