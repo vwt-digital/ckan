@@ -79,7 +79,7 @@ for file in file_names:
                     description = resource.get('description')
                     mediatype = resource.get('mediaType')
                     resourceDict = {
-                        "package_id": dataDict["name"],
+                        "id": dataDict["name"],
                         "url": resource['accessURL'],
                         "description": description,
                         "name": resource['title'],
