@@ -2,6 +2,7 @@
 import requests
 import sys
 import json
+import time
 from google.cloud import storage
 
 
@@ -32,6 +33,32 @@ headers = {
     'Authorization': key,
     'Host': host
 }
+
+# remove all datasets from database
+url = 'https://{}/api/action/package_list'.format(host)
+request = requests.post(url, headers=headers)
+delete_url = 'https://{}/api/action/dataset_purge'.format(host)
+tries = 0
+if request.status_code == 200:
+    data = json.loads(request.text)
+    for i in data['result']:
+        payload = {'id': i}
+        delete_request = requests.post(delete_url, json=payload, headers=headers)
+        try:
+            while delete_request.status_code == 500 and tries < 15:
+                delete_request = requests.post(delete_url, json=payload, headers=headers)
+                tries = tries + 1
+                time.sleep(4)
+        except delete_request:
+            print(delete_request.status_code)
+else:
+    try:
+        while request.status_code == 500 or request.status_code == 503 and tries < 15:
+            request = requests.post(url, headers=headers)
+            tries = tries + 1
+            time.sleep(4)
+    except request:
+        print(request.status_code)
 
 # download from google cloud storage
 file_names = files_in_bucket("{}-dcats".format(project_id))
@@ -69,22 +96,22 @@ for file in file_names:
                 }
                 resource_url = 'https://{}/api/action/resource_create'.format(host)
                 resource_request = requests.post(resource_url, json=resourceDict, headers=headers)
-        elif request.status_code == 409:
+#        elif request.status_code == 409:
             # if dataset exist we want to update it
-            print(request.text)
-            update_url = 'https://{}/api/action/package_update'.format(host)
-            update_request = requests.post(update_url, json=dataDict, headers=headers)
-            if update_request.status_code == 200:
-                for resource in data['distribution']:
-                    description = resource.get('description')
-                    mediatype = resource.get('mediaType')
-                    resourceDict = {
-                        "id": dataDict["name"],
-                        "url": resource['accessURL'],
-                        "description": description,
-                        "name": resource['title'],
-                        "format": resource['format'],
-                        "mediaType": mediatype
-                    }
-                    resource_url = 'https://{}/api/action/resource_update'.format(host)
-                    resource_request = requests.post(resource_url, json=resourceDict, headers=headers)
+#            print(request.text)
+#            update_url = 'https://{}/api/action/package_update'.format(host)
+#            update_request = requests.post(update_url, json=dataDict, headers=headers)
+#            if update_request.status_code == 200:
+#                for resource in data['distribution']:
+#                    description = resource.get('description')
+#                    mediatype = resource.get('mediaType')
+#                    resourceDict = {
+#                        "id": dataDict["name"],
+#                        "url": resource['accessURL'],
+#                        "description": description,
+#                        "name": resource['title'],
+#                       "format": resource['format'],
+#                        "mediaType": mediatype
+#                    }
+#                    resource_url = 'https://{}/api/action/resource_update'.format(host)
+#                    resource_request = requests.post(resource_url, json=resourceDict, headers=headers)
