@@ -23,8 +23,8 @@ def files_in_bucket(bucket_name):
 
 # decrypt api key
 key = sys.argv[1]
+print(sys.argv[1])
 # get hostname
-print(key)
 host = sys.argv[2]
 host = host.strip("https://")
 project_id = sys.argv[3]
