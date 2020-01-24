@@ -70,9 +70,10 @@ for file in file_names:
     for data in j['dataset']:
         # Put the details of the dataset we're going to create into a dict.
         policy = data.get('odrlPolicy')
-        policy = policy["permission"]
-        for p in policy:
-            policy = p
+        if policy != "":
+            policy = policy["permission"]
+            for p in policy:
+                policy = p
         maintainer = data.get('contactPoint')
         if maintainer != "":
             maintainer = maintainer['fn']
