@@ -69,11 +69,20 @@ for file in file_names:
     j = json.loads(f.read())
     for data in j['dataset']:
         # Put the details of the dataset we're going to create into a dict.
+        policy = data.get('odrlPolicy')
+        policy = policy["permission"]
+        for p in policy:
+            policy = p
+        maintainer = data.get('contactPoint')
+        if maintainer != "":
+            maintainer = maintainer['fn']
         dataDict = {
             "name": data['identifier'],
             "title": data['title'],
             "notes": data['rights'],
             "owner_org": 'dat',
+            "maintainer": maintainer,
+            "extras": policy
         }
         # name is used for url and cant have uppercase or spaces so we have to replace those
         dataDict["name"] = dataDict["name"].replace("/", "_")
