@@ -69,8 +69,8 @@ for file in file_names:
     j = json.loads(f.read())
     for data in j['dataset']:
         # Put the details of the dataset we're going to create into a dict.
-        policy = data.get('odrlPolicy')
-        if policy != "":
+        if data.get('odrlPolicy'):
+            policy = data.get('odrlPolicy')
             policy = policy["permission"]
             for p in policy:
                 policy = p
