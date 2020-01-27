@@ -23,7 +23,6 @@ def files_in_bucket(bucket_name):
 
 # decrypt api key
 key = sys.argv[1]
-print(sys.argv[1])
 # get hostname
 host = sys.argv[2]
 host = host.strip("https://")
@@ -34,25 +33,12 @@ headers = {
     'Authorization': key,
     'Host': host
 }
-
 # remove all datasets from database
 url = 'https://{}/api/action/package_list'.format(host)
 request = requests.post(url, headers=headers)
 delete_url = 'https://{}/api/action/dataset_purge'.format(host)
 tries = 0
-if request.status_code == 200:
-    data = json.loads(request.text)
-    for i in data['result']:
-        payload = {'id': i}
-        delete_request = requests.post(delete_url, json=payload, headers=headers)
-        try:
-            while delete_request.status_code == 500 and tries < 15:
-                delete_request = requests.post(delete_url, json=payload, headers=headers)
-                tries = tries + 1
-                time.sleep(4)
-        except delete_request:
-            print(delete_request.status_code)
-else:
+if request.status_code != 200:
     try:
         while request.status_code == 500 or request.status_code == 503 and tries < 15:
             request = requests.post(url, headers=headers)
@@ -60,6 +46,12 @@ else:
             time.sleep(4)
     except request:
         print(request.status_code)
+else:
+    data = json.loads(request.text)
+    for i in data['result']:
+        payload = {'id': i}
+        delete_request = requests.post(delete_url, json=payload, headers=headers)
+        print(delete_request.status_code)
 
 # download from google cloud storage
 file_names = files_in_bucket("{}-dcats".format(project_id))
@@ -69,11 +61,13 @@ for file in file_names:
     j = json.loads(f.read())
     for data in j['dataset']:
         # Put the details of the dataset we're going to create into a dict.
-        if data.get('odrlPolicy'):
-            policy = data.get('odrlPolicy')
-            policy = policy["permission"]
-            for p in policy:
-                policy = p
+        dict_list = [
+            {"key": "access level", "value": data.get('accessLevel')},
+            {"key": "Issued", "value": data.get('issued')},
+            {"key": "Spatial", "value": data.get('spatial')},
+            {"key": "Modified", "value": data.get('modified')},
+        ]
+        print(dict_list)
         maintainer = data.get('contactPoint')
         if maintainer != "":
             maintainer = maintainer['fn']
@@ -83,7 +77,7 @@ for file in file_names:
             "notes": data['rights'],
             "owner_org": 'dat',
             "maintainer": maintainer,
-            "extras": policy
+            "extras": dict_list
         }
         # name is used for url and cant have uppercase or spaces so we have to replace those
         dataDict["name"] = dataDict["name"].replace("/", "_")
@@ -93,6 +87,8 @@ for file in file_names:
         url = 'https://{}/api/action/package_create'.format(host)
         # We'll use the package_create function to create a new dataset.
         request = requests.post(url, json=dataDict, headers=headers)
+        print(request.status_code)
+        print(request.text)
         if request.status_code == 200:
             for resource in data['distribution']:
                 description = resource.get('description')
