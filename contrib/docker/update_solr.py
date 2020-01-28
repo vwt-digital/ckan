@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import requests
-import sys
+# import sys
 import json
-import time
+# import time
 from google.cloud import storage
 
 
@@ -22,11 +22,11 @@ def files_in_bucket(bucket_name):
 
 
 # decrypt api key
-key = sys.argv[1]
+key = "0e3fb82e-8f11-4091-b2d4-a75d993e4497"
 # get hostname
-host = sys.argv[2]
+host = "https://ckan.test-app.vwtelecom.com"
 host = host.strip("https://")
-project_id = sys.argv[3]
+project_id = "vwt-d-gew1-dat-solutions-cat"
 # We'll use the package_create function to create a new dataset
 headers = {
     'Content-Type': "application/json",
@@ -34,27 +34,27 @@ headers = {
     'Host': host
 }
 # remove all datasets from database
-url = 'https://{}/api/action/package_list'.format(host)
-request = requests.post(url, headers=headers)
-delete_url = 'https://{}/api/action/dataset_purge'.format(host)
-tries = 0
-if request.status_code != 200:
-    try:
-        while request.status_code == 500 or request.status_code == 503 and tries < 15:
-            request = requests.post(url, headers=headers)
-            tries = tries + 1
-            time.sleep(4)
-    except request:
-        print(request.status_code)
-else:
-    data = json.loads(request.text)
-    for i in data['result']:
-        payload = {'id': i}
-        delete_request = requests.post(delete_url, json=payload, headers=headers)
-        print(delete_request.status_code)
+# url = 'https://{}/api/action/package_list'.format(host)
+# request = requests.post(url, headers=headers)
+# delete_url = 'https://{}/api/action/dataset_purge'.format(host)
+# tries = 0
+# if request.status_code != 200:
+#    try:
+#        while request.status_code == 500 or request.status_code == 503 and tries < 15:
+#            request = requests.post(url, headers=headers)
+#            tries = tries + 1
+#            time.sleep(4)
+#    except request:
+#        print(request.status_code)
+# else:
+#    data = json.loads(request.text)
+#    for i in data['result']:
+#        payload = {'id': i}
+#        delete_request = requests.post(delete_url, json=payload, headers=headers)
+#        print(delete_request.status_code)
 
 # download from google cloud storage
-file_names = files_in_bucket("{}-dcats".format(project_id))
+file_names = files_in_bucket("{}-dcats-deployed-stg".format(project_id))
 for file in file_names:
     download_blob("{}-dcats".format(project_id), file.name, "/tmp/data_catalog.json")
     f = open("/tmp/data_catalog.json", "r")
@@ -67,7 +67,6 @@ for file in file_names:
             {"key": "Spatial", "value": data.get('spatial')},
             {"key": "Modified", "value": data.get('modified')},
         ]
-        print(dict_list)
         maintainer = data.get('contactPoint')
         if maintainer != "":
             maintainer = maintainer['fn']
@@ -88,7 +87,6 @@ for file in file_names:
         # We'll use the package_create function to create a new dataset.
         request = requests.post(url, json=dataDict, headers=headers)
         print(request.status_code)
-        print(request.text)
         if request.status_code == 200:
             for resource in data['distribution']:
                 description = resource.get('description')
@@ -103,22 +101,28 @@ for file in file_names:
                 }
                 resource_url = 'https://{}/api/action/resource_create'.format(host)
                 resource_request = requests.post(resource_url, json=resourceDict, headers=headers)
-#        elif request.status_code == 409:
+        elif request.status_code == 409:
             # if dataset exist we want to update it
-#            print(request.text)
-#            update_url = 'https://{}/api/action/package_update'.format(host)
-#            update_request = requests.post(update_url, json=dataDict, headers=headers)
-#            if update_request.status_code == 200:
-#                for resource in data['distribution']:
-#                    description = resource.get('description')
-#                    mediatype = resource.get('mediaType')
-#                    resourceDict = {
-#                        "id": dataDict["name"],
-#                        "url": resource['accessURL'],
-#                        "description": description,
-#                        "name": resource['title'],
-#                       "format": resource['format'],
-#                        "mediaType": mediatype
-#                    }
-#                    resource_url = 'https://{}/api/action/resource_update'.format(host)
-#                    resource_request = requests.post(resource_url, json=resourceDict, headers=headers)
+            print("bestaat al")
+            update_url = 'https://{}/api/action/package_update'.format(host)
+            update_request = requests.post(update_url, json=dataDict, headers=headers)
+            print(update_request.status_code)
+            print("updated")
+            if update_request.status_code == 200:
+                for resource in data['distribution']:
+                    description = resource.get('description')
+                    mediatype = resource.get('mediaType')
+                    resourceDict = {
+                        "id": dataDict["name"],
+                        "url": resource['accessURL'],
+                        "description": description,
+                        "name": resource['title'],
+                        "format": resource['format'],
+                        "mediaType": mediatype
+                    }
+                    resource_url = 'https://{}/api/action/resource_update'.format(host)
+                    resource_request = requests.post(resource_url, json=resourceDict, headers=headers)
+                    print("package")
+                    print(resource_request.status_code)
+                    print(resource_request.text)
+                    print("eind package")
