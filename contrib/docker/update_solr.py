@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import requests
-# import sys
+import sys
 import json
 # import time
 from google.cloud import storage
@@ -22,11 +22,11 @@ def files_in_bucket(bucket_name):
 
 
 # decrypt api key
-key = "0e3fb82e-8f11-4091-b2d4-a75d993e4497"
+key = sys.argv[1]
 # get hostname
-host = "https://ckan.test-app.vwtelecom.com"
+host = sys.argv[2]
 host = host.strip("https://")
-project_id = "vwt-d-gew1-dat-solutions-cat"
+project_id = sys.argv[3]
 # We'll use the package_create function to create a new dataset
 headers = {
     'Content-Type': "application/json",
@@ -56,8 +56,8 @@ headers = {
 # download from google cloud storage
 file_names = files_in_bucket("{}-dcats-deployed-stg".format(project_id))
 for file in file_names:
-    download_blob("{}-dcats".format(project_id), file.name, "/tmp/data_catalog.json")
-    f = open("/tmp/data_catalog.json", "r")
+    download_blob("{}-dcats".format(project_id), file.name, "/tmp/data_catalog.json")  # nosec
+    f = open("/tmp/data_catalog.json", "r")  # nosec
     j = json.loads(f.read())
     for data in j['dataset']:
         # Put the details of the dataset we're going to create into a dict.
