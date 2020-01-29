@@ -56,7 +56,7 @@ headers = {
 # download from google cloud storage
 file_names = files_in_bucket("{}-dcats-deployed-stg".format(project_id))
 for file in file_names:
-    download_blob("{}-dcats".format(project_id), file.name, "/tmp/data_catalog.json")  # nosec
+    download_blob("{}-dcats-deployed-stg".format(project_id), file.name, "/tmp/data_catalog.json")  # nosec
     f = open("/tmp/data_catalog.json", "r")  # nosec
     j = json.loads(f.read())
     for data in j['dataset']:
