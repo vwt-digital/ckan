@@ -46,7 +46,7 @@ RUN pip install requests
 RUN pip install google-cloud
 RUN pip install --upgrade google-cloud-kms
 RUN pip install --upgrade google-cloud-storage
-ADD ./contrib/docker/update_solr.py /workspace/
+ADD ./contrib/docker/reindex_solr.py /workspace/
 ADD ./contrib/docker/data_catalog.json /tmp/
 RUN chmod 777 /tmp/data_catalog.json
 # Setup virtual environment for CKAN
