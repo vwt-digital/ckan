@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-import requests
 import sys
 import json
 # import time
 from google.cloud import storage
+from ckanapi import RemoteCKAN, ValidationError
+import logging
 
 
 def download_blob(bucket_name, source_blob_name, destination_file_name):
@@ -24,34 +25,9 @@ def files_in_bucket(bucket_name):
 # decrypt api key
 key = sys.argv[1]
 # get hostname
-host = sys.argv[2]
-host = host.strip("https://")
+host_url = sys.argv[2]
+host = RemoteCKAN(host_url, apikey=key)
 project_id = sys.argv[3]
-# We'll use the package_create function to create a new dataset
-headers = {
-    'Content-Type': "application/json",
-    'Authorization': key,
-    'Host': host
-}
-# remove all datasets from database
-# url = 'https://{}/api/action/package_list'.format(host)
-# request = requests.post(url, headers=headers)
-# delete_url = 'https://{}/api/action/dataset_purge'.format(host)
-# tries = 0
-# if request.status_code != 200:
-#    try:
-#        while request.status_code == 500 or request.status_code == 503 and tries < 15:
-#            request = requests.post(url, headers=headers)
-#            tries = tries + 1
-#            time.sleep(4)
-#    except request:
-#        print(request.status_code)
-# else:
-#    data = json.loads(request.text)
-#    for i in data['result']:
-#        payload = {'id': i}
-#        delete_request = requests.post(delete_url, json=payload, headers=headers)
-#        print(delete_request.status_code)
 
 # download from google cloud storage
 file_names = files_in_bucket("{}-dcats-deployed-stg".format(project_id))
@@ -59,70 +35,61 @@ for file in file_names:
     download_blob("{}-dcats-deployed-stg".format(project_id), file.name, "/tmp/data_catalog.json")  # nosec
     f = open("/tmp/data_catalog.json", "r")  # nosec
     j = json.loads(f.read())
-    for data in j['dataset']:
-        # Put the details of the dataset we're going to create into a dict.
-        dict_list = [
-            {"key": "access level", "value": data.get('accessLevel')},
-            {"key": "Issued", "value": data.get('issued')},
-            {"key": "Spatial", "value": data.get('spatial')},
-            {"key": "Modified", "value": data.get('modified')},
-        ]
-        maintainer = data.get('contactPoint')
-        if maintainer != "":
-            maintainer = maintainer['fn']
-        dataDict = {
-            "name": data['identifier'],
-            "title": data['title'],
-            "notes": data['rights'],
-            "owner_org": 'dat',
-            "maintainer": maintainer,
-            "extras": dict_list
-        }
-        # name is used for url and cant have uppercase or spaces so we have to replace those
-        dataDict["name"] = dataDict["name"].replace("/", "_")
-        dataDict["name"] = dataDict["name"].replace(".", "-")
-        dataDict["name"] = dataDict["name"].lower()
-        # Use the json module to dump the dictionary to a string for posting.
-        url = 'https://{}/api/action/package_create'.format(host)
-        # We'll use the package_create function to create a new dataset.
-        request = requests.post(url, json=dataDict, headers=headers)
-        print(request.status_code)
-        if request.status_code == 200:
+    if('dataset' in j):
+        for data in j['dataset']:
+            # Put the details of the dataset we're going to create into a dict.
+            # Using data.get sometimes because some values can remain empty while others should give an error
+            dict_list = [
+                {"access level": data.get('accessLevel')},
+                {"Issued": data.get('issued')},
+                {"Spatial": data.get('spatial')},
+                {"Modified": data.get('modified')}
+            ]
+            maintainer = data.get('contactPoint').get('fn')
+            data_dict = {
+                "name": data['identifier'],
+                "title": data['title'],
+                "notes": data['rights'],
+                "owner_org": 'dat',
+                "maintainer": maintainer,
+                "extras": dict_list
+            }
+            # name is used for url and cant have uppercase or spaces so we have to replace those
+            data_dict["name"] = data_dict["name"].replace("/", "_")
+            data_dict["name"] = data_dict["name"].replace(".", "-")
+            data_dict["name"] = data_dict["name"].lower()
+            resource_dict_list = []
             for resource in data['distribution']:
                 description = resource.get('description')
                 mediatype = resource.get('mediaType')
-                resourceDict = {
-                    "package_id": dataDict["name"],
+                resource_dict = {
+                    "package_id": data_dict["name"],
                     "url": resource['accessURL'],
                     "description": description,
                     "name": resource['title'],
                     "format": resource['format'],
                     "mediaType": mediatype
                 }
-                resource_url = 'https://{}/api/action/resource_create'.format(host)
-                resource_request = requests.post(resource_url, json=resourceDict, headers=headers)
-        elif request.status_code == 409:
-            # if dataset exist we want to update it
-            print("bestaat al")
-            update_url = 'https://{}/api/action/package_update'.format(host)
-            update_request = requests.post(update_url, json=dataDict, headers=headers)
-            print(update_request.status_code)
-            print("updated")
-            if update_request.status_code == 200:
-                for resource in data['distribution']:
-                    description = resource.get('description')
-                    mediatype = resource.get('mediaType')
-                    resourceDict = {
-                        "id": dataDict["name"],
-                        "url": resource['accessURL'],
-                        "description": description,
-                        "name": resource['title'],
-                        "format": resource['format'],
-                        "mediaType": mediatype
-                    }
-                    resource_url = 'https://{}/api/action/resource_update'.format(host)
-                    resource_request = requests.post(resource_url, json=resourceDict, headers=headers)
-                    print("package")
-                    print(resource_request.status_code)
-                    print(resource_request.text)
-                    print("eind package")
+                resource_dict_list.append(resource_dict)
+            try:
+                # Put dataset on ckan
+                host.action.package_create(name=data_dict["name"], owner_org=data_dict["owner_org"], data_dict=data_dict)
+                # Put the resources on the dataset
+                for resource_d in resource_dict_list:
+                    host.action.resource_create(data_dict=resource_d)
+            except ValidationError:
+                # Except if dataset already exists
+                print(f"Dataset {data_dict['name']} already exists, update")
+                host.action.package_update(name=data_dict["name"], owner_org=data_dict["owner_org"], data_dict=data_dict)
+                for resource_d in resource_dict_list:
+                    # Try to add resource
+                    try:
+                        host.action.resource_create(package_id=resource_d["package_id"], data_dict=resource_d)
+                    except ValidationError:
+                        # Resource already exists
+                        print(f"Resource {resource_d['name']} already exists, update")
+                        host.action.resource_update(package_id=resource_d["package_id"], data_dict=resource_d)
+            except Exception as e:
+                logging.error(f'Exception occurred:{e}')
+    else:
+        print("JSON request does not contain a dataset")
