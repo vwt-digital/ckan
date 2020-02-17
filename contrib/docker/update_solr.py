@@ -73,9 +73,11 @@ for file in file_names:
                 resource_dict_list.append(resource_dict)
             try:
                 # Put dataset on ckan
+                print(f"Putting dataset {data_dict['name']} on CKAN")
                 host.action.package_create(name=data_dict["name"], owner_org=data_dict["owner_org"], data_dict=data_dict)
                 # Put the resources on the dataset
                 for resource_d in resource_dict_list:
+                    print(f"Adding resource {resource_d['name']} to dataset {data_dict['name']}")
                     host.action.resource_create(data_dict=resource_d)
             except ValidationError:
                 # Except if dataset already exists
@@ -84,6 +86,7 @@ for file in file_names:
                 for resource_d in resource_dict_list:
                     # Try to add resource
                     try:
+                        print(f"Adding resource {resource_d['name']} to dataset {data_dict['name']}")
                         host.action.resource_create(package_id=resource_d["package_id"], data_dict=resource_d)
                     except ValidationError:
                         # Resource already exists
