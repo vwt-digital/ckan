@@ -13,20 +13,37 @@ post_login_url = /user/logged_in
 post_logout_url = /user/logged_out
 charset = utf-8
 
+[plugin:oauth2]
+use = ckanext.oauth2.repozewho:make_plugin
+authorization_endpoint = https://auth.domain.com/oauth2/authorize/
+token_endpoint = https://auth.domain.com/oauth2/token/
+client_id = client-id
+client_secret = client-secret
+scope = profile another.scope
+rememberer_name = fake
+profile_api_url = https://auth.domain.com/api/me
+profile_api_user_field = username
+
 [general]
 request_classifier = repoze.who.classifiers:default_request_classifier
 challenge_decider = repoze.who.classifiers:default_challenge_decider
+
+[plugin:fake]
+use = ckanext.oauth2.tests.utils:FakeRememberer
 
 [identifiers]
 plugins =
     friendlyform;browser
     auth_tkt
+    oauth2 fake
 
 [authenticators]
 plugins =
     auth_tkt
     ckan.lib.authenticator:UsernamePasswordAuthenticator
+    oauth2
 
 [challengers]
 plugins =
     friendlyform;browser
+    oauth2
