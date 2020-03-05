@@ -60,6 +60,9 @@ if [ -z "$CKAN_REDIS_URL" ]; then
 fi
 
 set_environment
+if grep -q 'ckan.plugins = oauth2' "${CKAN_CONFIG}/production.ini"; then
+  sed -i 's/ckan.plugins = oauth2/ckan.plugins =/g' "${CKAN_CONFIG}/production.ini"
+fi
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
 ckan-paster --plugin=ckan search-index rebuild --config="${CKAN_CONFIG}/production.ini"
 exec "$@"
