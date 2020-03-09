@@ -33,12 +33,6 @@ set_environment () {
   export CKAN_SMTP_PASSWORD=${CKAN_SMTP_PASSWORD}
   export CKAN_SMTP_MAIL_FROM=${CKAN_SMTP_MAIL_FROM}
   export CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
-
-  export CKAN_OAUTH2_AUTHORIZATION_ENDPOINT=${CKAN_OAUTH2_AUTHORIZATION_ENDPOINT}
-  export CKAN_OAUTH2_TOKEN_ENDPOINT=${CKAN_OAUTH2_TOKEN_ENDPOINT}
-  export CKAN_OAUTH2_CLIENT_ID=${CKAN_OAUTH2_CLIENT_ID}
-  export CKAN_OAUTH2_CLIENT_SECRET=${CKAN_OAUTH2_CLIENT_SECRET}
-  export CKAN_OAUTH2_SCOPE=${CKAN_OAUTH2_SCOPE}
 }
 
 write_config () {
@@ -66,10 +60,6 @@ if [ -z "$CKAN_REDIS_URL" ]; then
 fi
 
 set_environment
-# Add oauth2 plugin to production.ini if not yet added
-if ! grep -q 'ckan.plugins = oauth2' "${CKAN_CONFIG}/production.ini"; then
-  sed -i 's/ckan.plugins =/ckan.plugins = oauth2/g' "${CKAN_CONFIG}/production.ini"
-fi
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
 ckan-paster --plugin=ckan search-index rebuild --config="${CKAN_CONFIG}/production.ini"
 exec "$@"
