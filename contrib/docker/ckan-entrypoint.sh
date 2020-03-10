@@ -69,9 +69,14 @@ if [ -z "$CKAN_REDIS_URL" ]; then
 fi
 
 set_environment
+# Add scope openid if not yet added
+if ! grep -q 'ckan.oauth2.scope = profile openid' "${CKAN_CONFIG}/production.ini"; then
+  if grep -q 'ckan.oauth2.scope = profile' "${CKAN_CONFIG}/production.ini"; then
+    sed -i 's/ckan.oauth2.scope = profile/ckan.oauth2.scope = profile openid/g' "${CKAN_CONFIG}/production.ini"
+  else
+    sed -i 's/ckan.oauth2.scope =/ckan.oauth2.scope = profile openid/g' "${CKAN_CONFIG}/production.ini"
+  fi
+fi
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
 ckan-paster --plugin=ckan search-index rebuild --config="${CKAN_CONFIG}/production.ini"
 exec "$@"
-
-
-
