@@ -76,6 +76,15 @@ ckan.auth.roles_that_cascade_to_sub_groups = admin
 ckan.auth.public_user_details = true
 ckan.auth.public_activity_stream_detail = true
 
+## OAuth2 configuration
+ckan.oauth2.authorization_endpoint = change_this
+ckan.oauth2.profile_api_url = change_this
+ckan.oauth2.token_endpoint = change_this
+ckan.oauth2.client_id = change_this
+ckan.oauth2.client_secret = change_this
+ckan.oauth2.scope = change_this
+ckan.oauth2.profile_api_user_field = change_this
+ckan.oauth2.profile_api_mail_field = change_this
 
 ## Search Settings
 
@@ -104,7 +113,7 @@ ckan.site_id = default
 #       Add ``datapusher`` to enable DataPusher
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view
+ckan.plugins = oauth2 stats text_view image_view recline_view
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)

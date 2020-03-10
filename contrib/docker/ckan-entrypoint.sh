@@ -36,9 +36,12 @@ set_environment () {
 
   export CKAN_OAUTH2_AUTHORIZATION_ENDPOINT=${CKAN_OAUTH2_AUTHORIZATION_ENDPOINT}
   export CKAN_OAUTH2_TOKEN_ENDPOINT=${CKAN_OAUTH2_TOKEN_ENDPOINT}
+  export CKAN_OAUTH2_PROFILE_API_URL='https://graph.microsoft.com'
   export CKAN_OAUTH2_CLIENT_ID=${CKAN_OAUTH2_CLIENT_ID}
   export CKAN_OAUTH2_CLIENT_SECRET=${CKAN_OAUTH2_CLIENT_SECRET}
-  export CKAN_OAUTH2_SCOPE="profile ${CKAN_OAUTH2_SCOPE}"
+  export CKAN_OAUTH2_SCOPE=${CKAN_OAUTH2_SCOPE}
+  export CKAN_OAUTH2_PROFILE_API_USER_FIELD='email'
+  export CKAN_OAUTH2_PROFILE_API_MAIL_FIELD='email'
 }
 
 write_config () {
@@ -65,11 +68,6 @@ if [ -z "$CKAN_REDIS_URL" ]; then
     abort "ERROR: no CKAN_REDIS_URL specified in docker-compose.yml"
 fi
 
-# Add oauth2 plugin to production.ini if not yet added
-if ! grep -q 'ckan.plugins = oauth2' "${CKAN_CONFIG}/production.ini"; then
-  sed -i 's/ckan.plugins =/ckan.plugins = oauth2/g' "${CKAN_CONFIG}/production.ini"
-  # sed -i "/ckan.plugins/r ${CKAN_CONFIG}/oauth_test.txt" production_test.ini
-fi
 set_environment
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
 ckan-paster --plugin=ckan search-index rebuild --config="${CKAN_CONFIG}/production.ini"
