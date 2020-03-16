@@ -68,16 +68,6 @@ if [ -z "$CKAN_REDIS_URL" ]; then
     abort "ERROR: no CKAN_REDIS_URL specified in docker-compose.yml"
 fi
 
-# Remove scopes
-if grep -q 'ckan.oauth2.scope = profile openid' "${CKAN_CONFIG}/production.ini"; then
-    sed -i 's/ckan.oauth2.scope = profile openid/ckan.oauth2.scope =/g' "${CKAN_CONFIG}/production.ini"
-fi
-if grep -q 'ckan.oauth2.scope = profile' "${CKAN_CONFIG}/production.ini"; then
-    sed -i 's/ckan.oauth2.scope = profile/ckan.oauth2.scope =/g' "${CKAN_CONFIG}/production.ini"
-fi
-if grep -q 'ckan.oauth2.scope = openid' "${CKAN_CONFIG}/production.ini"; then
-    sed -i 's/ckan.oauth2.scope = openid/ckan.oauth2.scope =/g' "${CKAN_CONFIG}/production.ini"
-fi
 set_environment
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
 ckan-paster --plugin=ckan search-index rebuild --config="${CKAN_CONFIG}/production.ini"
