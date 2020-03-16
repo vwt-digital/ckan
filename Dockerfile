@@ -63,4 +63,4 @@ ENTRYPOINT ["/ckan-entrypoint.sh"]
 USER ckan
 EXPOSE 5000
 
-CMD ["ckan-paster","serve","/etc/ckan/production.ini", "export OAUTHLIB_INSECURE_TRANSPORT=True"]
+CMD ["export","OAUTHLIB_INSECURE_TRANSPORT=True","ckan-paster","serve","/etc/ckan/production.ini"]
