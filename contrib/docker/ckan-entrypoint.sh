@@ -39,7 +39,7 @@ set_environment () {
   export CKAN_OAUTH2_PROFILE_API_URL=${CKAN_OAUTH2_PROFILE_API_URL}
   export CKAN_OAUTH2_CLIENT_ID=${CKAN_OAUTH2_CLIENT_ID}
   export CKAN_OAUTH2_CLIENT_SECRET=${CKAN_OAUTH2_CLIENT_SECRET}
-  export CKAN_OAUTH2_SCOPE=${CKAN_OAUTH2_SCOPE}
+  export CKAN_OAUTH2_SCOPE="${CKAN_OAUTH2_SCOPE} openid profile"
   export CKAN_OAUTH2_PROFILE_API_USER_FIELD=${CKAN_OAUTH2_PROFILE_API_USER_FIELD}
   export CKAN_OAUTH2_PROFILE_API_MAIL_FIELD=${CKAN_OAUTH2_PROFILE_API_MAIL_FIELD}
 }
@@ -68,7 +68,7 @@ if [ -z "$CKAN_REDIS_URL" ]; then
     abort "ERROR: no CKAN_REDIS_URL specified in docker-compose.yml"
 fi
 
-# Add scope openid if not yet added
+# Remove scopes
 if grep -q 'ckan.oauth2.scope = profile openid' "${CKAN_CONFIG}/production.ini"; then
     sed -i 's/ckan.oauth2.scope = profile openid/ckan.oauth2.scope =/g' "${CKAN_CONFIG}/production.ini"
 fi
