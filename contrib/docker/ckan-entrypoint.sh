@@ -71,6 +71,9 @@ if [ -z "$CKAN_REDIS_URL" ]; then
     abort "ERROR: no CKAN_REDIS_URL specified in docker-compose.yml"
 fi
 
+cd $CKAN_VENV/src/ckan/ckanext/ckanext-oauth2permissions
+python setup.py develop
+cd ../../../../..
 set_environment
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
 ckan-paster --plugin=ckan search-index rebuild --config="${CKAN_CONFIG}/production.ini"

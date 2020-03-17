@@ -1,6 +1,5 @@
 import ckan.plugins as plugins
 from ckan.lib.plugins import DefaultPermissionLabels
-from ckan.plugins.toolkit import get_action
 
 
 class Oauth2PermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
