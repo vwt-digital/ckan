@@ -49,6 +49,9 @@ RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
 
 # Setup CKAN
 ADD . $CKAN_VENV/src/ckan/
+# Add oauth2 plugin
+RUN python $CKAN_VENV/src/ckan/ckanext/ckanext-oauth2permissions/setup.py develop
+# Continue setting up CKAN
 RUN ckan-pip install -U pip && \
     ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt && \
     ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements.txt && \
