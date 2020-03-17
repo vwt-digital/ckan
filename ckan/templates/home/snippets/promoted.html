@@ -15,12 +15,9 @@
 
   {% block home_image %}
     <section class="featured media-overlay hidden-xs">
-      <h2 class="media-heading"></h2>
-      {% block home_image_content %}
-        <a class="media-image" href="#">
-          <img class="img-responsive" src="{{ h.url_for_static('/base/images/ODH_logo_original.png') }}" alt="ODH_logo" width="420" height="218" />
-        </a>
-      {% endblock %}
+      <a class="media-image" href="#">
+        <img class="img-responsive" src="{{ h.url_for_static('/base/images/ODH_logo_original.png') }}" alt="ODH_logo" width="420" height="218" />
+      </a>
     </section>
   {% endblock %}
 </div>
