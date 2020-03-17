@@ -12,10 +12,10 @@ class Oauth2PermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
 
     def get_dataset_owner(self, dataset_obj):
         u'''
-        Use member-* labels for proposed datasets
+        Use member-* creator-* and admin-* labels for proposed datasets
         '''
         if dataset_obj.owner_org.startswith(u'dat'):
-            labels = [u'member-%s' % dataset_obj.creator_user_id]
+            labels = [u'member-%s' % dataset_obj.creator_user_id] + [u'creator-%s' % dataset_obj.creator_user_id] + [u'admin-%s' % dataset_obj.owner_org]
             return labels
 
         return super(Oauth2PermissionsPlugin, self).get_dataset_labels(
@@ -27,8 +27,8 @@ class Oauth2PermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         '''
         labels = super(Oauth2PermissionsPlugin, self
                        ).get_user_dataset_labels(user_obj)
-        if user_obj:
-            orgs = get_action(u'organization_list_for_user')(
+        if user_obj.role == 'member' or user_obj.role == 'admin' or user_obj.role == 'editor':
+            orgs = get_action(u'organization_list')(
                 {u'user': user_obj.id}, {u'permission': u'member'})
             labels.extend(u'member-%s' % o['id'] for o in orgs)
         return labels
