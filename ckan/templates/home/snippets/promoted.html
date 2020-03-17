@@ -7,8 +7,7 @@
     {% else %}
       <h1 class="page-heading">{{ _("Welcome to CKAN") }}</h1>
       <p>
-        {% trans %}This is a nice introductory paragraph about CKAN or the site
-        in general. We don't have any copy to go here yet but soon we will
+        {% trans %}This is the CKAN site of VolkerWessels Telecom. Datasets of VolkerWessels Telecom can be found here.
         {% endtrans %}
       </p>
     {% endif %}
@@ -16,10 +15,10 @@
 
   {% block home_image %}
     <section class="featured media-overlay hidden-xs">
-      <h2 class="media-heading">{% block home_image_caption %}{{ _("This is a featured section") }}{% endblock %}</h2>
+      <h2 class="media-heading"></h2>
       {% block home_image_content %}
         <a class="media-image" href="#">
-          <img class="img-responsive" src="{{ h.url_for_static('/base/images/placeholder-420x220.png') }}" alt="Placeholder" width="420" height="220" />
+          <img class="img-responsive" src="{{ h.url_for_static('/base/images/ODH_logo_original.png') }}" alt="ODH_logo" width="420" height="218" />
         </a>
       {% endblock %}
     </section>
