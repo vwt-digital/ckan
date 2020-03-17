@@ -53,7 +53,9 @@ RUN ckan-pip install -U pip && \
     ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt && \
     ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements.txt && \
     ckan-pip install -e $CKAN_VENV/src/ckan/ && \
-    python $CKAN_VENV/src/ckan/ckanext/ckanext-oauth2permissions/setup.py develop && \
+    cd $CKAN_VENV/src/ckan/ckanext/ckanext-oauth2permissions && \
+    python setup.py develop && \
+    cd ../../../../.. && \
     ln -s $CKAN_VENV/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini && \
     cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh && \
     chmod +x /ckan-entrypoint.sh && \
