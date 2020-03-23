@@ -3,6 +3,7 @@ from ckan.lib.plugins import DefaultPermissionLabels
 from ckan.authz import auth_is_loggedin_user
 # import os
 
+
 class Oauth2PermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
     plugins.implements(plugins.IPermissionLabels)
     u'''
@@ -22,9 +23,12 @@ class Oauth2PermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         if dataset_obj.owner_org in privateorgs:
             labels.extend(u'private')
             labels.extend(u'public')
+            print("dataset {} labels private and public".format(dataset_obj.owner_org))
             return labels
         else:
+            print("dataset {} label public".format(dataset_obj.owner_org))
             labels.extend(u'public')
+            return labels
 
         return super(Oauth2PermissionsPlugin, self).get_dataset_labels(
             dataset_obj)
@@ -38,6 +42,9 @@ class Oauth2PermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
                        ).get_user_dataset_labels(user_obj)
         if auth_is_loggedin_user():
             labels.extend(u'private')
+            print("user is logged in")
+        else:
+            print("user is not logged in")
 
         labels.extend(u'public')
         return labels
