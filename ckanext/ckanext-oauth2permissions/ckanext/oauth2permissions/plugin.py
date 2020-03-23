@@ -1,5 +1,6 @@
 import ckan.plugins as plugins
 from ckan.lib.plugins import DefaultPermissionLabels
+from ckan.plugins.toolkit import get_action
 
 
 class Oauth2PermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
@@ -26,10 +27,12 @@ class Oauth2PermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         '''
         labels = super(Oauth2PermissionsPlugin, self
                        ).get_user_dataset_labels(user_obj)
-        if user_obj.role == 'member':
+        roles = get_action(u'roles_show')(
+                {u'user': user_obj.id})
+        if 'member' in roles:
             labels.extend(u'member')
-        elif user_obj.role == 'admin':
+        elif 'admin' in roles:
             labels.extend(u'admin')
-        elif user_obj.role == 'editor':
+        elif 'editor' in roles:
             labels.extend(u'editor')
         return labels
