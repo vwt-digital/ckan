@@ -19,8 +19,9 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         print("get_dataset_owner called")
         if self.private_orgs:
             print("private orgs env set")
+            private_orgs_list = self.private_orgs.split(',')
             labels = []
-            if dataset_obj.owner_org in self.private_orgs:
+            if dataset_obj.owner_org in private_orgs_list:
                 labels.extend(u'private')
                 print("dataset {} label private".format(dataset_obj.owner_org))
             print("dataset {} label public".format(dataset_obj.owner_org))
