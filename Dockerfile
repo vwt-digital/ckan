@@ -57,10 +57,9 @@ RUN ckan-pip install -U pip && \
     cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh && \
     chmod +x /ckan-entrypoint.sh && \
     chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
-    cp -r $CKAN_VENV/src/ckan/ckanext/ckanext-oauth2permissions . && \
-    cd ckanext-oauth2permissions && \
+    cd $CKAN_VENV/src/ckan/ckanext/ckanext-oauth2permissions && \
     python setup.py develop && \
-    cd ..
+    cd ../../../../..
 
 ENTRYPOINT ["/ckan-entrypoint.sh"]
 
