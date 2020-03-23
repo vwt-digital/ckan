@@ -58,7 +58,7 @@ RUN ckan-pip install -U pip && \
     chmod +x /ckan-entrypoint.sh && \
     chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
     . /usr/lib/ckan/venv/bin/activate && \
-    cd $CKAN_VENV/src/ckan/ckanext/ckanext-oauth2permissions && \
+    cd $CKAN_VENV/src/ckan/ckanext/ckanext-viewerpermissions && \
     python setup.py develop && \
     cd ../../../../.. && \
     deactivate

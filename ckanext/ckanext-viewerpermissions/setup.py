@@ -10,18 +10,18 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='''ckanext-oauth2permissions''',
+    name='''ckanext-viewerpermissions''',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # http://packaging.python.org/en/latest/tutorial.html#version
     version='0.0.1',
 
-    description='''An extension to add permissions to oauth2 users''',
+    description='''A simple extension to adjust viewer permissions''',
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/vwt-digital/ckan/ckanext/ckanext-oauth2permissions',
+    url='https://github.com/SpringPie/ckanext-viewerpermissions',
 
     # Author details
     author='''Bente van de Pol''',
@@ -48,7 +48,7 @@ setup(
 
 
     # What does your project relate to?
-    keywords='''CKAN oauth2 extension permissions private datasets''',
+    keywords='''CKAN viewer permissions datasets''',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
@@ -80,7 +80,7 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points='''
         [ckan.plugins]
-        oauth2permissions=ckanext.oauth2permissions.plugin:Oauth2PermissionsPlugin
+        viewerpermissions=ckanext.viewerpermissions.plugin:ViewerpermissionsPlugin
 
         [babel.extractors]
         ckan = ckan.lib.extract:extract_ckan

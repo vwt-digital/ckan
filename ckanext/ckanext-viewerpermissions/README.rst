@@ -2,30 +2,30 @@
    these badges work. The necessary Travis and Coverage config files have been
    generated for you.
 
-.. image:: https://travis-ci.org/vwt-digital/ckanext-oauth2permissions.svg?branch=master
-    :target: https://travis-ci.org/vwt-digital/ckanext-oauth2permissions
+.. image:: https://travis-ci.org/SpringPie/ckanext-viewerpermissions.svg?branch=master
+    :target: https://travis-ci.org/SpringPie/ckanext-viewerpermissions
 
-.. image:: https://coveralls.io/repos/vwt-digital/ckanext-oauth2permissions/badge.svg
-  :target: https://coveralls.io/r/vwt-digital/ckanext-oauth2permissions
+.. image:: https://coveralls.io/repos/SpringPie/ckanext-viewerpermissions/badge.svg
+  :target: https://coveralls.io/r/SpringPie/ckanext-viewerpermissions
 
-.. image:: https://img.shields.io/pypi/v/ckanext-oauth2permissions.svg
-    :target: https://pypi.org/project/ckanext-oauth2permissions/
+.. image:: https://img.shields.io/pypi/v/ckanext-viewerpermissions.svg
+    :target: https://pypi.org/project/ckanext-viewerpermissions/
     :alt: Latest Version
 
-.. image:: https://img.shields.io/pypi/pyversions/ckanext-oauth2permissions.svg
-    :target: https://pypi.org/project/ckanext-oauth2permissions/
+.. image:: https://img.shields.io/pypi/pyversions/ckanext-viewerpermissions.svg
+    :target: https://pypi.org/project/ckanext-viewerpermissions/
     :alt: Supported Python versions
 
-.. image:: https://img.shields.io/pypi/status/ckanext-oauth2permissions.svg
-    :target: https://pypi.org/project/ckanext-oauth2permissions/
+.. image:: https://img.shields.io/pypi/status/ckanext-viewerpermissions.svg
+    :target: https://pypi.org/project/ckanext-viewerpermissions/
     :alt: Development Status
 
-.. image:: https://img.shields.io/pypi/l/ckanext-oauth2permissions.svg
-    :target: https://pypi.org/project/ckanext-oauth2permissions/
+.. image:: https://img.shields.io/pypi/l/ckanext-viewerpermissions.svg
+    :target: https://pypi.org/project/ckanext-viewerpermissions/
     :alt: License
 
 =============
-ckanext-oauth2permissions
+ckanext-viewerpermissions
 =============
 
 .. Put a description of your extension here:
@@ -49,17 +49,17 @@ Installation
    For example installing any non-Python dependencies or adding any required
    config settings.
 
-To install ckanext-oauth2permissions:
+To install ckanext-viewerpermissions:
 
 1. Activate your CKAN virtual environment, for example::
 
      . /usr/lib/ckan/default/bin/activate
 
-2. Install the ckanext-oauth2permissions Python package into your virtual environment::
+2. Install the ckanext-viewerpermissions Python package into your virtual environment::
 
-     pip install ckanext-oauth2permissions
+     pip install ckanext-viewerpermissions
 
-3. Add ``oauth2permissions`` to the ``ckan.plugins`` setting in your CKAN
+3. Add ``viewerpermissions`` to the ``ckan.plugins`` setting in your CKAN
    config file (by default the config file is located at
    ``/etc/ckan/default/production.ini``).
 
@@ -78,18 +78,18 @@ None at present
 
 .. # The minimum number of hours to wait before re-checking a resource
    # (optional, default: 24).
-   ckanext.oauth2permissions.some_setting = some_default_value
+   ckanext.viewerpermissions.some_setting = some_default_value
 
 
 ----------------------
 Developer installation
 ----------------------
 
-To install ckanext-oauth2permissions for development, activate your CKAN virtualenv and
+To install ckanext-viewerpermissions for development, activate your CKAN virtualenv and
 do::
 
-    git clone https://github.com/vwt-digital/ckanext-oauth2permissions.git
-    cd ckanext-oauth2permissions
+    git clone https://github.com/SpringPie/ckanext-viewerpermissions.git
+    cd ckanext-viewerpermissions
     python setup.py develop
     pip install -r dev-requirements.txt
 
@@ -105,14 +105,14 @@ To run the tests, do::
 To run the tests and produce a coverage report, first make sure you have
 coverage installed in your virtualenv (``pip install coverage``) then run::
 
-    nosetests --nologcapture --with-pylons=test.ini --with-coverage --cover-package=ckanext.oauth2permissions --cover-inclusive --cover-erase --cover-tests
+    nosetests --nologcapture --with-pylons=test.ini --with-coverage --cover-package=ckanext.viewerpermissions --cover-inclusive --cover-erase --cover-tests
 
 
 ----------------------------------------
-Releasing a new version of ckanext-oauth2permissions
+Releasing a new version of ckanext-viewerpermissions
 ----------------------------------------
 
-ckanext-oauth2permissions should be available on PyPI as https://pypi.org/project/ckanext-oauth2permissions.
+ckanext-viewerpermissions should be available on PyPI as https://pypi.org/project/ckanext-viewerpermissions.
 To publish a new version to PyPI follow these steps:
 
 1. Update the version number in the ``setup.py`` file.

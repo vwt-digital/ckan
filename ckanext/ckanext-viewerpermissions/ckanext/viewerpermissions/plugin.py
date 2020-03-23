@@ -1,10 +1,10 @@
 import ckan.plugins as plugins
 from ckan.lib.plugins import DefaultPermissionLabels
 from ckan.authz import auth_is_loggedin_user
-# import os
+import os
 
 
-class Oauth2PermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
+class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
     plugins.implements(plugins.IPermissionLabels)
     u'''
     Example permission labels plugin that makes datasets whose
@@ -16,21 +16,20 @@ class Oauth2PermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         If the dataset owner can be found in private organisations, return private and public label
         Otherwise only return public
         '''
-        # TODO: now but update later to env var:
-        privateorgs = ['dat']
-
-        labels = []
-        if dataset_obj.owner_org in privateorgs:
-            labels.extend(u'private')
-            labels.extend(u'public')
-            print("dataset {} labels private and public".format(dataset_obj.owner_org))
-            return labels
-        else:
+        print("get_dataset_owner called")
+        if self.private_orgs:
+            print("private orgs env set")
+            labels = []
+            if dataset_obj.owner_org in self.private_orgs:
+                labels.extend(u'private')
+                print("dataset {} label private".format(dataset_obj.owner_org))
             print("dataset {} label public".format(dataset_obj.owner_org))
             labels.extend(u'public')
             return labels
 
-        return super(Oauth2PermissionsPlugin, self).get_dataset_labels(
+        print("private orgs env not set")
+
+        return super(ViewerpermissionsPlugin, self).get_dataset_labels(
             dataset_obj)
 
     def get_user_dataset_labels(self, user_obj):
@@ -38,7 +37,8 @@ class Oauth2PermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         If a user is logged in, it can view the private and public datasets
         Otherwise only the public datasets
         '''
-        labels = super(Oauth2PermissionsPlugin, self
+        print("get_user_dataset_labels called")
+        labels = super(ViewerpermissionsPlugin, self
                        ).get_user_dataset_labels(user_obj)
         if auth_is_loggedin_user():
             labels.extend(u'private')
@@ -49,10 +49,10 @@ class Oauth2PermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         labels.extend(u'public')
         return labels
 
-    # def update_config(self, config):
-    #     # Update our configuration
-    #     self.privateorgs = os.environ.get("CKAN_PRIVATE_ORGS", config.get('ckan.datasetpermissions.privateorgs', None))
+    def update_config(self, config):
+        # Update our configuration
+        self.private_orgs = os.environ.get("CKAN_PRIVATE_ORGS", config.get('ckan.viewerpermissions.private_orgs', None))
 
-    #     # Add this plugin's templates dir to CKAN's extra_template_paths, so
-    #     # that CKAN will use this plugin's custom templates.
-    #     plugins.toolkit.add_template_directory(config, 'templates')
+        # Add this plugin's templates dir to CKAN's extra_template_paths, so
+        # that CKAN will use this plugin's custom templates.
+        plugins.toolkit.add_template_directory(config, 'templates')

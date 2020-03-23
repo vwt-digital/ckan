@@ -54,7 +54,7 @@ cd ckan
 paster db init -c test-core.ini
 cd -
 
-echo "Installing ckanext-oauth2permissions and its requirements..."
+echo "Installing ckanext-viewerpermissions and its requirements..."
 python setup.py develop
 pip install -r dev-requirements.txt
 

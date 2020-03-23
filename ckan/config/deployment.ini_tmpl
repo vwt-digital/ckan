@@ -86,6 +86,9 @@ ckan.oauth2.scope = change_this
 ckan.oauth2.profile_api_user_field = change_this
 ckan.oauth2.profile_api_mail_field = change_this
 
+## Viewer permissions configuration
+ckan.viewerpermissions.private_orgs = change_this
+
 ## Search Settings
 
 ckan.site_id = default
@@ -113,7 +116,7 @@ ckan.site_id = default
 #       Add ``datapusher`` to enable DataPusher
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = oauth2 oauth2permissions stats text_view image_view recline_view
+ckan.plugins = oauth2 viewerpermissions stats text_view image_view recline_view
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
