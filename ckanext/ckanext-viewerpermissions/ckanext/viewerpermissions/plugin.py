@@ -23,10 +23,12 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         '''
         log.debug("get_dataset_labels called")
         private_orgs_list = self.private_orgs.split(',')
+        log.debug(dataset_obj.owner_org)
         labels = []
         label = ''
-        if dataset_obj.owner_org in private_orgs_list:
-            label = label + 'private'
+        for org in private_orgs_list:
+            if dataset_obj.owner_org == org:
+                label = label + 'private'
         label = label + ' public'
         labels = labels + [unicode(label)]  # noqa: F821
         return labels
