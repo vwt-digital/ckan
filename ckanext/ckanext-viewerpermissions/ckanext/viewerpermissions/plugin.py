@@ -24,9 +24,10 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         log.debug("get_dataset_labels called")
         private_orgs_list = self.private_orgs.split(',')
         # Get name of organisation
+        log.debug(get_action(u'organization_show')(
+                {u'id': dataset_obj.owner_org}))
         org_name = get_action(u'organization_show')(
                 {u'id': dataset_obj.owner_org})['name']
-        log.debug(org_name)
         labels = []
         label = ''
         # If organisation is private
