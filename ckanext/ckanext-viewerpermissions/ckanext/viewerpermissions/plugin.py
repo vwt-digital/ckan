@@ -10,6 +10,7 @@ log = logging.getLogger(__name__)
 
 class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
     plugins.implements(plugins.IPermissionLabels)
+    plugins.implements(plugins.IConfigurer)
     u'''
     Example permission labels plugin that makes datasets whose
     organisation field is of a field that is within VWT visible only to logged-in users.
