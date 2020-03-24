@@ -25,7 +25,7 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         # private_orgs_list = self.private_orgs.split(',')
         # Get name of organisation
         log.debug(dataset_obj)
-        org = get_action(u'organization_list_for_user')(
+        org = get_action(u'organization_show')(
                         {u'id': dataset_obj.id})
         log.debug(org)
         # org_name = dataset_obj.organization.name
