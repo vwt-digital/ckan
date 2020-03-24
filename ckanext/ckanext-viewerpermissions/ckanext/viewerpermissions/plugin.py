@@ -24,14 +24,11 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         log.debug("get_dataset_labels called")
         private_orgs_list = self.private_orgs.split(',')
         labels = []
+        label = ''
         if dataset_obj.owner_org in private_orgs_list:
-            labels = labels + [u'private']
-            log.debug("dataset {} label private".format(dataset_obj.owner_org))
-        labels = labels + [u'public']
-        index = 0
-        for label in labels:
-            log.debug("Lable {} has value {}".format(index, label))
-            index = index + 1
+            label = label + 'private'
+        label = label + ' public'
+        labels = labels + [unicode(label)]  # noqa: F821
         return labels
 
     def get_user_dataset_labels(self, user_obj):
@@ -41,26 +38,16 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         '''
         log.debug("get_user_dataset_labels called")
 
-        if self.private_orgs:
-            log.debug("private orgs set")
-            log.debug(self.private_orgs)
-        else:
-            log.debug("private orgs not set")
-
         labels = super(ViewerpermissionsPlugin, self
                        ).get_user_dataset_labels(user_obj)
+        label = ''
+        # If user is logged in
         if auth_is_loggedin_user():
-            labels = labels + [u'private']
-            log.debug("user is logged in")
-        else:
-            log.debug("user is not logged in")
-
-        labels = labels + [u'public']
-        log.debug("Current user labels:")
-        index = 0
-        for label in labels:
-            log.debug("Lable {} has value {}".format(index, label))
-            index = index + 1
+            # Allow access to private datasets
+            label = label + 'private'
+        # Always allow access to public datasets
+        label = label + ' public'
+        labels = labels + [unicode(label)]  # noqa: F821
         return labels
 
     def update_config(self, config):
