@@ -15,12 +15,12 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
     organisation field is of a field that is within VWT visible only to logged-in users.
     '''
 
-    def get_dataset_owner(self, dataset_obj):
+    def get_dataset_labels(self, dataset_obj):
         u'''
         If the dataset owner can be found in private organisations, return private and public label
         Otherwise only return public
         '''
-        log.debug("get_dataset_owner called")
+        log.debug("get_dataset_labels called")
         if self.private_orgs:
             log.debug("private orgs env set")
             private_orgs_list = self.private_orgs.split(',')
@@ -30,14 +30,15 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
                 log.debug("dataset {} label private".format(dataset_obj.owner_org))
             log.debug("dataset {} label public".format(dataset_obj.owner_org))
             labels.extend(u'public')
-            log.debug("current dataset labels")
+            index = 0
             for label in labels:
-                log.debug(label)
+                log.debug("Lable {} has value {}".format(index, label))
+                index = index + 1
             return labels
 
         log.debug("private orgs env not set")
 
-        return super(ViewerpermissionsPlugin, self).get_dataset_owner(
+        return super(ViewerpermissionsPlugin, self).get_dataset_labels(
             dataset_obj)
 
     def get_user_dataset_labels(self, user_obj):
@@ -56,8 +57,10 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
 
         labels.extend(u'public')
         log.debug("Current user labels:")
+        index = 0
         for label in labels:
-            log.debug(label)
+            log.debug("Lable {} has value {}".format(index, label))
+            index = index + 1
         return labels
 
     def update_config(self, config):
