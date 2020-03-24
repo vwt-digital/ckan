@@ -21,17 +21,18 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         Otherwise only return public
         '''
         log.debug("get_dataset_labels called")
-        private_orgs_list = self.private_orgs.split(',')
+        # private_orgs_list = self.private_orgs.split(',')
         # Get name of organisation
-        org_name = dataset_obj.organization.name
-        log.debug(org_name)
+        log.debug(dataset_obj)
+        # org_name = dataset_obj.organization.name
+        # log.debug(org_name)
         labels = []
         label = ''
-        # If organisation is private
-        if org_name in private_orgs_list:
-            # Add 'private' to label
-            label = label + 'private'
-        # Always add 'public' to label
+        # # If organisation is private
+        # if org_name in private_orgs_list:
+        #     # Add 'private' to label
+        #     label = label + 'private'
+        # # Always add 'public' to label
         label = label + ' public'
         labels = labels + [unicode(label)]  # noqa: F821
         return labels
