@@ -3,7 +3,7 @@ from ckan.lib.plugins import DefaultPermissionLabels
 from ckan.authz import auth_is_loggedin_user
 import os
 import logging
-
+from ckan.plugins.toolkit import get_action
 
 log = logging.getLogger(__name__)
 
@@ -23,11 +23,17 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         '''
         log.debug("get_dataset_labels called")
         private_orgs_list = self.private_orgs.split(',')
-        log.debug(dataset_obj.owner_org.name)
+        # Get name of organisation
+        org_name = get_action(u'package_show')(
+                {u'id': dataset_obj.owner_org})['name']
+        log.debug(org_name)
         labels = []
         label = ''
-        if dataset_obj.owner_org.name in private_orgs_list:
+        # If organisation is private
+        if org_name in private_orgs_list:
+            # Add 'private' to label
             label = label + 'private'
+        # Always add 'public' to label
         label = label + ' public'
         labels = labels + [unicode(label)]  # noqa: F821
         return labels
