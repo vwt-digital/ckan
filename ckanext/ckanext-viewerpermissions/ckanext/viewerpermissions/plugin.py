@@ -26,10 +26,10 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
             private_orgs_list = self.private_orgs.split(',')
             labels = []
             if dataset_obj.owner_org in private_orgs_list:
-                labels.extend(u'private')
+                labels = labels + [u'private']
                 log.debug("dataset {} label private".format(dataset_obj.owner_org))
             log.debug("dataset {} label public".format(dataset_obj.owner_org))
-            labels.extend(u'public')
+            labels = labels + [u'public']
             index = 0
             for label in labels:
                 log.debug("Lable {} has value {}".format(index, label))
@@ -47,15 +47,22 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         Otherwise only the public datasets
         '''
         log.debug("get_user_dataset_labels called")
+
+        if self.private_orgs:
+            log.debug("private orgs set")
+            log.debug(self.private_orgs)
+        else:
+            log.debug("private orgs not set")
+
         labels = super(ViewerpermissionsPlugin, self
                        ).get_user_dataset_labels(user_obj)
         if auth_is_loggedin_user():
-            labels.extend(u'private')
+            labels = labels + [u'private']
             log.debug("user is logged in")
         else:
             log.debug("user is not logged in")
 
-        labels.extend(u'public')
+        labels = labels + [u'public']
         log.debug("Current user labels:")
         index = 0
         for label in labels:
