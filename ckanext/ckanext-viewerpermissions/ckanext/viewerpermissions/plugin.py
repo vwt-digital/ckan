@@ -30,11 +30,14 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
                 log.debug("dataset {} label private".format(dataset_obj.owner_org))
             log.debug("dataset {} label public".format(dataset_obj.owner_org))
             labels.extend(u'public')
+            log.debug("current dataset labels")
+            for label in labels:
+                log.debug(label)
             return labels
 
         log.debug("private orgs env not set")
 
-        return super(ViewerpermissionsPlugin, self).get_dataset_labels(
+        return super(ViewerpermissionsPlugin, self).get_dataset_owner(
             dataset_obj)
 
     def get_user_dataset_labels(self, user_obj):
@@ -52,6 +55,9 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
             log.debug("user is not logged in")
 
         labels.extend(u'public')
+        log.debug("Current user labels:")
+        for label in labels:
+            log.debug(label)
         return labels
 
     def update_config(self, config):
