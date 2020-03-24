@@ -21,24 +21,19 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         If the dataset owner can be found in private organisations, return private and public label
         Otherwise only return public
         '''
-        log.debug("get_dataset_labels called")
-        # private_orgs_list = self.private_orgs.split(',')
+        # Private organisations
+        private_orgs_list = self.private_orgs.split(',')
         # Get name of organisation
-        log.debug(dataset_obj)
-
-        org = get_action('organization_show')({}, {
+        org_name = get_action('organization_show')({}, {
                             'id': dataset_obj.owner_org
-                        })
-        log.debug(org)
-        # org_name = dataset_obj.organization.name
-        # log.debug(org_name)
+                        })['name']
         labels = []
         label = ''
-        # # If organisation is private
-        # if org_name in private_orgs_list:
-        #     # Add 'private' to label
-        #     label = label + 'private'
-        # # Always add 'public' to label
+        # If organisation is private
+        if org_name in private_orgs_list:
+            # Add 'private' to label
+            label = label + 'private'
+        # Always add 'public' to label
         label = label + ' public'
         labels = labels + [unicode(label)]  # noqa: F821
         return labels
@@ -48,8 +43,6 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         If a user is logged in, it can view the private and public datasets
         Otherwise only the public datasets
         '''
-        log.debug("get_user_dataset_labels called")
-
         labels = super(ViewerpermissionsPlugin, self
                        ).get_user_dataset_labels(user_obj)
         label = ''
