@@ -22,26 +22,17 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         Otherwise only return public
         '''
         log.debug("get_dataset_labels called")
-        # if self.private_orgs:
-        #     log.debug("private orgs env set")
-        #     private_orgs_list = self.private_orgs.split(',')
-        #     labels = []
-        #     if dataset_obj.owner_org in private_orgs_list:
-        #         labels = labels + [u'private']
-        #         log.debug("dataset {} label private".format(dataset_obj.owner_org))
-        #     labels = labels + [u'public']
-        #     index = 0
-        #     for label in labels:
-        #         log.debug("Lable {} has value {}".format(index, label))
-        #         index = index + 1
-        #     return labels
-
-        # log.debug("private orgs env not set")
-        labels = [u'private']
+        private_orgs_list = self.private_orgs.split(',')
+        labels = []
+        if dataset_obj.owner_org in private_orgs_list:
+            labels = labels + [u'private']
+            log.debug("dataset {} label private".format(dataset_obj.owner_org))
+        labels = labels + [u'public']
+        index = 0
+        for label in labels:
+            log.debug("Lable {} has value {}".format(index, label))
+            index = index + 1
         return labels
-
-        # return super(ViewerpermissionsPlugin, self).get_dataset_labels(
-        #     dataset_obj)
 
     def get_user_dataset_labels(self, user_obj):
         u'''
