@@ -6,6 +6,7 @@ import logging
 
 from sqlalchemy.orm import class_mapper
 from six import string_types
+from six.moves import map
 
 import ckan.lib.dictization as d
 import ckan.lib.helpers as h
@@ -46,7 +47,11 @@ def resource_dict_save(res_dict, context):
             continue
         if key in fields:
             if isinstance(getattr(obj, key), datetime.datetime):
-                if getattr(obj, key).isoformat() == value:
+                if isinstance(value, string_types):
+                    db_value = getattr(obj, key).isoformat()
+                else:
+                    db_value = getattr(obj, key)
+                if  db_value == value:
                     continue
                 if key == 'last_modified' and not new:
                     obj.url_changed = True
@@ -96,16 +101,14 @@ def package_resource_list_save(res_dicts, package, context):
         resource_list.append(resource)
 
 
-def package_extras_save(extra_dicts, obj, context):
+def package_extras_save(extra_dicts, pkg, context):
     allow_partial_update = context.get("allow_partial_update", False)
     if extra_dicts is None and allow_partial_update:
         return
 
-    model = context["model"]
     session = context["session"]
 
-    extras_list = obj.extras_list
-    old_extras = dict((extra.key, extra) for extra in extras_list)
+    old_extras = pkg._extras
 
     new_extras = {}
     for extra_dict in extra_dicts or []:
@@ -116,28 +119,22 @@ def package_extras_save(extra_dicts, obj, context):
             pass
         else:
             new_extras[extra_dict["key"]] = extra_dict["value"]
+
     #new
     for key in set(new_extras.keys()) - set(old_extras.keys()):
-        state = 'active'
-        extra = model.PackageExtra(state=state, key=key, value=new_extras[key])
-        session.add(extra)
-        extras_list.append(extra)
+        pkg.extras[key] = new_extras[key]
     #changed
     for key in set(new_extras.keys()) & set(old_extras.keys()):
         extra = old_extras[key]
-        if new_extras[key] == extra.value and extra.state != 'deleted':
+        if new_extras[key] == extra.value:
             continue
-        state = 'active'
         extra.value = new_extras[key]
-        extra.state = state
         session.add(extra)
     #deleted
     for key in set(old_extras.keys()) - set(new_extras.keys()):
         extra = old_extras[key]
-        if extra.state == 'deleted':
-            continue
-        state = 'deleted'
-        extra.state = state
+        extra.delete()
+
 
 def package_tag_list_save(tag_dicts, package, context):
     allow_partial_update = context.get("allow_partial_update", False)
@@ -305,7 +302,7 @@ def package_dict_save(pkg_dict, context):
         objects = pkg_dict.get('relationships_as_object')
         relationship_list_save(objects, pkg, 'relationships_as_object', context)
 
-    extras = package_extras_save(pkg_dict.get("extras"), pkg, context)
+    package_extras_save(pkg_dict.get("extras"), pkg, context)
 
     return pkg
 
@@ -423,7 +420,7 @@ def group_dict_save(group_dict, context, prevent_packages_update=False):
     package_ids.extend( pkgs_edited['added'] )
     if package_ids:
         session.commit()
-        map( rebuild, package_ids )
+        [rebuild(package_id) for package_id in package_ids]
 
     return group
 
@@ -520,13 +517,12 @@ def activity_dict_save(activity_dict, context):
     session = context['session']
     user_id = activity_dict['user_id']
     object_id = activity_dict['object_id']
-    revision_id = activity_dict['revision_id']
     activity_type = activity_dict['activity_type']
     if activity_dict.has_key('data'):
         data = activity_dict['data']
     else:
         data = None
-    activity_obj = model.Activity(user_id, object_id, revision_id,
+    activity_obj = model.Activity(user_id, object_id,
             activity_type, data)
     session.add(activity_obj)
 

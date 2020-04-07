@@ -1,9 +1,8 @@
 # encoding: utf-8
 
 import ckan
-import pylons.test
-import paste.fixture
 import ckan.lib.helpers as helpers
+import ckan.tests.helpers as h
 import ckan.lib.dictization.model_dictize as model_dictize
 
 
@@ -11,7 +10,7 @@ class TestVocabulary(object):
 
     @classmethod
     def setup_class(self):
-        self.app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        self.app = h._get_test_app()
 
     @classmethod
     def teardown_class(self):
@@ -130,8 +129,8 @@ class TestVocabulary(object):
             assert updated_vocab['name'] == original_vocab['name']
         # tags should change only if given in params.
         if 'tags' in params:
-            assert sorted([tag['name'] for tag in params['tags']]) \
-                    == sorted([tag['name'] for tag in updated_vocab['tags']])
+            assert sorted(tag['name'] for tag in params['tags']) \
+                == sorted(tag['name'] for tag in updated_vocab['tags'])
         else:
             assert updated_vocab['tags'] == original_vocab['tags']
 
@@ -906,7 +905,7 @@ class TestVocabulary(object):
         assert tag['name'] not in tags_after
         difference = [tag_name for tag_name in tags_before if tag_name not in
                 tags_after]
-        assert sorted(difference) == sorted([tag['name'] for tag in tags])
+        assert sorted(difference) == sorted(tag['name'] for tag in tags)
 
         # Test that the tags no longer appear in the list of tags for the
         # package.

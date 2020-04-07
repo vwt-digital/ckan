@@ -1,20 +1,21 @@
 # encoding: utf-8
 
 '''CKAN environment configuration'''
-import json
 import os
 import logging
 import warnings
-from urlparse import urlparse
 import pytz
 
 import sqlalchemy
 from pylons import config as pylons_config
 import formencode
 
+from six.moves.urllib.parse import urlparse
+
 import ckan.config.routing as routing
 import ckan.model as model
 import ckan.plugins as p
+import ckan.lib.plugins as lib_plugins
 import ckan.lib.helpers as helpers
 import ckan.lib.app_globals as app_globals
 from ckan.lib.redis import is_redis_available
@@ -23,6 +24,7 @@ import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.lib.jinja_extensions as jinja_extensions
+from ckan.lib.webassets_tools import webassets_init
 from ckan.lib.i18n import build_js_translations
 
 from ckan.common import _, ungettext, config
@@ -75,14 +77,14 @@ def load_environment(global_conf, app_conf):
     # Pylons paths
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    valid_base_public_folder_names = ['public', 'public-bs2']
+    valid_base_public_folder_names = ['public']
     static_files = app_conf.get('ckan.base_public_folder', 'public')
     app_conf['ckan.base_public_folder'] = static_files
 
     if static_files not in valid_base_public_folder_names:
         raise CkanConfigurationException(
             'You provided an invalid value for ckan.base_public_folder. '
-            'Possible values are: "public" and "public-bs2".'
+            'Possible values are: "public".'
         )
 
     log.info('Loading static files from %s' % static_files)
@@ -171,6 +173,8 @@ def update_config():
     plugin might have changed the config values (for instance it might
     change ckan.site_url) '''
 
+    webassets_init()
+
     for plugin in p.PluginImplementations(p.IConfigurer):
         # must do update in place as this does not work:
         # config = plugin.update_config(config)
@@ -236,6 +240,12 @@ def update_config():
     search.check_solr_schema_version()
 
     routes_map = routing.make_map()
+
+    lib_plugins.reset_package_plugins()
+    lib_plugins.register_package_plugins()
+    lib_plugins.reset_group_plugins()
+    lib_plugins.register_group_plugins()
+
     config['routes.map'] = routes_map
     # The RoutesMiddleware needs its mapper updating if it exists
     if 'routes.middleware' in config:
@@ -243,7 +253,6 @@ def update_config():
     # routes.named_routes is a CKAN thing
     config['routes.named_routes'] = routing.named_routes
     config['pylons.app_globals'] = app_globals.app_globals
-
     # initialise the globals
     app_globals.app_globals._init()
 
@@ -251,14 +260,14 @@ def update_config():
     config['pylons.h'] = helpers.helper_functions
 
     # Templates and CSS loading from configuration
-    valid_base_templates_folder_names = ['templates', 'templates-bs2']
+    valid_base_templates_folder_names = ['templates']
     templates = config.get('ckan.base_templates_folder', 'templates')
     config['ckan.base_templates_folder'] = templates
 
     if templates not in valid_base_templates_folder_names:
         raise CkanConfigurationException(
             'You provided an invalid value for ckan.base_templates_folder. '
-            'Possible values are: "templates" and "templates-bs2".'
+            'Possible values are: "templates".'
         )
 
     jinja2_templates_path = os.path.join(root, templates)
@@ -293,8 +302,12 @@ def update_config():
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
 
+    # Enable pessimistic disconnect handling (added in SQLAlchemy 1.2)
+    # to eliminate database errors due to stale pooled connections
+    config.setdefault('pool_pre_ping', True)
+
     # Initialize SQLAlchemy
-    engine = sqlalchemy.engine_from_config(config, client_encoding='utf8')
+    engine = sqlalchemy.engine_from_config(config)
     model.init_model(engine)
 
     for plugin in p.PluginImplementations(p.IConfigurable):

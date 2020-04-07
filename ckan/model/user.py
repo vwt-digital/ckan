@@ -11,7 +11,6 @@ from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table, func
 from six import text_type
-import vdm.sqlalchemy
 
 import meta
 import core
@@ -33,12 +32,11 @@ user_table = Table('user', meta.metadata,
         Column('activity_streams_email_notifications', types.Boolean,
             default=False),
         Column('sysadmin', types.Boolean, default=False),
+        Column('state', types.UnicodeText, default=core.State.ACTIVE),
         )
 
-vdm.sqlalchemy.make_table_stateful(user_table)
 
-
-class User(vdm.sqlalchemy.StatefulObjectMixin,
+class User(core.StatefulObjectMixin,
            domain_object.DomainObject):
 
     VALID_NAME = re.compile(r"^[a-zA-Z0-9_\-]{3,255}$")
@@ -177,24 +175,6 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         _dict = domain_object.DomainObject.as_dict(self)
         del _dict['password']
         return _dict
-
-    def number_of_edits(self):
-        # have to import here to avoid circular imports
-        import ckan.model as model
-
-        # Get count efficiently without spawning the SQLAlchemy subquery
-        # wrapper. Reset the VDM-forced order_by on timestamp.
-        return meta.Session.execute(
-            meta.Session.query(
-                model.Revision
-            ).filter_by(
-                author=self.name
-            ).statement.with_only_columns(
-                [func.count()]
-            ).order_by(
-                None
-            )
-        ).scalar()
 
     def number_created_packages(self, include_private_and_draft=False):
         # have to import here to avoid circular imports

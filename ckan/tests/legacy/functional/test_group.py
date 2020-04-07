@@ -34,6 +34,7 @@ class TestGroup(FunctionalTestCase):
         pkg2 = model.Package(name="pkg2")
         model.Session.add(pkg1)
         model.Session.add(pkg2)
+        model.Session.commit()
 
         CreateTestData.create_groups([{'name': "alpha",
                                        'title': "Alpha",
@@ -97,47 +98,6 @@ class TestGroup(FunctionalTestCase):
         name = u'group_does_not_exist'
         offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset, status=404)
-
-
-class TestRevisions(FunctionalTestCase):
-    @classmethod
-    def setup_class(self):
-        model.Session.remove()
-        CreateTestData.create()
-        self.name = u'revisiontest1'
-
-        # create pkg
-        self.description = [u'Written by Puccini', u'Written by Rossini',
-                            u'Not written at all', u'Written again',
-                            u'Written off']
-        rev = model.repo.new_revision()
-        self.grp = model.Group(name=self.name)
-        self.grp.description = self.description[0]
-        model.Session.add(self.grp)
-        model.repo.commit_and_remove()
-
-        # edit pkg
-        for i in range(5)[1:]:
-            rev = model.repo.new_revision()
-            grp = model.Group.by_name(self.name)
-            grp.description = self.description[i]
-            model.repo.commit_and_remove()
-
-        self.grp = model.Group.by_name(self.name)
-
-    @classmethod
-    def teardown_class(self):
-        self.purge_packages([self.name])
-        model.repo.rebuild_db()
-
-    def test_2_atom_feed(self):
-        offset = url_for(controller='group', action='history',
-                         id=self.grp.name)
-        offset = "%s?format=atom" % offset
-        res = self.app.get(offset)
-        assert '<feed' in res, res
-        assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
-        assert '</feed>' in res, res
 
 
 class TestMemberInvite(FunctionalTestCase):

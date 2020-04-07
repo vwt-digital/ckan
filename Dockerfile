@@ -1,5 +1,5 @@
 # See CKAN docs on installation from Docker Compose on usage
-FROM debian:jessie
+FROM debian:stretch
 MAINTAINER Open Knowledge
 
 # Install required system packages
@@ -10,6 +10,10 @@ RUN apt-get -q -y update \
         python-pip \
         python-virtualenv \
         python-wheel \
+        python3-dev \
+        python3-pip \
+        python3-virtualenv \
+        python3-wheel \
         libpq-dev \
         libxml2-dev \
         libxslt-dev \
@@ -21,6 +25,7 @@ RUN apt-get -q -y update \
         git-core \
         vim \
         wget \
+	      redis-server \
     && apt-get -q clean \
     && rm -rf /var/lib/apt/lists/*
 

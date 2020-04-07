@@ -72,6 +72,8 @@ ckan.auth.user_delete_organizations = false
 ckan.auth.create_user_via_api = false
 ckan.auth.create_user_via_web = false
 ckan.auth.roles_that_cascade_to_sub_groups = admin
+ckan.auth.public_user_details = false
+ckan.auth.public_activity_stream_detail = true
 
 ## OAuth2 configuration
 ckan.oauth2.authorization_endpoint = change_this_with_env_vars
@@ -129,10 +131,6 @@ ckan.views.default_views = image_view text_view recline_view
 
 ## Front-End Settings
 
-# Uncomment following configuration to enable using of Bootstrap 2
-#ckan.base_public_folder = public-bs2
-#ckan.base_templates_folder = templates-bs2
-
 ckan.site_title = CKAN
 ckan.site_logo = /base/images/ckan-logo.png
 ckan.site_description =
@@ -170,6 +168,11 @@ ckan.feeds.author_link =
 #ckan.max_resource_size = 10
 #ckan.max_image_size = 2
 
+## Webassets Settings
+#ckan.webassets.use_x_sendfile = false
+#ckan.webassets.path = /var/lib/ckan/webassets
+
+
 ## Datapusher settings
 
 # Make sure you have set up the DataStore
@@ -202,7 +205,10 @@ ckan.hide_activity_from_users = %(ckan.site_id)s
 #smtp.user = username@example.com
 #smtp.password = your_password
 #smtp.mail_from =
+#smtp.reply_to =
 
+## Background Job Settings
+ckan.jobs.timeout = 180
 
 ## Logging configuration
 [loggers]

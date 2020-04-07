@@ -12,7 +12,7 @@ from email.header import Header
 from email import Utils
 
 from ckan.common import config
-import paste.deploy.converters
+import ckan.common
 from six import text_type
 
 import ckan
@@ -37,6 +37,7 @@ def _mail_recipient(recipient_name, recipient_email,
         headers = {}
 
     mail_from = config.get('smtp.mail_from')
+    reply_to = config.get('smtp.reply_to')
     msg = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
     for k, v in headers.items():
         if k in msg.keys():
@@ -50,6 +51,8 @@ def _mail_recipient(recipient_name, recipient_email,
     msg['To'] = Header(recipient, 'utf-8')
     msg['Date'] = Utils.formatdate(time())
     msg['X-Mailer'] = "CKAN %s" % ckan.__version__
+    if reply_to and reply_to != '':
+        msg['Reply-to'] = reply_to
 
     # Send the email using Python's smtplib.
     smtp_connection = smtplib.SMTP()
@@ -62,7 +65,7 @@ def _mail_recipient(recipient_name, recipient_email,
         smtp_password = None
     else:
         smtp_server = config.get('smtp.server', 'localhost')
-        smtp_starttls = paste.deploy.converters.asbool(
+        smtp_starttls = ckan.common.asbool(
             config.get('smtp.starttls'))
         smtp_user = config.get('smtp.user')
         smtp_password = config.get('smtp.password')
@@ -126,7 +129,7 @@ def get_reset_link_body(user):
         'site_title': config.get('ckan.site_title'),
         'site_url': config.get('ckan.site_url'),
         'user_name': user.name,
-        }
+    }
     # NOTE: This template is translated
     return render_jinja2('emails/reset_password.txt', extra_vars)
 
@@ -141,7 +144,7 @@ def get_invite_body(user, group_dict=None, role=None):
         'site_title': config.get('ckan.site_title'),
         'site_url': config.get('ckan.site_url'),
         'user_name': user.name,
-        }
+    }
     if role:
         extra_vars['role_name'] = h.roles_translated().get(role, _(role))
     if group_dict:

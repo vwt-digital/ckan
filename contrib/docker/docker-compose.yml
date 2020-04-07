@@ -7,6 +7,7 @@ volumes:
   ckan_home:
   ckan_storage:
   pg_data:
+  solr_data:
 
 services:
   ckan:
@@ -69,14 +70,13 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
 
   solr:
     container_name: solr
     build:
       context: ../../
       dockerfile: contrib/docker/solr/Dockerfile
-
-
-  redis:
-    container_name: redis
-    image: redis:latest
+    volumes:
+      - solr_data:/opt/solr/server/solr/ckan/data

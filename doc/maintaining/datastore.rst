@@ -249,6 +249,9 @@ JSON (``?format=json``) and XML (``?format=xml``). E.g. to download an Excel-com
 tab-separated file use
 ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}?format=tsv&bom=true``.
 
+A number of parameters from :meth:`~ckanext.datastore.logic.action.datastore_search` can be used:
+    ``offset``, ``limit``, ``filters``, ``q``, ``distinct``, ``plain``, ``language``, ``fields``, ``sort``
+
 .. _CSV: https://en.wikipedia.org/wiki/Comma-separated_values
 
 
@@ -268,7 +271,7 @@ inserted, existing data can be updated or deleted. You can also add a new column
 an existing table even if the DataStore resource already contains some data.
 
 Triggers may be added to enforce validation, clean data as it is loaded or
-even record record histories. Triggers are PL/pgSQL functions that must be
+even record histories. Triggers are PL/pgSQL functions that must be
 created by a sysadmin.
 
 You will notice that we tried to keep the layer between the underlying PostgreSQL

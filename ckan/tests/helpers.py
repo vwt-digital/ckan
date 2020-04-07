@@ -22,15 +22,12 @@ This module is reserved for these very useful functions.
 
 import collections
 import contextlib
-import errno
 import functools
 import logging
-import os
 import re
 
 import webtest
 import nose.tools
-from nose.tools import assert_in, assert_not_in
 import mock
 import rq
 
@@ -158,6 +155,10 @@ class CKANTestApp(webtest.TestApp):
             self._flask_app = self.app.apps['flask_app']._wsgi_app
         return self._flask_app
 
+    def post(self, url, *args, **kwargs):
+        url = url.encode('utf8')  # or maybe it should be url_encoded?
+        return super(CKANTestApp, self).post(url, *args, **kwargs)
+
 
 def _get_test_app():
     '''Return a webtest.TestApp for CKAN, with legacy templates disabled.
@@ -201,9 +202,12 @@ class FunctionalTestBase(object):
         # Make a copy of the Pylons config, so we can restore it in teardown.
         cls._original_config = dict(config)
         cls._apply_config_changes(config)
+        try:
+            config['ckan.plugins'] = ' '.join(cls._load_plugins)
+            del cls._test_app  # reload with the new plugins
+        except AttributeError:
+            pass
         cls._get_test_app()
-        for plugin in getattr(cls, '_load_plugins', []):
-            p.load(plugin)
 
     @classmethod
     def _apply_config_changes(cls, cfg):
@@ -296,7 +300,7 @@ def webtest_submit(form, name=None, index=None, value=None, **args):
     '''
     fields = webtest_submit_fields(form, name, index=index, submit_value=value)
     if form.method.upper() != "GET":
-        args.setdefault("content_type",  form.enctype)
+        args.setdefault("content_type", form.enctype)
     return form.response.goto(form.action, method=form.method,
                               params=fields, **args)
 
@@ -453,7 +457,7 @@ def mock_auth(auth_function_path):
             try:
                 with mock.patch(auth_function_path) as mocked_auth:
                     clear_auth_functions_cache()
-                    new_args = args + tuple([mocked_auth])
+                    new_args = args + (mocked_auth,)
                     return_value = func(*new_args, **kwargs)
             finally:
                 clear_auth_functions_cache()
@@ -509,7 +513,7 @@ def mock_action(action_name):
                     mock_get_action.side_effect = side_effect
                     mock_get_action_toolkit.side_effect = side_effect
 
-                    new_args = args + tuple([mock_action])
+                    new_args = args + (mock_action,)
                     return_value = func(*new_args, **kwargs)
             finally:
                 # Make sure to stop the mock, even with an exception

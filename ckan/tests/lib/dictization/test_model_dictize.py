@@ -109,7 +109,6 @@ class TestGroupListDictize:
         member = model.Member(group=group_obj, table_id=tag.id,
                               table_name='tag')
         model.Session.add(member)
-        model.repo.new_revision()
         model.Session.commit()
         group_list = model.Session.query(model.Group).filter_by().all()
         context = {'model': model, 'session': model.Session}
@@ -240,10 +239,25 @@ class TestGroupDictize:
 
         assert_equal(len(group['packages']), 3)
 
+    @helpers.change_config('ckan.search.rows_max', '4')
+    def test_group_dictize_with_package_list_limited_by_config(self):
+        group_ = factories.Group()
+        for _ in range(5):
+            factories.Dataset(groups=[{'name': group_['name']}])
+        group_obj = model.Session.query(model.Group).filter_by().first()
+        context = {'model': model, 'session': model.Session}
+
+        group = model_dictize.group_dictize(group_obj, context)
+
+        assert_equal(len(group['packages']), 4)
+        # limited by ckan.search.rows_max
+
     def test_group_dictize_with_package_count(self):
         # group_list_dictize calls it like this by default
         group_ = factories.Group()
+        other_group_ = factories.Group()
         factories.Dataset(groups=[{'name': group_['name']}])
+        factories.Dataset(groups=[{'name': other_group_['name']}])
         group_obj = model.Session.query(model.Group).filter_by().first()
         context = {'model': model, 'session': model.Session,
                    'dataset_counts': model_dictize.get_group_dataset_counts()
@@ -282,7 +296,9 @@ class TestGroupDictize:
     def test_group_dictize_for_org_with_package_count(self):
         # group_list_dictize calls it like this by default
         org_ = factories.Organization()
+        other_org_ = factories.Organization()
         factories.Dataset(owner_org=org_['id'])
+        factories.Dataset(owner_org=other_org_['id'])
         org_obj = model.Session.query(model.Group).filter_by().first()
         context = {'model': model, 'session': model.Session,
                    'dataset_counts': model_dictize.get_group_dataset_counts()
@@ -595,3 +611,49 @@ class TestVocabularyDictize(object):
         assert len(vocab_dict["tags"]) == 2
         for tag in vocab_dict["tags"]:
             assert len(tag.get("packages", [])) == 0
+
+
+class TestActivityDictize(object):
+    def setup(self):
+        helpers.reset_db()
+
+    def test_include_data(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        activity = factories.Activity(
+            user_id=user['id'],
+            object_id=dataset['id'],
+            activity_type='new package',
+            data={
+                'package': copy.deepcopy(dataset),
+                'actor': 'Mr Someone',
+            })
+        activity_obj = model.Activity.get(activity['id'])
+        context = {'model': model, 'session': model.Session}
+        dictized = model_dictize.activity_dictize(activity_obj, context,
+                                                  include_data=True)
+        assert_equal(dictized['user_id'], user['id'])
+        assert_equal(dictized['activity_type'], 'new package')
+        assert_equal(dictized['data']['package']['title'], dataset['title'])
+        assert_equal(dictized['data']['package']['id'], dataset['id'])
+        assert_equal(dictized['data']['actor'], 'Mr Someone')
+
+    def test_dont_include_data(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        activity = factories.Activity(
+            user_id=user['id'],
+            object_id=dataset['id'],
+            activity_type='new package',
+            data={
+                'package': copy.deepcopy(dataset),
+                'actor': 'Mr Someone',
+            })
+        activity_obj = model.Activity.get(activity['id'])
+        context = {'model': model, 'session': model.Session}
+        dictized = model_dictize.activity_dictize(activity_obj, context,
+                                                  include_data=False)
+        assert_equal(dictized['user_id'], user['id'])
+        assert_equal(dictized['activity_type'], 'new package')
+        assert_equal(dictized['data'],
+                     {'package': {'title': dataset['title']}})

@@ -10,5 +10,3 @@ db:
   image: ckan/postgresql:latest
 solr:
   image: ckan/solr:latest
-redis:
-  image: redis:latest

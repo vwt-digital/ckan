@@ -1,7 +1,6 @@
 # encoding: utf-8
 
-from webob.multidict import UnicodeMultiDict, MultiDict
-from nose.tools import assert_raises, assert_equal
+from nose.tools import assert_raises, assert_equal, assert_set_equal
 
 from ckan.tests.legacy import *
 from ckan.tests.legacy import is_search_supported
@@ -60,7 +59,7 @@ class TestSearch(object):
     def res_search(self, query='', fields={}, terms=[], options=search.QueryOptions()):
         result = search.query_for(model.Resource).run(query=query, fields=fields, terms=terms, options=options)
         resources = [model.Session.query(model.Resource).get(resource_id) for resource_id in result['results']]
-        urls = set([resource.url for resource in resources])
+        urls = {resource.url for resource in resources}
         return urls
 
     def test_01_search_url(self):
@@ -68,7 +67,7 @@ class TestSearch(object):
         result = search.query_for(model.Resource).run(fields=fields)
         assert result['count'] == 6, result
         resources = [model.Session.query(model.Resource).get(resource_id) for resource_id in result['results']]
-        urls = set([resource.url for resource in resources])
+        urls = {resource.url for resource in resources}
         assert set([self.ab, self.cd, self.ef]) == urls, urls
 
     def test_02_search_url_2(self):
@@ -76,10 +75,9 @@ class TestSearch(object):
         assert set([self.ab]) == urls, urls
 
     def test_03_search_url_multiple_words(self):
-        fields = UnicodeMultiDict(MultiDict(url='e'))
-        fields.add('url', 'f')
+        fields = {'url': 'e f'}
         urls = self.res_search(fields=fields)
-        assert set([self.ef]) == urls, urls
+        assert_set_equal({self.ef}, urls)
 
     def test_04_search_url_none(self):
         urls = self.res_search(fields={'url':'nothing'})

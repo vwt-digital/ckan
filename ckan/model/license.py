@@ -1,12 +1,14 @@
 # encoding: utf-8
 
 import datetime
-import urllib2
 import re
 
+import requests
+
 from ckan.common import config
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from six import text_type, string_types
+from six.moves import map
 
 from ckan.common import _, json
 import ckan.lib.maintain as maintain
@@ -32,7 +34,8 @@ class License(object):
         for (key, value) in self._data.items():
             if key == 'date_created':
                 # Parse ISO formatted datetime.
-                value = datetime.datetime(*map(int, re.split('[^\d]', value)))
+                value = datetime.datetime(
+                    *list(int(item) for item in re.split('[^\d]', value)))
                 self._data[key] = value
             elif isinstance(value, str):
                 # Convert str to unicode (keeps Pylons and SQLAlchemy happy).
@@ -116,16 +119,18 @@ class LicenseRegister(object):
 
     def load_licenses(self, license_url):
         try:
-            response = urllib2.urlopen(license_url)
-            response_body = response.read()
-        except Exception as inst:
-            msg = "Couldn't connect to licenses service %r: %s" % (license_url, inst)
+            if license_url.startswith('file://'):
+                with open(license_url.replace('file://', ''), 'r') as f:
+                    license_data = json.load(f)
+            else:
+                response = requests.get(license_url)
+                license_data = response.json()
+        except requests.RequestException as e:
+            msg = "Couldn't get the licenses file {}: {}".format(license_url, e)
             raise Exception(msg)
-        try:
-            license_data = json.loads(response_body)
-        except Exception as inst:
-            msg = "Couldn't read response from licenses service %r: %s" % (response_body, inst)
-            raise Exception(inst)
+        except ValueError as e:
+            msg = "Couldn't parse the licenses file {}: {}".format(license_url, e)
+            raise Exception(msg)
         for license in license_data:
             if isinstance(license, string_types):
                 license = license_data[license]

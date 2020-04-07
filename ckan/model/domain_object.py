@@ -26,7 +26,6 @@ class Enum(set):
 
 DomainObjectOperation = Enum('new', 'changed', 'deleted')
 
-# TODO: replace this (or at least inherit from) standard SqlalchemyMixin in vdm
 class DomainObject(object):
 
     text_search_fields = []
@@ -79,7 +78,7 @@ class DomainObject(object):
 
     def delete(self):
         # stateful objects have this method overridden - see
-        # vmd.base.StatefulObjectMixin
+        # core.StatefulObjectMixin
         self.Session.delete(self)
 
     def purge(self):

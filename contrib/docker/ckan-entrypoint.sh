@@ -54,6 +54,8 @@ write_config () {
   ckan-paster make-config --no-interactive ckan "$CONFIG"
 }
 
+#startup redis server
+nohup redis-server &
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
   write_config
