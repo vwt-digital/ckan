@@ -30,17 +30,77 @@ system that provides a powerful platform for cataloging, storing and accessing
 datasets with a rich front-end, full API (for both data and catalog), visualization
 tools and more. Read more at `ckan.org <http://ckan.org/>`_.
 
-
-Installation
+Additions
 ------------
 
-See the `CKAN Documentation <http://docs.ckan.org>`_ for installation instructions.
+In this CKAN setup, `oauth2 authentication <https://github.com/conwetlab/ckanext-oauth2>`_ 
+is added as well as the `rule <https://github.com/vwt-digital/ckan/tree/develop/ckanext/ckanext-viewerpermissions>`_ 
+that only authenticated users can see certain datasets.
 
+Local Installation
+------------
+
+To run this CKAN setup locally, use the 
+`CKAN installation instructions for Docker 
+compose <https://docs.ckan.org/en/2.8/maintaining/installing/install-from-docker-compose.html>`_
+in the folder `contrib/docker <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_.
+
+**Note:** CKAN cannot be run locally yet via Docker compose in the folder 
+`contrib/docker-GCP <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_.
+
+Google Cloud Platform Installation
+------------
+
+To run this CKAN setup on `Google Cloud Platform (GCP) <https://cloud.google.com>`_ build the container image via the 
+`Dockerfile <https://github.com/vwt-digital/ckan/blob/develop/Dockerfile>`_ and push it to GCP.
+For more information see 
+`Build Using Dockerfile <https://cloud.google.com/cloud-build/docs/quickstart-build#build_using_dockerfile>`_.
+
+Environment Variables
+------------
+
+The following environment variables need to be set. See the github of 
+`ckanext-oauth2 <https://github.com/conwetlab/ckanext-oauth2/wiki/Activating-and-Installing>_` for more information.
+
+**Locally:** in the .env file in contrib/docker:
+::
+        CKAN_OAUTH2_AUTHORIZATION_ENDPOINT
+        CKAN_OAUTH2_TOKEN_ENDPOINT
+        CKAN_OAUTH2_CLIENT_ID
+        CKAN_OAUTH2_CLIENT_SECRET
+        CKAN_OAUTH2_SCOPE
+        CKAN_OAUTH2_PROFILE_API_URL
+        CKAN_OAUTH2_PROFILE_API_USER_FIELD
+        CKAN_OAUTH2_PROFILE_API_MAIL_FIELD
+        OAUTHLIB_INSECURE_TRANSPORT
+        OAUTHLIB_RELAX_TOKEN_SCOPE
+        CKAN_PRIVATE_ORGS
+
+Where CKAN_PRIVATE_ORGS are the organisations in CKAN that have datasets that should only be visible to authenticated users.
+::
+        CKAN_PRIVATE_ORGS='organisation1,organisation2,etcetera'
+
+**Note:** Organisations are being segregated by a comma (',').
+
+**GCP:** the same values that have to be added to the .env file above have to be added as environment
+variables to the Docker image. With addition:
+::
+        CKAN_SQLALCHEMY_URL=postgresql://{GCP_DATABASE_USER}:{GCP_DATABASE_PASSWORD}@/{GCP_DATABASE_NAME}?host=/cloudsql/{GCP_INSTANCE}
+
+**Note:** the following also needs to be added to the .env file in contrib/docker-GCP when wanting to run that one locally.
+::
+        GCP_SQL_INSTANCE
+
+Updating CKAN
+------------
+
+When updating CKAN, note that there are `stable versions <https://github.com/ckan/ckan/releases>_`. 
+The `master branch <https://github.com/ckan/ckan>_` can be unstable.
 
 Support
 -------
 If you need help with CKAN or want to ask a question, use either the
-`ckan-dev`_ mailing list, the `CKAN chat on Gitter`_, or the `CKAN tag on Stack Overflow`_ (try
+`ckan-dev`_ mailing list or the `CKAN tag on Stack Overflow`_ (try
 searching the Stack Overflow and ckan-dev `archives`_ for an answer to your
 question first).
 

@@ -1,7 +1,11 @@
 # encoding: utf-8
 
 '''Unit tests for ckan/logic/action/patch.py.'''
-from nose.tools import assert_equals
+import datetime
+
+from nose.tools import assert_equals, assert_raises
+import mock
+from ckan.common import config
 
 from ckan.tests import helpers, factories
 

@@ -1,12 +1,15 @@
 # encoding: utf-8
 
 import datetime
+from calendar import timegm
 import logging
+logger = logging.getLogger(__name__)
 
-from sqlalchemy.sql import and_, or_
+from sqlalchemy.sql import select, and_, union, or_
 from sqlalchemy import orm
 from sqlalchemy import types, Column, Table
 from ckan.common import config
+import vdm.sqlalchemy
 
 import meta
 import core
@@ -19,12 +22,10 @@ import extension
 import ckan.lib.maintain as maintain
 import ckan.lib.dictization as dictization
 
-logger = logging.getLogger(__name__)
-
-__all__ = ['Package', 'package_table',
+__all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
-           'PACKAGE_VERSION_MAX_LENGTH',
-           ]
+           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTag', 'PackageTagRevision',
+           'PackageRevision']
 
 
 PACKAGE_NAME_MAX_LENGTH = 100
@@ -51,15 +52,18 @@ package_table = Table('package', meta.metadata,
         Column('metadata_created', types.DateTime, default=datetime.datetime.utcnow),
         Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
         Column('private', types.Boolean, default=False),
-        Column('state', types.UnicodeText, default=core.State.ACTIVE),
 )
 
+
+vdm.sqlalchemy.make_table_stateful(package_table)
+package_revision_table = core.make_revisioned_table(package_table)
 
 ## -------------------
 ## Mapped classes
 
-class Package(core.StatefulObjectMixin,
-              domain_object.DomainObject):
+class Package(vdm.sqlalchemy.RevisionedObjectMixin,
+        vdm.sqlalchemy.StatefulObjectMixin,
+        domain_object.DomainObject):
 
     text_search_fields = ['name', 'title']
 
@@ -365,6 +369,90 @@ class Package(core.StatefulObjectMixin,
     license = property(get_license, set_license)
 
     @property
+    def all_related_revisions(self):
+        '''Returns chronological list of all object revisions related to
+        this package. Includes PackageRevisions, PackageTagRevisions,
+        PackageExtraRevisions and ResourceRevisions.
+        @return List of tuples (revision, [list of object revisions of this
+                                           revision])
+                Ordered by most recent first.
+        '''
+        from tag import PackageTag
+        from resource import Resource
+        from package_extra import PackageExtra
+
+        results = {} # revision:[PackageRevision1, PackageTagRevision1, etc.]
+        for pkg_rev in self.all_revisions:
+            if not results.has_key(pkg_rev.revision):
+                results[pkg_rev.revision] = []
+            results[pkg_rev.revision].append(pkg_rev)
+        for class_ in [Resource, PackageExtra, PackageTag]:
+            rev_class = class_.__revision_class__
+            obj_revisions = meta.Session.query(rev_class).filter_by(package_id=self.id).all()
+            for obj_rev in obj_revisions:
+                if not results.has_key(obj_rev.revision):
+                    results[obj_rev.revision] = []
+                results[obj_rev.revision].append(obj_rev)
+
+        result_list = results.items()
+        return sorted(result_list, key=lambda x: x[0].timestamp, reverse=True)
+
+    @property
+    def latest_related_revision(self):
+        '''Returns the latest revision for the package and its related
+        objects.'''
+        return self.all_related_revisions[0][0]
+
+    def diff(self, to_revision=None, from_revision=None):
+        '''Overrides the diff in vdm, so that related obj revisions are
+        diffed as well as PackageRevisions'''
+        from tag import PackageTag
+        from resource import Resource
+        from package_extra import PackageExtra
+
+        results = {} # field_name:diffs
+        results.update(super(Package, self).diff(to_revision, from_revision))
+        # Iterate over PackageTag, PackageExtra, Resources etc.
+        for obj_class in [Resource, PackageExtra, PackageTag]:
+            obj_rev_class = obj_class.__revision_class__
+            # Query for object revisions related to this package
+            obj_rev_query = meta.Session.query(obj_rev_class).\
+                            filter_by(package_id=self.id).\
+                            join('revision').\
+                            order_by(core.Revision.timestamp.desc())
+            # Columns to include in the diff
+            cols_to_diff = obj_class.revisioned_fields()
+            cols_to_diff.remove('id')
+            if obj_class is Resource:
+                cols_to_diff.remove('package_id')
+            # Particular object types are better known by an invariant field
+            if obj_class is PackageTag:
+                cols_to_diff.remove('tag_id')
+            elif obj_class is PackageExtra:
+                cols_to_diff.remove('key')
+            # Iterate over each object ID
+            # e.g. for PackageTag, iterate over Tag objects
+            related_obj_ids = set([related_obj.id for related_obj in obj_rev_query.all()])
+            for related_obj_id in related_obj_ids:
+                q = obj_rev_query.filter(obj_rev_class.id==related_obj_id)
+                to_obj_rev, from_obj_rev = super(Package, self).\
+                    get_obj_revisions_to_diff(
+                    q, to_revision, from_revision)
+                for col in cols_to_diff:
+                    values = [getattr(obj_rev, col) if obj_rev else '' for obj_rev in (from_obj_rev, to_obj_rev)]
+                    value_diff = self._differ(*values)
+                    if value_diff:
+                        if obj_class.__name__ == 'PackageTag':
+                            display_id = to_obj_rev.tag.name
+                        elif obj_class.__name__ == 'PackageExtra':
+                            display_id = to_obj_rev.key
+                        else:
+                            display_id = related_obj_id[:4]
+                        key = '%s-%s-%s' % (obj_class.__name__, display_id, col)
+                        results[key] = value_diff
+        return results
+
+    @property
     @maintain.deprecated('`is_private` attriute of model.Package is ' +
                          'deprecated and should not be used.  Use `private`')
     def is_private(self):
@@ -417,10 +505,9 @@ class Package(core.StatefulObjectMixin,
 
         return fields
 
-    def activity_stream_item(self, activity_type, user_id):
+    def activity_stream_item(self, activity_type, revision, user_id):
         import ckan.model
         import ckan.logic
-
         assert activity_type in ("new", "changed"), (
             str(activity_type))
 
@@ -440,17 +527,10 @@ class Package(core.StatefulObjectMixin,
                 activity_type = 'deleted'
 
         try:
-            # We save the entire rendered package dict so we can support
-            # viewing the past packages from the activity feed.
-            dictized_package = ckan.logic.get_action('package_show')({
-                'model': ckan.model,
-                'session': ckan.model.Session,
-                'for_view': False,  # avoid ckanext-multilingual translating it
-                'ignore_auth': True
-            }, {
-                'id': self.id,
-                'include_tracking': False
-            })
+            d = {'package': dictization.table_dictize(self,
+                context={'model': ckan.model})}
+            return activity.Activity(user_id, self.id, revision.id,
+                    "%s package" % activity_type, d)
         except ckan.logic.NotFound:
             # This happens if this package is being purged and therefore has no
             # current revision.
@@ -458,19 +538,20 @@ class Package(core.StatefulObjectMixin,
             # is purged.
             return None
 
-        actor = meta.Session.query(ckan.model.User).get(user_id)
+    def activity_stream_detail(self, activity_id, activity_type):
+        import ckan.model
 
-        return activity.Activity(
-            user_id,
-            self.id,
-            "%s package" % activity_type,
-            {
-                'package': dictized_package,
-                # We keep the acting user name around so that actions can be
-                # properly displayed even if the user is deleted in the future.
-                'actor': actor.name if actor else None
-            }
-        )
+        # Handle 'deleted' objects.
+        # When the user marks a package as deleted this comes through here as
+        # a 'changed' package activity. We detect this and change it to a
+        # 'deleted' activity.
+        if activity_type == 'changed' and self.state == u'deleted':
+            activity_type = 'deleted'
+
+        package_dict = dictization.table_dictize(self,
+                context={'model':ckan.model})
+        return activity.ActivityDetail(activity_id, self.id, u"Package", activity_type,
+            {'package': package_dict })
 
     def set_rating(self, user_or_ip, rating):
         '''Record a user's rating of this package.
@@ -517,19 +598,6 @@ class Package(core.StatefulObjectMixin,
                             rating=rating)
             meta.Session.add(rating)
 
-    @property
-    @maintain.deprecated()
-    def extras_list(self):
-        '''DEPRECATED in 2.9
-
-        Returns a list of the dataset's extras, as PackageExtra object
-        NB includes deleted ones too (state='deleted')
-        '''
-        from package_extra import PackageExtra
-        return meta.Session.query(PackageExtra) \
-            .filter_by(package_id=self.id) \
-            .all()
-
 
 class RatingValueException(Exception):
     pass
@@ -550,5 +618,23 @@ meta.mapper(Package, package_table, properties={
         ),
     },
     order_by=package_table.c.name,
-    extension=[extension.PluginMapperExtension()],
+    extension=[vdm.sqlalchemy.Revisioner(package_revision_table),
+               extension.PluginMapperExtension(),
+               ],
     )
+
+vdm.sqlalchemy.modify_base_object_mapper(Package, core.Revision, core.State)
+PackageRevision = vdm.sqlalchemy.create_object_version(meta.mapper, Package,
+        package_revision_table)
+
+def related_packages(self):
+    return [self.continuity]
+
+PackageRevision.related_packages = related_packages
+
+
+vdm.sqlalchemy.modify_base_object_mapper(tag.PackageTag, core.Revision, core.State)
+PackageTagRevision = vdm.sqlalchemy.create_object_version(meta.mapper, tag.PackageTag,
+        tag.package_tag_revision_table)
+
+PackageTagRevision.related_packages = lambda self: [self.continuity.package]

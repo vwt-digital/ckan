@@ -2,11 +2,11 @@
    these badges work. The necessary Travis and Coverage config files have been
    generated for you.
 
-.. image:: https://travis-ci.org/SpringPie/ckanext-viewerpermissions.svg?branch=master
-    :target: https://travis-ci.org/SpringPie/ckanext-viewerpermissions
+.. image:: https://travis-ci.org/vwt-digital/ckanext-viewerpermissions.svg?branch=master
+    :target: https://travis-ci.org/vwt-digital/ckanext-viewerpermissions
 
-.. image:: https://coveralls.io/repos/SpringPie/ckanext-viewerpermissions/badge.svg
-  :target: https://coveralls.io/r/SpringPie/ckanext-viewerpermissions
+.. image:: https://coveralls.io/repos/vwt-digital/ckanext-viewerpermissions/badge.svg
+  :target: https://coveralls.io/r/vwt-digital/ckanext-viewerpermissions
 
 .. image:: https://img.shields.io/pypi/v/ckanext-viewerpermissions.svg
     :target: https://pypi.org/project/ckanext-viewerpermissions/
@@ -28,26 +28,19 @@
 ckanext-viewerpermissions
 =============
 
-.. Put a description of your extension here:
-   What does it do? What features does it have?
-   Consider including some screenshots or embedding a video!
-
+With this CKAN extension one can set organisations to "private", meaning that they can only be viewed when a user
+is authenticated.
 
 ------------
 Requirements
 ------------
 
-For example, you might want to mention here which versions of CKAN this
-extension works with.
+This extension has been tested with CKAN 2.8.3.
 
 
 ------------
 Installation
 ------------
-
-.. Add any additional install steps to the list below.
-   For example installing any non-Python dependencies or adding any required
-   config settings.
 
 To install ckanext-viewerpermissions:
 
@@ -72,74 +65,72 @@ To install ckanext-viewerpermissions:
 Config settings
 ---------------
 
-None at present
+# Set private organisations
+ckan.viewerpermissions.private_orgs = "organisation1,organisation2,etcetera"
 
-.. Document any optional config settings here. For example::
-
-.. # The minimum number of hours to wait before re-checking a resource
-   # (optional, default: 24).
-   ckanext.viewerpermissions.some_setting = some_default_value
+**Note:* organisations are being segregated by a comma (',').
 
 
-----------------------
-Developer installation
-----------------------
+.. Change the following if the extension gets its own git:
+    ----------------------
+    Developer installation
+    ----------------------
 
-To install ckanext-viewerpermissions for development, activate your CKAN virtualenv and
-do::
+    To install ckanext-viewerpermissions for development, activate your CKAN virtualenv and
+    do::
 
-    git clone https://github.com/SpringPie/ckanext-viewerpermissions.git
-    cd ckanext-viewerpermissions
-    python setup.py develop
-    pip install -r dev-requirements.txt
-
-
------
-Tests
------
-
-To run the tests, do::
-
-    nosetests --nologcapture --with-pylons=test.ini
-
-To run the tests and produce a coverage report, first make sure you have
-coverage installed in your virtualenv (``pip install coverage``) then run::
-
-    nosetests --nologcapture --with-pylons=test.ini --with-coverage --cover-package=ckanext.viewerpermissions --cover-inclusive --cover-erase --cover-tests
+        git clone https://github.com/vwt-digital/ckan/tree/develop/ckanext/ckanext-viewerpermissions.git
+        cd ckanext-viewerpermissions
+        python setup.py develop
+        pip install -r dev-requirements.txt
 
 
-----------------------------------------
-Releasing a new version of ckanext-viewerpermissions
-----------------------------------------
+    -----
+    Tests
+    -----
 
-ckanext-viewerpermissions should be available on PyPI as https://pypi.org/project/ckanext-viewerpermissions.
-To publish a new version to PyPI follow these steps:
+    To run the tests, do::
 
-1. Update the version number in the ``setup.py`` file.
-   See `PEP 440 <http://legacy.python.org/dev/peps/pep-0440/#public-version-identifiers>`_
-   for how to choose version numbers.
+        nosetests --nologcapture --with-pylons=test.ini
 
-2. Make sure you have the latest version of necessary packages::
+    To run the tests and produce a coverage report, first make sure you have
+    coverage installed in your virtualenv (``pip install coverage``) then run::
 
-    pip install --upgrade setuptools wheel twine
+        nosetests --nologcapture --with-pylons=test.ini --with-coverage --cover-package=ckanext.viewerpermissions --cover-inclusive --cover-erase --cover-tests
 
-3. Create a source and binary distributions of the new version::
 
-       python setup.py sdist bdist_wheel && twine check dist/*
+    ----------------------------------------
+    Releasing a new version of ckanext-viewerpermissions
+    ----------------------------------------
 
-   Fix any errors you get.
+    ckanext-viewerpermissions should be available on PyPI as https://pypi.org/project/ckanext-viewerpermissions.
+    To publish a new version to PyPI follow these steps:
 
-4. Upload the source distribution to PyPI::
+    1. Update the version number in the ``setup.py`` file.
+    See `PEP 440 <http://legacy.python.org/dev/peps/pep-0440/#public-version-identifiers>`_
+    for how to choose version numbers.
 
-       twine upload dist/*
+    2. Make sure you have the latest version of necessary packages::
 
-5. Commit any outstanding changes::
+        pip install --upgrade setuptools wheel twine
 
-       git commit -a
+    3. Create a source and binary distributions of the new version::
 
-6. Tag the new release of the project on GitHub with the version number from
-   the ``setup.py`` file. For example if the version number in ``setup.py`` is
-   0.0.1 then do::
+        python setup.py sdist bdist_wheel && twine check dist/*
 
-       git tag 0.0.1
-       git push --tags
+    Fix any errors you get.
+
+    4. Upload the source distribution to PyPI::
+
+        twine upload dist/*
+
+    5. Commit any outstanding changes::
+
+        git commit -a
+
+    6. Tag the new release of the project on GitHub with the version number from
+    the ``setup.py`` file. For example if the version number in ``setup.py`` is
+    0.0.1 then do::
+
+        git tag 0.0.1
+        git push --tags

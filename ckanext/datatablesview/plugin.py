@@ -1,8 +1,10 @@
 # encoding: utf-8
 
+from logging import getLogger
+
+from ckan.common import json
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
-from ckanext.datatablesview import blueprint
 
 default = toolkit.get_validator(u'default')
 boolean_validator = toolkit.get_validator(u'boolean_validator')
@@ -10,29 +12,20 @@ ignore_missing = toolkit.get_validator(u'ignore_missing')
 
 
 class DataTablesView(p.SingletonPlugin):
-    u'''
+    '''
     DataTables table view plugin
     '''
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
-    p.implements(p.IBlueprint)
-
-    # IBlueprint
-
-    def get_blueprint(self):
-        return blueprint.datatablesview
-
-    # IConfigurer
+    p.implements(p.IRoutes, inherit=True)
 
     def update_config(self, config):
-        u'''
+        '''
         Set up the resource library, public directory and
         template directory for the view
         '''
         toolkit.add_template_directory(config, u'templates')
         toolkit.add_resource(u'public', u'ckanext-datatablesview')
-
-    # IResourceView
 
     def can_view(self, data_dict):
         resource = data_dict['resource']
@@ -58,3 +51,11 @@ class DataTablesView(p.SingletonPlugin):
                 u'filterable': [default(True), boolean_validator],
             }
         }
+
+    def before_map(self, m):
+        m.connect(
+            u'/datatables/ajax/{resource_view_id}',
+            controller=u'ckanext.datatablesview.controller'
+                       u':DataTablesController',
+            action=u'ajax')
+        return m

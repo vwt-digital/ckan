@@ -17,9 +17,8 @@ def get_mapview_config():
     Extracts and returns map view configuration of the reclineview extension.
     '''
     namespace = 'ckanext.spatial.common_map.'
-    return {k.replace(namespace, ''): v
-            for k, v in config.iteritems()
-            if k.startswith(namespace)}
+    return dict([(k.replace(namespace, ''), v) for k, v in config.iteritems()
+                 if k.startswith(namespace)])
 
 
 def get_dataproxy_url():
@@ -119,9 +118,7 @@ class ReclineView(ReclineViewBase):
             return True
         resource_format = resource.get('format', None)
         if resource_format:
-            return resource_format.lower() in [
-                'csv', 'xls', 'xlsx', 'ods', 'tsv'
-            ]
+            return resource_format.lower() in ['csv', 'xls', 'xlsx', 'tsv']
         else:
             return False
 

@@ -28,7 +28,7 @@ class_to_patch = (
 class ExampleIDatastoreBackendPlugin(helpers.FunctionalTestBase):
 
     def setup(self):
-        super(ExampleIDatastoreBackendPlugin, self).setup()
+        super(TestExampleIDatastoreBackendPlugin, self).setup()
         plugins.load(u'datastore')
         plugins.load(u'example_idatastorebackend')
 

@@ -74,18 +74,6 @@ class TestEnqueue(RQTestBase):
         assert_equal(all_jobs[1].origin,
                      jobs.add_queue_name_prefix(u'my_queue'))
 
-    def test_enqueue_timeout(self):
-        self.enqueue()
-        self.enqueue(timeout=0)
-        self.enqueue(timeout=-1)
-        self.enqueue(timeout=3600)
-        all_jobs = self.all_jobs()
-        assert_equal(len(all_jobs), 4)
-        assert_equal(all_jobs[0].timeout, 180)
-        assert_equal(all_jobs[1].timeout, 180)
-        assert_equal(all_jobs[2].timeout, -1)
-        assert_equal(all_jobs[3].timeout, 3600)
-
 
 class TestGetAllQueues(RQTestBase):
 
@@ -256,6 +244,7 @@ class TestWorker(RQTestBase):
         must be closed.
         '''
         pkg_name = u'test-fork-within-a-transaction'
+        model.repo.new_revision()
         pkg = model.Package.get(pkg_name)
         if not pkg:
             pkg = model.Package(name=pkg_name)

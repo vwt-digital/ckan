@@ -7,6 +7,8 @@ from sqlalchemy.util import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
 from ckan.common import config
+import vdm.sqlalchemy
+import vdm.sqlalchemy.stateful
 from sqlalchemy import types, func, Column, Table, ForeignKey, and_
 
 import meta
@@ -20,7 +22,9 @@ import ckan.lib.dictization
 from .package import Package
 import ckan.model
 
-__all__ = ['Resource', 'resource_table']
+__all__ = ['Resource', 'resource_table',
+           'ResourceRevision', 'resource_revision_table',
+           ]
 
 CORE_RESOURCE_COLUMNS = ['url', 'format', 'description', 'hash', 'name',
                          'resource_type', 'mimetype', 'mimetype_inner',
@@ -51,11 +55,14 @@ resource_table = Table(
     Column('cache_last_updated', types.DateTime),
     Column('url_type', types.UnicodeText),
     Column('extras', _types.JsonDictType),
-    Column('state', types.UnicodeText, default=core.State.ACTIVE),
 )
 
+vdm.sqlalchemy.make_table_stateful(resource_table)
+resource_revision_table = core.make_revisioned_table(resource_table)
 
-class Resource(core.StatefulObjectMixin,
+
+class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
+               vdm.sqlalchemy.StatefulObjectMixin,
                domain_object.DomainObject):
     extra_columns = None
 
@@ -151,6 +158,23 @@ class Resource(core.StatefulObjectMixin,
     def related_packages(self):
         return [self.package]
 
+    def activity_stream_detail(self, activity_id, activity_type):
+        import ckan.model as model
+
+        # Handle 'deleted' resources.
+        # When the user marks a resource as deleted this comes through here as
+        # a 'changed' resource activity. We detect this and change it to a
+        # 'deleted' activity.
+        if activity_type == 'changed' and self.state == u'deleted':
+            activity_type = 'deleted'
+
+        res_dict = ckan.lib.dictization.table_dictize(self,
+                                                      context={'model': model})
+        return activity.ActivityDetail(activity_id, self.id, u"Resource",
+                                       activity_type,
+                                       {'resource': res_dict})
+
+
 
 ## Mappers
 
@@ -166,8 +190,21 @@ meta.mapper(Resource, resource_table, properties={
                             ),
     )
 },
-extension=[extension.PluginMapperExtension()],
+extension=[vdm.sqlalchemy.Revisioner(resource_revision_table),
+           extension.PluginMapperExtension(),
+           ],
 )
+
+
+## VDM
+
+vdm.sqlalchemy.modify_base_object_mapper(Resource, core.Revision, core.State)
+ResourceRevision = vdm.sqlalchemy.create_object_version(
+    meta.mapper, Resource, resource_revision_table)
+
+ResourceRevision.related_packages = lambda self: [
+    self.continuity.resouce_group.package
+]
 
 
 def resource_identifier(obj):

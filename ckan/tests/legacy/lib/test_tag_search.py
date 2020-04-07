@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from nose.tools import assert_raises
 from ckan.tests.legacy import *
 from ckan.tests.legacy import is_search_supported
 import ckan.lib.search as search
@@ -60,7 +61,7 @@ class TestTagSearch(object):
     def test_search_is_case_insensitive(self):
         result = search.query_for(model.Tag).run(query=u'flexible')
         assert u'Flexible \u30a1' in result['results']
-
+        
 
     def test_good_search_fields(self):
         result = search.query_for(model.Tag).run(fields={'tags': u'ru'})

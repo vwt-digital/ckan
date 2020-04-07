@@ -1,18 +1,22 @@
 # encoding: utf-8
 
+import re
 try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
 
+import urllib
+
+from ckan.common import config
+import webhelpers.util
 from nose.tools import assert_equal
 from paste.fixture import TestRequest
 from webhelpers.html import url_escape
 
-from six.moves.urllib.parse import quote
-
+from ckan.tests.legacy import *
 import ckan.model as model
-from ckan.tests.legacy import CreateTestData
+from ckan.lib.create_test_data import CreateTestData
 from ckan.tests.legacy import TestController as ControllerTestCase
 from ckan.common import json
 
@@ -83,7 +87,7 @@ class ApiTestCase(object):
         if self.api_version:
             base += '/%s' % self.api_version
         utf8_encoded = (u'%s%s' % (base, path)).encode('utf8')
-        url_encoded = quote(utf8_encoded)
+        url_encoded = urllib.quote(utf8_encoded)
         return url_encoded
 
     def assert_msg_represents_anna(self, msg):
@@ -122,7 +126,7 @@ class ApiTestCase(object):
         data = self.loads(msg)
         keys = set(data.keys())
         expected_keys = set(['id', 'name', 'title', 'description', 'created',
-                            'state', 'packages'])
+                            'state', 'revision_id', 'packages'])
         missing_keys = expected_keys - keys
         assert not missing_keys, missing_keys
         assert_equal(data['name'], 'roger')
@@ -156,14 +160,14 @@ class ApiTestCase(object):
         return self.loads(res.body)
 
     def package_ref_from_name(self, package_name):
-        package = self.get_package_by_name(package_name)
+        package = self.get_package_by_name(unicode(package_name))
         if package is None:
             return package_name
         else:
             return self.ref_package(package)
 
     def package_id_from_ref(self, package_name):
-        package = self.get_package_by_name(package_name)
+        package = self.get_package_by_name(unicode(package_name))
         if package is None:
             return package_name
         else:
@@ -186,7 +190,7 @@ class ApiTestCase(object):
             raise Exception("Couldn't loads string '%s': %s" % (chars, inst))
 
     def assert_json_response(self, res, expected_in_body=None):
-        content_type = res.headers.get('Content-Type')
+        content_type = res.header_dict['Content-Type']
         assert 'application/json' in content_type, content_type
         res_json = self.loads(res.body)
         if expected_in_body:

@@ -21,7 +21,7 @@ setup(
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/SpringPie/ckanext-viewerpermissions',
+    url='https://github.com/vwt-digital/ckanext-viewerpermissions',
 
     # Author details
     author='''Bente van de Pol''',

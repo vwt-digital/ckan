@@ -35,6 +35,7 @@ class TestHome(helpers.FunctionalTestBase):
         app = self._get_test_app()
         # can't use factory to create user as without email it fails validation
         from ckan import model
+        model.repo.new_revision()
         user = model.user.User(name='has-no-email')
         model.Session.add(user)
         model.Session.commit()
@@ -43,7 +44,7 @@ class TestHome(helpers.FunctionalTestBase):
         response = app.get(url=url_for('home.index'), extra_environ=env)
 
         assert 'update your profile' in response.body
-        assert str(url_for('user.edit')) in response.body
+        assert url_for('user.edit') in response.body
         assert ' and add your email address.' in response.body
 
     def test_email_address_no_nag(self):

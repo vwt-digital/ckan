@@ -421,19 +421,3 @@ class Vocabulary(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
         return helpers.call_action('vocabulary_create', **kwargs)
-
-
-class Activity(factory.Factory):
-    '''A factory class for creating CKAN activity objects.'''
-
-    FACTORY_FOR = ckan.model.Activity
-
-    @classmethod
-    def _build(cls, target_class, *args, **kwargs):
-        raise NotImplementedError(".build() isn't supported in CKAN")
-
-    @classmethod
-    def _create(cls, target_class, *args, **kwargs):
-        if args:
-            assert False, "Positional args aren't supported, use keyword args."
-        return helpers.call_action('activity_create', **kwargs)

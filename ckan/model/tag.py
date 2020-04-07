@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import vdm.sqlalchemy
 from sqlalchemy.orm import relation
 from sqlalchemy import types, Column, Table, ForeignKey, and_, UniqueConstraint
 
@@ -13,9 +14,9 @@ import vocabulary
 import activity
 import ckan  # this import is needed
 import ckan.lib.dictization
-import ckan.lib.maintain as maintain
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
+           'package_tag_revision_table',
            'MAX_TAG_LENGTH', 'MIN_TAG_LENGTH']
 
 MAX_TAG_LENGTH = 100
@@ -34,9 +35,11 @@ package_tag_table = Table('package_tag', meta.metadata,
         Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
         Column('package_id', types.UnicodeText, ForeignKey('package.id')),
         Column('tag_id', types.UnicodeText, ForeignKey('tag.id')),
-        Column('state', types.UnicodeText, default=core.State.ACTIVE),
         )
 
+vdm.sqlalchemy.make_table_stateful(package_tag_table)
+# TODO: this has a composite primary key ...
+package_tag_revision_table = core.make_revisioned_table(package_tag_table)
 
 class Tag(domain_object.DomainObject):
     def __init__(self, name='', vocabulary_id=None):
@@ -137,11 +140,8 @@ class Tag(domain_object.DomainObject):
         # Todo: Make sure tag names can't be changed to look like tag IDs?
 
     @classmethod
-    @maintain.deprecated()
     def search_by_name(cls, search_term, vocab_id_or_name=None):
-        '''DEPRECATED
-
-        Return all tags whose names contain a given string.
+        '''Return all tags whose names contain a given string.
 
         By default only free tags (tags which do not belong to any vocabulary)
         are returned. If the optional argument ``vocab_id_or_name`` is given
@@ -217,8 +217,9 @@ class Tag(domain_object.DomainObject):
     def __repr__(self):
         return '<Tag %s>' % self.name
 
-class PackageTag(core.StatefulObjectMixin,
-                 domain_object.DomainObject):
+class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
+        vdm.sqlalchemy.StatefulObjectMixin,
+        domain_object.DomainObject):
     def __init__(self, package=None, tag=None, state=None, **kwargs):
         self.package = package
         self.tag = tag
@@ -230,13 +231,37 @@ class PackageTag(core.StatefulObjectMixin,
         s = u'<PackageTag package=%s tag=%s>' % (self.package.name, self.tag.name)
         return s.encode('utf8')
 
+    def activity_stream_detail(self, activity_id, activity_type):
+        if activity_type == 'new':
+            # New PackageTag objects are recorded as 'added tag' activities.
+            activity_type = 'added'
+        elif activity_type == 'changed':
+            # Changed PackageTag objects are recorded as 'removed tag'
+            # activities.
+            # FIXME: This assumes that whenever a PackageTag is changed it's
+            # because its' state has been changed from 'active' to 'deleted'.
+            # Should do something more here to test whether that is in fact
+            # what has changed.
+            activity_type = 'removed'
+        else:
+            return None
+
+        # Return an 'added tag' or 'removed tag' activity.
+        import ckan.model as model
+        c = {'model': model}
+        d = {'tag': ckan.lib.dictization.table_dictize(self.tag, c),
+            'package': ckan.lib.dictization.table_dictize(self.package, c)}
+        return activity.ActivityDetail(
+            activity_id=activity_id,
+            object_id=self.id,
+            object_type='tag',
+            activity_type=activity_type,
+            data=d)
+
     @classmethod
-    @maintain.deprecated()
     def by_name(self, package_name, tag_name, vocab_id_or_name=None,
             autoflush=True):
-        '''DEPRECATED (and broken - missing the join to Tag)
-
-        Return the PackageTag for the given package and tag names, or None.
+        '''Return the PackageTag for the given package and tag names, or None.
 
         By default only PackageTags for free tags (tags which do not belong to
         any vocabulary) are returned. If the optional argument
@@ -291,5 +316,7 @@ meta.mapper(PackageTag, package_tag_table, properties={
         )
     },
     order_by=package_tag_table.c.id,
-    extension=[_extension.PluginMapperExtension()],
+    extension=[vdm.sqlalchemy.Revisioner(package_tag_revision_table),
+               _extension.PluginMapperExtension(),
+               ],
     )

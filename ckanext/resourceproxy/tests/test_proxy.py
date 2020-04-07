@@ -3,8 +3,7 @@
 import requests
 import unittest
 import json
-import responses
-import six
+import httpretty
 
 from ckan.tests.helpers import _get_test_app
 from ckan.common import config
@@ -12,7 +11,7 @@ from ckan.common import config
 import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.create_test_data as create_test_data
-import ckanext.resourceproxy.blueprint as blueprint
+import ckanext.resourceproxy.controller as controller
 import ckanext.resourceproxy.plugin as proxy
 
 
@@ -53,11 +52,10 @@ class TestProxyPrettyfied(unittest.TestCase):
     @classmethod
     def setup_class(cls):
         cls._original_config = config.copy()
+        cls.app = _get_test_app()
         if not p.plugin_loaded('resource_proxy'):
             p.load('resource_proxy')
         config['ckan.plugins'] = 'resource_proxy'
-        cls.app = _get_test_app()
-
         create_test_data.CreateTestData.create()
 
     @classmethod
@@ -70,13 +68,15 @@ class TestProxyPrettyfied(unittest.TestCase):
         self.url = 'http://www.ckan.org/static/example.json'
         self.data_dict = set_resource_url(self.url)
 
-    def mock_out_urls(self, *args, **kwargs):
-        responses.add(responses.GET, *args, **kwargs)
-        responses.add(responses.HEAD, *args, **kwargs)
+    def register(self, *args, **kwargs):
+        httpretty.HTTPretty.register_uri(httpretty.HTTPretty.GET, *args,
+                                         **kwargs)
+        httpretty.HTTPretty.register_uri(httpretty.HTTPretty.HEAD, *args,
+                                         **kwargs)
 
-    @responses.activate
+    @httpretty.activate
     def test_resource_proxy_on_200(self):
-        self.mock_out_urls(
+        self.register(
             self.url,
             content_type='application/json',
             body=JSON_STRING)
@@ -86,9 +86,9 @@ class TestProxyPrettyfied(unittest.TestCase):
         assert result.status_code == 200, result.status_code
         assert "yes, I'm proxied" in result.content, result.content
 
-    @responses.activate
+    @httpretty.activate
     def test_resource_proxy_on_404(self):
-        self.mock_out_urls(
+        self.register(
             self.url,
             body="I'm not here",
             content_type='application/json',
@@ -105,12 +105,12 @@ class TestProxyPrettyfied(unittest.TestCase):
         assert result.status_int == 409, result.status
         assert '404' in result.body
 
-    @responses.activate
+    @httpretty.activate
     def test_large_file(self):
-        cl = blueprint.MAX_FILE_SIZE + 1
-        self.mock_out_urls(
+        cl = controller.MAX_FILE_SIZE + 1
+        self.register(
             self.url,
-            headers={'Content-Length': six.text_type(cl)},
+            content_length=cl,
             body='c' * cl)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
@@ -118,12 +118,12 @@ class TestProxyPrettyfied(unittest.TestCase):
         assert result.status_int == 409, result.status
         assert 'too large' in result.body, result.body
 
-    @responses.activate
+    @httpretty.activate
     def test_large_file_streaming(self):
-        cl = blueprint.MAX_FILE_SIZE + 1
-        self.mock_out_urls(
+        cl = controller.MAX_FILE_SIZE + 1
+        self.register(
             self.url,
-            stream=True,
+            streaming=True,
             body='c' * cl)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
@@ -131,9 +131,8 @@ class TestProxyPrettyfied(unittest.TestCase):
         assert result.status_int == 409, result.status
         assert 'too large' in result.body, result.body
 
-    @responses.activate
+    @httpretty.activate
     def test_invalid_url(self):
-        responses.add_passthru(config['solr_url'])
         self.data_dict = set_resource_url('http:invalid_url')
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)

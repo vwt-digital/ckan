@@ -261,6 +261,9 @@ following browsers:
 * Firefox: Latest + previous version
 * Chrome: Latest + previous version
 
+These browsers are determined by whatever has >= 1% share with the
+latest months data from: http://data.gov.uk/data/site-usage
+
 Install browser virtual machines
 ================================
 

@@ -10,7 +10,6 @@ import ckan.lib.jobs as jobs
 import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
-import ckan.lib.dictization as dictization
 import ckan.lib.dictization.model_dictize as model_dictize
 from ckan import authz
 
@@ -49,6 +48,11 @@ def user_delete(context, data_dict):
     if user is None:
         raise NotFound('User "{id}" was not found.'.format(id=user_id))
 
+    # New revision, needed by the member table
+    rev = model.repo.new_revision()
+    rev.author = context['user']
+    rev.message = _(u' Delete User: {0}').format(user.name)
+
     user.delete()
 
     user_memberships = model.Session.query(model.Member).filter(
@@ -73,7 +77,6 @@ def package_delete(context, data_dict):
 
     '''
     model = context['model']
-    session = context['session']
     user = context['user']
     id = _get_or_bust(data_dict, 'id')
 
@@ -83,6 +86,10 @@ def package_delete(context, data_dict):
         raise NotFound
 
     _check_access('package_delete', context, data_dict)
+
+    rev = model.repo.new_revision()
+    rev.author = user
+    rev.message = _(u'REST API: Delete Package: %s') % entity.name
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.delete(entity)
@@ -97,17 +104,6 @@ def package_delete(context, data_dict):
 
     for membership in dataset_memberships:
         membership.delete()
-
-    # Create activity
-    if not entity.private:
-        user_obj = model.User.by_name(user)
-        if user_obj:
-            user_id = user_obj.id
-        else:
-            user_id = 'not logged in'
-
-        activity = entity.activity_stream_item('changed', user_id)
-        session.add(activity)
 
     model.repo.commit()
 
@@ -152,6 +148,8 @@ def dataset_purge(context, data_dict):
         r.purge()
 
     pkg = model.Package.get(id)
+    # no new_revision() needed since there are no object_revisions created
+    # during purge
     pkg.purge()
     model.repo.commit_and_remove()
 
@@ -182,8 +180,6 @@ def resource_delete(context, data_dict):
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_delete(context, data_dict,
                              pkg_dict.get('resources', []))
-
-    pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
     if pkg_dict.get('resources'):
         pkg_dict['resources'] = [r for r in pkg_dict['resources'] if not
@@ -275,6 +271,10 @@ def package_relationship_delete(context, data_dict):
     context['relationship'] = relationship
     _check_access('package_relationship_delete', context, data_dict)
 
+    rev = model.repo.new_revision()
+    rev.author = user
+    rev.message = _(u'REST API: Delete %s') % revisioned_details
+
     relationship.delete()
     model.repo.commit()
 
@@ -313,6 +313,9 @@ def member_delete(context, data_dict=None):
             filter(model.Member.group_id == group.id).\
             filter(model.Member.state    == 'active').first()
     if member:
+        rev = model.repo.new_revision()
+        rev.author = context.get('user')
+        rev.message = _(u'REST API: Delete Member: %s') % obj_id
         member.delete()
         model.repo.commit()
 
@@ -343,7 +346,7 @@ def _group_or_org_delete(context, data_dict, is_org=False):
     else:
         _check_access('group_delete', context, data_dict)
 
-    # organization delete will not occur while all datasets for that org are
+    # organization delete will not occure whilke all datasets for that org are
     # not deleted
     if is_org:
         datasets = model.Session.query(model.Package) \
@@ -364,6 +367,10 @@ def _group_or_org_delete(context, data_dict, is_org=False):
                 ).values(owner_org=None)
             )
 
+    rev = model.repo.new_revision()
+    rev.author = user
+    rev.message = _(u'REST API: Delete %s') % revisioned_details
+
     # The group's Member objects are deleted
     # (including hierarchy connections to parent and children groups)
     for member in model.Session.query(model.Member).\
@@ -373,28 +380,6 @@ def _group_or_org_delete(context, data_dict, is_org=False):
         member.delete()
 
     group.delete()
-
-    if is_org:
-        activity_type = 'deleted organization'
-    else:
-        activity_type = 'deleted group'
-
-    activity_dict = {
-        'user_id': model.User.by_name(user.decode('utf8')).id,
-        'object_id': group.id,
-        'activity_type': activity_type,
-        'data': {
-            'group': dictization.table_dictize(group, context)
-            }
-    }
-    activity_create_context = {
-        'model': model,
-        'user': user,
-        'defer_commit': True,
-        'ignore_auth': True,
-        'session': context['session']
-    }
-    _get_action('activity_create')(activity_create_context, activity_dict)
 
     if is_org:
         plugin_type = plugins.IOrganizationController
@@ -486,11 +471,14 @@ def _group_or_org_purge(context, data_dict, is_org=False):
                    .filter(sqla.or_(model.Member.group_id == group.id,
                                     model.Member.table_id == group.id))
     if members.count() > 0:
+        # no need to do new_revision() because Member is not revisioned, nor
+        # does it cascade delete any revisioned objects
         for m in members.all():
             m.purge()
         model.repo.commit_and_remove()
 
     group = model.Group.get(id)
+    model.repo.new_revision()
     group.purge()
     model.repo.commit_and_remove()
 

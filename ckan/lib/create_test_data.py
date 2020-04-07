@@ -61,9 +61,13 @@ class CreateTestData(object):
         cls.user_refs.append(u'tester')
 
     @classmethod
+
     def create_translations_test_data(cls):
         import ckan.model
         CreateTestData.create()
+        rev = ckan.model.repo.new_revision()
+        rev.author = CreateTestData.author
+        rev.message = u'Creating test translations.'
 
         sysadmin_user = ckan.model.User.get('testsysadmin')
         package = ckan.model.Package.get('annakarenina')
@@ -95,7 +99,6 @@ class CreateTestData(object):
 
         ckan.model.Session.commit()
 
-    @classmethod
     def create_vocabs_test_data(cls):
         import ckan.model
         CreateTestData.create()
@@ -155,6 +158,9 @@ class CreateTestData(object):
             if isinstance(package_dicts, dict):
                 package_dicts = [package_dicts]
             for item in package_dicts:
+                rev = model.repo.new_revision()
+                rev.author = cls.author
+                rev.message = u'Creating test packages.'
                 pkg_dict = {}
                 for field in cls.pkg_core_fields:
                     if item.has_key(field):
@@ -248,6 +254,7 @@ class CreateTestData(object):
 
         needs_commit = False
 
+        rev = model.repo.new_revision()
         for group_name in extra_group_names:
             group = model.Group(name=text_type(group_name))
             model.Session.add(group)
@@ -281,6 +288,10 @@ class CreateTestData(object):
             needs_commit = False
 
         if relationships:
+            rev = model.repo.new_revision()
+            rev.author = cls.author
+            rev.message = u'Creating package relationships.'
+
             def pkg(pkg_name):
                 return model.Package.by_name(text_type(pkg_name))
             for subject_name, relationship, object_name in relationships:
@@ -296,6 +307,8 @@ class CreateTestData(object):
         '''A more featured interface for creating groups.
         All group fields can be filled, packages added, can have
         an admin user and be a member of other groups.'''
+        rev = model.repo.new_revision()
+        rev.author = cls.author
         if admin_user_name:
             admin_users = [model.User.by_name(admin_user_name)]
         else:
@@ -343,6 +356,8 @@ class CreateTestData(object):
             # 2. The next Group created may have this Group as a parent so
             #    creation of the Member needs to refer to this one.
             model.Session.commit()
+            rev = model.repo.new_revision()
+            rev.author = cls.author
             # add it to a parent's group
             if 'parent' in group_dict:
                 parent = model.Group.by_name(text_type(group_dict['parent']))
@@ -356,6 +371,14 @@ class CreateTestData(object):
     @classmethod
     def create(cls, auth_profile="", package_type=None):
         model.Session.remove()
+        rev = model.repo.new_revision()
+        # same name as user we create below
+        rev.author = cls.author
+        rev.message = u'''Creating test data.
+ * Package: annakarenina
+ * Package: warandpeace
+ * Associated tags, etc etc
+'''
         if auth_profile == "publisher":
             organization_group = model.Group(name=u"organization_group",
                                              type="organization")
@@ -466,12 +489,6 @@ left arrow <
             sysadmin,
             ])
         cls.user_refs.extend([u'tester', u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
-
-        # Create activities for packages
-        for item in [pkg1, pkg2]:
-            activity = item.activity_stream_item('new', 'not logged in')
-            model.Session.add(activity)
-
         model.repo.commit_and_remove()
 
     # method used in DGU and all good tests elsewhere
@@ -495,12 +512,9 @@ left arrow <
         user_ref = name
         assert user_ref
         for k, v in user_dict.items():
-            if v is not None:
-                if bool(v):
-                    user_dict[k] = v
-                else:
-                    # avoid unicode warnings
-                    user_dict[k] = text_type(v)
+            if v:
+                # avoid unicode warnings
+                user_dict[k] = text_type(v)
         user = model.User(name=text_type(name), **user_dict)
         model.Session.add(user)
         cls.user_refs.append(user_ref)
@@ -570,6 +584,7 @@ left arrow <
 
     @classmethod
     def make_some_vocab_tags(cls):
+        model.repo.new_revision()
 
         # Create a couple of vocabularies.
         genre_vocab = model.Vocabulary(u'genre')

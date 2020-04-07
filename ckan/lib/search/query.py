@@ -2,19 +2,16 @@
 
 import re
 import logging
-import six
-import pysolr
-
-from ckan.common import asbool
-from werkzeug.datastructures import MultiDict
-
-import ckan.logic as logic
-import ckan.model as model
 
 from ckan.common import config
-from ckan.lib.search.common import (
-    make_connection, SearchError, SearchQueryError
-)
+import pysolr
+from paste.deploy.converters import asbool
+from paste.util.multidict import MultiDict
+import six
+
+from ckan.lib.search.common import make_connection, SearchError, SearchQueryError
+import ckan.logic as logic
+import ckan.model as model
 
 log = logging.getLogger(__name__)
 
@@ -23,7 +20,7 @@ _open_licenses = None
 VALID_SOLR_PARAMETERS = set([
     'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt', 'qf', 'bf', 'boost',
     'facet', 'facet.mincount', 'facet.limit', 'facet.field',
-    'extras', 'fq_list', 'tie', 'defType', 'mm', 'df'
+    'extras', 'fq_list', 'tie', 'defType', 'mm'
 ])
 
 # for (solr) package searches, this specifies the fields that are searched
@@ -214,7 +211,7 @@ class ResourceSearchQuery(SearchQuery):
             options.update(kwargs)
 
         context = {
-            'model': model,
+            'model':model,
             'session': model.Session,
             'search_query': True,
         }
@@ -222,7 +219,6 @@ class ResourceSearchQuery(SearchQuery):
         # Transform fields into structure required by the resource_search
         # action.
         query = []
-
         for field, terms in fields.items():
             if isinstance(terms, six.string_types):
                 terms = terms.split()
@@ -316,9 +312,7 @@ class PackageSearchQuery(SearchQuery):
             query['q'] = "*:*"
 
         # number of results
-        rows_to_return = int(query.get('rows', 10))
-        # query['rows'] should be a defaulted int, due to schema, but make
-        # certain, for legacy tests
+        rows_to_return = min(1000, int(query.get('rows', 10)))
         if rows_to_return > 0:
             # #1683 Work around problem of last result being out of order
             #       in SOLR 1.4

@@ -7,96 +7,6 @@
 Changelog
 ---------
 
-v.2.9.0 TBA
-==================
-
- * This version requires changes to the ``who.ini`` configuration file. If your
-   setup doesn't use the one bundled with this repo, you will have to manually
-   change the following lines::
-
-        use = ckan.lib.auth_tkt:make_plugin
-
-   to::
-
-        use = ckan.lib.repoze_plugins.auth_tkt:make_plugin
-
-   And also::
-
-        use = repoze.who.plugins.friendlyform:FriendlyFormPlugin
-
-   to::
-
-        use = ckan.lib.repoze_plugins.friendly_form:FriendlyFormPlugin
-
- * When upgrading from previous CKAN versions, the Activity Stream needs a
-   migrate_package_activity.py running for displaying the history of dataset
-   changes. This can be performed while CKAN is running or stopped (whereas the
-   standard `paster db upgrade` migrations need CKAN to be stopped). Ideally it
-   is run before CKAN is upgraded, but it can be run afterwards. If running
-   previous versions or this version of CKAN, download and run
-   migrate_package_activity.py like this:
-
-     cd /usr/lib/ckan/default/src/ckan/
-     wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/migrate_package_activity.py
-     wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/revision_legacy_code.py
-     python migrate_package_activity.py -c /etc/ckan/production.ini
-
-   Future versions of CKAN are likely to need a slightly different procedure.
-   Full info about this migration is found here:
-   https://github.com/ckan/ckan/wiki/Migrate-package-activity
-
- * A full history of dataset changes is now displayed in the Activity Stream to
-   admins, and optionally to the public. By default this is enabled for new
-   installs, but disabled for sites which upgrade (just in case the history is
-   sensitive). When upgrading, open data CKANs are encouraged to make this
-   history open to the public, by setting this in production.ini:
-   ``ckan.auth.public_activity_stream_detail = true`` (#3972)
-
-Minor changes:
-
- * For navl schemas, the 'default' validator no longer applies the default when
-   the value is False, 0, [] or {} (#4448)
- * If you've customized the schema for package_search, you'll need to add to it
-   the limiting of ``row``, as per default_package_search_schema now does (#4484)
- * Several logic functions now have new upper limits to how many items can be
-   returned, notably ``group_list``, ``organization_list`` when
-   ``all_fields=true``, ``datastore_search`` and ``datastore_search_sql``.
-   These are all configurable. (#4484, #4562)
-
-Bugfixes:
-
- * Action function "datastore_search" would calculate the total, even if you
-   set include_total=False (#4448)
-
-Removals and deprecations:
-
- * Revision and History UI is removed: `/revision/*` & `/dataset/{id}/history`
-   in favour of `/dataset/changes/` visible in the Activity Stream. (#3972)
- * Logic functions removed:
-   ``dashboard_activity_list_html`` ``organization_activity_list_html``
-   ``user_activity_list_html`` ``package_activity_list_html``
-   ``group_activity_list_html`` ``organization_activity_list_html``
-   ``recently_changed_packages_activity_list_html``
-   ``dashboard_activity_list_html`` ``activity_detail_list`` (#4627/#3972)
- * ``model.ActivityDetail`` is no longer used and will be removed in the next
-   CKAN release. (#3972)
- * ``c.action`` and ``c.controller`` variables should be avoided.
-   ``ckan.plugins.toolkit.get_endpoint`` can be used instead. This function
-   returns tuple of two items(depending on request handler):
-   1. Flask blueprint name / Pylons controller name
-   2. Flask view name / Pylons action name
-   In some cases, Flask blueprints have names that are differs from their
-   Pylons equivalents. For example, 'package' controller is divided between
-   'dataset' and 'resource' blueprints. For such cases you may need to perform
-   additional check of returned value:
-
-   >>> if toolkit.get_endpoint()[0] in ['dataset', 'package']:
-   >>>     do_something()
-
-   In this code snippet, will be called if current request is handled via Flask's
-   dataset blueprint in CKAN>=2.9, and, in the same time, it's still working for
-   Pylons package controller in CKAN<2.9
-
 v.2.8.3 2019-07-03
 ==================
 
@@ -178,7 +88,6 @@ Fixes:
  * Missing c.action attribute in 2.8.0 templates (`#4310 <https://github.com/ckan/ckan/issues/4310>`_)
  * [multilingual] AttributeError: '_Globals' object has no attribute 'fields' (`#4338 <https://github.com/ckan/ckan/issues/4338>`_)
  * `search` legacy route missing (`#4346 <https://github.com/ckan/ckan/issues/4346>`_)
-
 
 v.2.8.0 2018-05-09
 ==================
@@ -297,33 +206,7 @@ Changes and deprecations:
  * The old Celery based background jobs have been removed in CKAN 2.8 in favour of the new RQ based
    jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
- * After introducing dataset blueprint, `h.get_facet_items_dict` takes search_facets as second argument.
-   This change is aimed to reduce usage of global variables in context. For a while, it has default value
-   of None, in which case, `c.search_facets` will be used. But all template designers are strongly advised
-   to specify this argument explicitly, as in future it'll become required.
  * The ``ckan.recaptcha.version`` config option is now removed, since v2 is the only valid version now (#4061)
-
-v.2.7.6 2019-07-03
-==================
-
-General notes:
- * Note: This version does not requires a requirements upgrade on source installations
- * Note: This version does not requires a database upgrade
- * Note: This version does not require a Solr schema upgrade
-
-Fixes:
-
- * Fix problem with reindex-fast (`#4352 <https://github.com/ckan/ckan/issues/4352>`_)
- * Fix `include_total` in `datastore_search` (`#4446 <https://github.com/ckan/ckan/issues/4446>`_)
- * Fix `ValueError` in `url_validator` (`#4629 <https://github.com/ckan/ckan/issues/4629>`_)
- * Strip local path when uploading file in IE (`#4608 <https://github.com/ckan/ckan/issues/4608>`_)
- * Increase size of h1 headings to 1.8em (`#4665 <https://github.com/ckan/ckan/issues/4665>`_)
- * Fix broken div nesting in the `user/read_base.html` (`#4672 <https://github.com/ckan/ckan/issues/4672>`_)
- * Use `get_action` to call activity actions (`#4684 <https://github.com/ckan/ckan/issues/4684>`_)
- * Make reorder resources button translatable (`#4838 <https://github.com/ckan/ckan/issues/4838>`_)
- * More robust auth functions for `resource_view_show` (`#4827 <https://github.com/ckan/ckan/issues/4827>`_)
- * Allow to customize the DataProxy URL (`#4874 <https://github.com/ckan/ckan/issues/4874>`_)
- * Allow custom CKAN callback URL for the DataPusher (`#4878 <https://github.com/ckan/ckan/issues/4878>`_)
 
 v2.7.5 2018-12-12
 =================
@@ -359,7 +242,7 @@ General notes:
    This is due to a bug in the psycopg2 version pinned to the release. To solve
    it, upgrade psycopg2 with the following command::
 
-     pip install --upgrade psycopg2==2.8.2
+     pip install --upgrade psycopg2==2.7.3.2
 
  * This release does not require a Solr schema upgrade, but if you are having the
    issues described in #3863 (datasets wrongly indexed in multilingual setups),
@@ -449,7 +332,6 @@ Major changes:
  * Common requests code for Flask and Pylons (#3212)
  * Generate complete datastore dump files (#3344)
  * A new system for asynchronous background jobs (#3165)
- * Chaining of action functions (#3494)
 
 Minor changes:
  * Renamed example theme plugin (#3576)
@@ -523,24 +405,6 @@ Deprecations:
  * The old Celery based background jobs will be removed in CKAN 2.8 in favour of the new RQ based
    jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
-
-v.2.6.8 2019-07-03
-==================
-
-General notes:
- * Note: This version does not requires a requirements upgrade on source installations
- * Note: This version does not requires a database upgrade
- * Note: This version does not require a Solr schema upgrade
-
-Fixes:
-
- * Fix broken div nesting in the `user/read_base.html` (`#4672 <https://github.com/ckan/ckan/issues/4672>`_)
- * Strip local path when uploading file in IE (`#4608 <https://github.com/ckan/ckan/issues/4608>`_)
- * Increase size of h1 headings to 1.8em (`#4665 <https://github.com/ckan/ckan/issues/4665>`_)
- * Fix `ValueError` in `url_validator` (`#4629 <https://github.com/ckan/ckan/issues/4629>`_)
- * More robust auth functions for `resource_view_show` (`#4827 <https://github.com/ckan/ckan/issues/4827>`_)
- * Allow to customize the DataProxy URL (`#4874 <https://github.com/ckan/ckan/issues/4874>`_)
- * Allow custom CKAN callback URL for the DataPusher (`#4878 <https://github.com/ckan/ckan/issues/4878>`_)
 
 v2.6.7 2018-12-12
 =================
@@ -726,13 +590,6 @@ Bug fixes:
 
 API changes and deprecations:
  * Replace `c.__version__` with new helper `h.ckan_version()` (`#3103 <https://github.com/ckan/ckan/pull/3103>`_)
-
-v2.5.9 2018-05-09
-=================
-
-* Adding filter at resoruce preview doesn't work while site is setup with ckan.root_path param (#4140)
-* Add Warning in docs sidebar (#4209)
-* Point API docs to stable URL (#4209)
 
 v2.5.8 2018-03-15
 =================

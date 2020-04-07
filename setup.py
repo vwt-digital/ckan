@@ -25,9 +25,7 @@ from ckan import (__version__, __description__, __long_description__,
 #
 
 def parse_version(s):
-    return [int(part) for part in s.split('.')]
-
-
+    return map(int, s.split('.'))
 
 HERE = os.path.dirname(__file__)
 with open(os.path.join(HERE, 'requirement-setuptools.txt')) as f:
@@ -79,7 +77,7 @@ entry_points = {
         'jobs = ckan.lib.cli:JobsCommand',
     ],
     'console_scripts': [
-        'ckan = ckan.cli.cli:ckan',
+        'ckan-admin = bin.ckan_admin:Command',
     ],
     'paste.paster_create_template': [
         'ckanext = ckan.pastertemplates:CkanextTemplate',
@@ -131,7 +129,6 @@ entry_points = {
         'example_idatasetform_v2 = ckanext.example_idatasetform.plugin_v2:ExampleIDatasetFormPlugin',
         'example_idatasetform_v3 = ckanext.example_idatasetform.plugin_v3:ExampleIDatasetFormPlugin',
         'example_idatasetform_v4 = ckanext.example_idatasetform.plugin_v4:ExampleIDatasetFormPlugin',
-        'example_idatasetform_v5 = ckanext.example_idatasetform.plugin_v5:ExampleIDatasetFormPlugin',
         'example_igroupform = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin',
         'example_igroupform_default_group_type = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin_DefaultGroupType',
         'example_igroupform_organization = ckanext.example_igroupform.plugin:ExampleIGroupFormOrganizationPlugin',
@@ -163,7 +160,6 @@ entry_points = {
         'example_theme_v19_02_error_handling = ckanext.example_theme_docs.v19_02_error_handling.plugin:ExampleThemePlugin',
         'example_theme_v20_pubsub = ckanext.example_theme_docs.v20_pubsub.plugin:ExampleThemePlugin',
         'example_theme_v21_custom_jquery_plugin = ckanext.example_theme_docs.v21_custom_jquery_plugin.plugin:ExampleThemePlugin',
-        'example_theme_v22_fanstatic_and_webassets = ckanext.example_theme_docs.v22_fanstatic_and_webassets.plugin:ExampleThemePlugin',
         'example_theme_custom_config_setting = ckanext.example_theme_docs.custom_config_setting.plugin:ExampleThemePlugin',
         'example_theme_custom_emails = ckanext.example_theme_docs.custom_emails.plugin:ExampleCustomEmailsPlugin',
         'example_iresourcecontroller = ckanext.example_iresourcecontroller.plugin:ExampleIResourceControllerPlugin',

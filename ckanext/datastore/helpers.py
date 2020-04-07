@@ -3,7 +3,7 @@
 import json
 import logging
 
-import ckan.common as converters
+import paste.deploy.converters as converters
 import sqlparse
 
 from six import string_types

@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from ckan.tests.legacy import *
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 
@@ -15,6 +16,7 @@ class TestCreation:
                                  ])
         theparent = model.Package.by_name(u'the-parent')
         thechild = model.Package.by_name(u'the-child')
+        rev = model.repo.new_revision()
         thechild.add_relationship(u'child_of', theparent, u'Some comment')
         model.repo.commit_and_remove()
 
@@ -41,6 +43,7 @@ class TestCreation:
                                  ])
         theparent = model.Package.by_name(u'the-parent')
         thechild = model.Package.by_name(u'the-child')
+        rev = model.repo.new_revision()
         theparent.add_relationship(u'parent_of', thechild, u'Some comment')
         model.repo.commit_and_remove()
 
@@ -60,6 +63,7 @@ class TestCreation:
                                  ])
         pkga = model.Package.by_name(u'pkga')
         pkgb = model.Package.by_name(u'pkgb')
+        rev = model.repo.new_revision()
         pkgb.add_relationship(u'parent_of', pkga)
         pkgb.add_relationship(u'has_derivation', pkga)
         pkgb.add_relationship(u'child_of', pkga)
@@ -105,6 +109,7 @@ class TestSimple:
         pkga = model.Package.by_name(u'pkga')
         pkgb = model.Package.by_name(u'pkgb')
         pkgc = model.Package.by_name(u'pkgc')
+        rev = model.repo.new_revision()
         pkgb.add_relationship(u'parent_of', pkga)
         pkgb.add_relationship(u'has_derivation', pkga)
         pkgb.add_relationship(u'child_of', pkga)
@@ -222,6 +227,8 @@ class TestComplicated:
         assert len(rels) == 2
         assert rels[0].state == model.State.ACTIVE
 
+
+        model.repo.new_revision()
         rels[0].delete()
         rels[1].delete()
         model.repo.commit_and_remove()
@@ -245,6 +252,7 @@ class TestComplicated:
         rels = bart.get_relationships()
         assert len(rels) == 0, "expected bart to have no relations, found %s" % rels
 
+        model.repo.new_revision()
         bart.add_relationship(u"child_of", homer)
         bart.add_relationship(u"child_of", marge)
         model.repo.commit_and_remove()
@@ -265,6 +273,7 @@ class TestComplicated:
         bart = model.Package.by_name(u"bart")
         assert len(bart.get_relationships_printable()) == 3, len(bart.get_relationships_printable())
 
+        model.repo.new_revision()
         lisa = model.Package.by_name(u"lisa")
         lisa.state = 'deleted'
         model.Session.commit()
@@ -278,12 +287,14 @@ class TestComplicated:
         rels = homer.get_relationships(with_package=homer_derived)
         self._check(rels, 'homer_derived', 'derives_from', 'homer')
 
+        model.repo.new_revision()
         rels[0].delete()
         model.repo.commit_and_remove()
         rels = homer.get_relationships(with_package=homer_derived)
         assert len(homer.get_relationships(with_package=homer_derived)) == 0, \
             'expectiong homer to have no relationships'
 
+        model.repo.new_revision()
         homer.add_relationship(u"derives_from", homer_derived)
         model.repo.commit_and_remove()
         rels = homer.get_relationships(with_package=homer_derived)
@@ -291,8 +302,10 @@ class TestComplicated:
             'expectiong homer to have newly created relationship'
         self._check(rels, 'homer', 'derives_from', 'homer_derived')
 
+        model.repo.new_revision()
         rels[0].delete()
         model.repo.commit_and_remove()
+        model.repo.new_revision()
         homer.add_relationship(u"has_derivation", homer_derived)
         model.repo.commit_and_remove()
         rels = homer.get_relationships(with_package=homer_derived)

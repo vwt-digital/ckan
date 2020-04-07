@@ -1,8 +1,11 @@
 # encoding: utf-8
 
-from nose.tools import assert_equal
+from sqlalchemy import MetaData, __version__ as sqav
+from nose.tools import assert_equal, raises
 
+from ckan.tests.legacy import *
 import ckan.model as model
+from ckan.lib.create_test_data import CreateTestData
 
 
 class TestResource:
@@ -18,6 +21,7 @@ class TestResource:
         self.size = 200
         self.label = 'labeltest'
         self.sort_order = '1'
+        rev = model.repo.new_revision()
         pkg = model.Package(name=self.pkgname)
         model.Session.add(pkg)
         for url in self.urls:
@@ -61,6 +65,7 @@ class TestResource:
         assert_equal(generated_dict_resource['size'], 200)
 
         ## check to see if extra descriptor deletes properly
+        rev = model.repo.new_revision()
         del resource_0.extras[u'size']
         assert resource_0.extras == {u'alt_url': u'http://alturl'}, pkg.resources[0].extras
 
@@ -88,6 +93,7 @@ class TestResource:
         pkg = model.Package.by_name(self.pkgname)
         res = pkg.resources[0]
         assert len(pkg.resources) == 3, pkg.resources
+        rev = model.repo.new_revision()
         res.delete()
         model.repo.commit_and_remove()
 
@@ -96,6 +102,7 @@ class TestResource:
         assert len(pkg.resources_all) == 3, pkg.resources_all
 
     def test_03_reorder_resources(self):
+        rev = model.repo.new_revision()
         pkg = model.Package.by_name(self.pkgname)
 
         res0 = pkg.resources_all[0]
@@ -121,6 +128,7 @@ class TestResource:
 
     def test_04_insert_resource(self):
         pkg = model.Package.by_name(self.pkgname)
+        rev = model.repo.new_revision()
         newurl = u'http://xxxxxxxxxxxxxxx'
 
         resource = model.Resource(url=newurl)
@@ -130,6 +138,7 @@ class TestResource:
         pkg = model.Package.by_name(self.pkgname)
         assert len(pkg.resources) == 4, pkg.resources
         assert pkg.resources_all[1].url == self.urls[0]
+        assert len(pkg.resources_all[1].all_revisions) == 2
 
     def test_05_delete_package(self):
         pkg = model.Package.by_name(self.pkgname)
@@ -138,6 +147,7 @@ class TestResource:
                            filter_by(state=model.State.ACTIVE)
         assert all_resources.count() == 3, all_resources.all()
         assert active_resources.count() == 3, active_resources.count()
+        rev = model.repo.new_revision()
         pkg.delete()
         model.repo.commit_and_remove()
 
@@ -151,6 +161,7 @@ class TestResource:
         pkg = model.Package.by_name(self.pkgname)
         all_resources = model.Session.query(model.Resource).all()
         assert len(all_resources) == 3, pkg.resources
+        rev = model.repo.new_revision()
         pkg.purge()
         model.repo.commit_and_remove()
 

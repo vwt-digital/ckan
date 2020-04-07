@@ -9,7 +9,7 @@ from ckan.lib.cli import (
     click_config_option,
 )
 from ckanext.datastore.backend.postgres import identifier
-from ckanext.datastore.blueprint import DUMP_FORMATS, dump_to
+from ckanext.datastore.controller import DUMP_FORMATS, dump_to
 
 import click
 
@@ -86,6 +86,4 @@ def dump(ctx, resource_id, output_file, config, format, offset, limit, bom):
         fmt=format,
         offset=offset,
         limit=limit,
-        options={u'bom': bom},
-        sort=u'_id',
-        search_params={})
+        options={u'bom': bom})

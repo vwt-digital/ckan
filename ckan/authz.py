@@ -8,7 +8,7 @@ from collections import defaultdict
 from logging import getLogger
 
 from ckan.common import config
-from ckan.common import asbool
+from paste.deploy.converters import asbool
 
 import ckan.plugins as p
 import ckan.model as model
@@ -206,8 +206,7 @@ def is_authorized(action, context, data_dict=None):
             return {
                 'success': False,
                 'msg': 'Action {0} requires an authenticated user'.format(
-                    (auth_function if not isinstance(auth_function, functools.partial)
-                        else auth_function.func).__name__)
+                    action)
             }
 
         return auth_function(context, data_dict)
@@ -408,7 +407,6 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'create_user_via_api': False,
     'create_user_via_web': True,
     'roles_that_cascade_to_sub_groups': 'admin',
-    'public_activity_stream_detail': False,
 }
 
 

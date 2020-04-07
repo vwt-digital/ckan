@@ -2,7 +2,6 @@
 
 import logging
 from sqlalchemy import create_engine
-from six.moves import map
 
 from ckanext.datastore.backend import DatastoreBackend
 
@@ -41,7 +40,7 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
 
     def create(self, context, data_dict):
         columns = str(u', '.join(
-            [e['id'] + u' text' for e in data_dict['fields']]))
+            map(lambda e: e['id'] + u' text', data_dict['fields'])))
         engine = self._get_engine()
         engine.execute(
             u' CREATE TABLE IF NOT EXISTS "{name}"({columns});'.format(
@@ -68,7 +67,7 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
             data_dict.get(u'limit', 10)
         ))
 
-        data_dict['records'] = list(map(dict, result.fetchall()))
+        data_dict['records'] = map(dict, result.fetchall())
         data_dict['total'] = len(data_dict['records'])
 
         fields_info = []
@@ -114,8 +113,8 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
         return False, alias
 
     def get_all_ids(self):
-        return [t.name for t in self._get_engine().execute(
+        return map(lambda t: t.name, self._get_engine().execute(
             u'''
             select name from sqlite_master
             where type = "table"'''
-        ).fetchall()]
+        ).fetchall())

@@ -34,8 +34,7 @@ def get_jinja_env_options():
                     LinkForExtension,
                     ResourceExtension,
                     UrlForStaticExtension,
-                    UrlForExtension,
-                    AssetExtension],
+                    UrlForExtension],
     )
 
 
@@ -256,8 +255,7 @@ class BaseExtension(ext.Extension):
 class SnippetExtension(BaseExtension):
     ''' Custom snippet tag
 
-    {% snippet <template_name> [, <fallback_template_name>]...
-               [, <keyword>=<value>]... %}
+    {% snippet <template_name> [, <keyword>=<value>].. %}
 
     see lib.helpers.snippet() for more details.
     '''
@@ -266,7 +264,8 @@ class SnippetExtension(BaseExtension):
 
     @classmethod
     def _call(cls, args, kwargs):
-        return base.render_snippet(*args, **kwargs)
+        assert len(args) == 1
+        return base.render_snippet(args[0], **kwargs)
 
 class UrlForStaticExtension(BaseExtension):
     ''' Custom url_for_static tag for getting a path for static assets.
@@ -313,7 +312,7 @@ class LinkForExtension(BaseExtension):
         return h.nav_link(*args, **kwargs)
 
 class ResourceExtension(BaseExtension):
-    ''' Deprecated. Custom include_resource tag.
+    ''' Custom include_resource tag
 
     {% resource <resource_name> %}
 
@@ -329,23 +328,6 @@ class ResourceExtension(BaseExtension):
         h.include_resource(args[0], **kwargs)
         return ''
 
-
-class AssetExtension(BaseExtension):
-    ''' Custom include_asset tag.
-
-    {% asset <bundle_name> %}
-
-    see lib.webassets_tools.include_asset() for more details.
-    '''
-
-    tags = set(['asset'])
-
-    @classmethod
-    def _call(cls, args, kwargs):
-        assert len(args) == 1
-        assert len(kwargs) == 0
-        h.include_asset(args[0])
-        return ''
 
 
 '''

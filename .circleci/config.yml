@@ -2,7 +2,7 @@ version: 2
 jobs:
   test:
     docker:
-      - image: python:2-stretch
+      - image: python:2
         environment:
           CKAN_DATASTORE_POSTGRES_DB: datastore_test
           CKAN_DATASTORE_POSTGRES_READ_USER: datastore_read
@@ -29,7 +29,7 @@ jobs:
       - checkout
 
       - run: |
-          # OS Dependencies
+          # SO Dependencies
           apt update
           case $CIRCLE_NODE_INDEX in
             $NODE_TESTS_CONTAINER)
@@ -76,14 +76,6 @@ jobs:
           esac
       - store_test_results:
           path: ~/junit
-
-      # test_revision_legacy_code is run separately because it mucks up the model for some other tests when nose starts up
-      - run:
-          command: |
-            case $CIRCLE_NODE_INDEX in
-              3) nosetests -v --ckan --with-pylons=test-core-circle-ci.ini --nologcapture test_revision_legacy_code.py
-              ;;
-            esac
 
       # Tests Frontend, only in one container
       - run:

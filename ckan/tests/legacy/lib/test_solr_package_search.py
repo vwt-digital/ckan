@@ -47,6 +47,7 @@ class TestSearch(TestController):
         setup_test_search_index()
         CreateTestData.create_search_test_data()
         # now remove a tag so we can test search with deleted tags
+        model.repo.new_revision()
         gils = model.Package.by_name(u'gils')
         # an existing tag used only by gils
         cls.tagname = u'registry'

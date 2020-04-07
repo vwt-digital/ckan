@@ -1,5 +1,3 @@
-.. include:: /_substitutions.rst
-
 ---------------------------
 Writing extensions tutorial
 ---------------------------
@@ -20,19 +18,6 @@ install of CKAN on your system. If you don't have a CKAN source install
 already, follow the instructions in
 :doc:`/maintaining/installing/install-from-source` before continuing.
 
-.. note::
-
-   If you are developing extension without actual source installation
-   of CKAN(i.e. if you have installed CKAN as package via `pip install
-   ckan`), you can install all main and dev dependencies with the
-   following commands:
-
-   .. parsed-literal::
-
-      pip install -r |raw_git_url|/|latest_release_tag|/requirements.txt
-      pip install -r |raw_git_url|/|latest_release_tag|/dev-requirements.txt
-
-
 
 Creating a new extension
 ========================
@@ -43,53 +28,41 @@ Creating a new extension
    Each extension contains one or more *plugins* that must be added to your
    CKAN config file to activate the extension's features.
 
-You can use ``cookiecutter`` command to create an "empty" extension from
-a template. Or the CLI command ``ckan generate extension``. For whichever
-method you choose, the first step is to activate your CKAN virtual
-environment:
+
+You can use the ``paster create`` command to create an "empty" extension from
+a template. First, activate your CKAN virtual environment:
 
 .. parsed-literal::
 
    |activate|
 
-.. topic:: ``cookiecutter``
-
-   When you run ``cookiecutter``, your new extension's directory will
-   be created in the current working directory by default (you can override
-   this with the ``-o`` option), so change to the directory that you want your
-   extension to be created in. Usually you'll want to track your extension code
-   using a version control system such as ``git``, so you wouldn't want to
-   create your extension in the ``ckan`` source directory because that
-   directory already contains the CKAN git repo. Let's use the parent directory
-   instead:
+When you run the ``paster create`` command, your new extension's directory will
+be created in the current working directory by default (you can override this
+with the ``-o`` option), so change to the directory that you want your
+extension to be created in. Usually you'll want to track your extension code
+using a version control system such as ``git``, so you wouldn't want to create
+your extension in the ``ckan`` source directory because that directory already
+contains the CKAN git repo. Let's use the parent directory instead:
 
 .. parsed-literal::
 
    cd |virtualenv|/src
 
-Now run ``cookiecutter`` to create your extension::
+Now run the ``paster create`` command to create your extension::
 
-    cookiecutter ckan/contrib/cookiecutter/ckan_extension/
-
-.. topic:: CLI Command
-
-   Using the ``ckan generate extension`` place the extension's directory
-   in the ``ckan`` source code's parent directory (this can be changed
-   the using the ``-o`` option). Run the command to create the extension::
-
-    ckan generate extension
-
-The commands will present a few prompts. The information you give will
-end up in your extension's ``setup.py`` file (where you can edit them later if
-you want).
+    paster --plugin=ckan create -t ckanext ckanext-iauthfunctions
 
 .. note::
 
-   The first prompt is for the name of your next
-   extension. CKAN extension names *have* to begin with ``ckanext-``. This
-   tutorial uses the project name ``ckanext-iauthfunctions``.
+   The last argument to the ``paster create`` command
+   (``ckanext-iauthfunctions`` in this example) is the name for your next
+   extension. CKAN extension names *have* to begin with ``ckanext-``.
 
-Once the command has completed, your new CKAN extension's project
+The command will ask you to answer a few questions. The answers you give will
+end up in your extension's ``setup.py`` file (where you can edit them later if
+you want).
+
+Once this command has completed, your new CKAN extension's project
 directory will have been created and will contain a few directories and files
 to get you started::
 
@@ -123,9 +96,8 @@ Creating a plugin class
    extension's features.
 
 
-``cookiecutter`` should have created the following file file
-``ckanext-iauthfunctions/ckanext/iauthfunctions/plugin.py``.
-Edit it to match the following:
+Now create the file ``ckanext-iauthfunctions/ckanext/iauthfunctions/plugin.py``
+with the following contents:
 
 .. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v1.py
 
@@ -145,12 +117,11 @@ in this example, that inherits from CKAN's
 Adding the plugin to ``setup.py``
 =================================
 
-Now let's add our class to the ``entry_points`` in ``setup.py``. This
+Now let's add our class to the ``entry_points`` in ``setup.py``.  This
 identifies the plugin class to CKAN once the extension is installed in CKAN's
 virtualenv, and associates a plugin name with the class.  Edit
 ``ckanext-iauthfunctions/setup.py`` and add a line to
 the ``entry_points`` section like this::
-
 
     entry_points='''
         [ckan.plugins]
@@ -444,7 +415,8 @@ group named ``curators``.
 
    If you've already created a ``curators`` group and want to test what happens
    when the site has no ``curators`` group, you can use CKAN's command line
-   interface to :ref:`clean and reinitialize your database <database management>`.
+   interface to :ref`clean and reinitialize your database
+   <database management>`.
 
 Try visiting the ``/group`` page in CKAN with our ``example_iauthfunctions``
 plugin activated in your CKAN config file and with no ``curators`` group in

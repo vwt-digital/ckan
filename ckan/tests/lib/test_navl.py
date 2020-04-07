@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import nose
+import pylons
 from six import text_type
 
 from ckan.tests import helpers

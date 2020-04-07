@@ -65,7 +65,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         assert_equal(pkg['extras'], self.package_fixture_data['extras'])
 
         # Check the value of the Location header.
-        location = res.headers.get('Location')
+        location = res.header('Location')
 
         assert offset in location
         res = self.app.get(location, status=self.STATUS_200_OK)

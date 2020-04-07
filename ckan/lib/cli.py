@@ -23,7 +23,6 @@ from six.moves.urllib.parse import urljoin, urlparse
 from six.moves.urllib.request import urlopen
 
 import sqlalchemy as sa
-
 import routes
 import paste.script
 from paste.registry import Registry
@@ -37,7 +36,7 @@ import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
 import ckan.plugins as p
 from ckan.common import config
-from ckan.common import asbool
+
 # This is a test Flask request context to be used internally.
 # Do not use it!
 _cli_test_request_context = None
@@ -111,8 +110,6 @@ def user_add(args):
     for arg in args[1:]:
         try:
             field, value = arg.split('=', 1)
-            if field == 'sysadmin':
-                value = asbool(value)
             data_dict[field] = value
         except ValueError:
             raise ValueError(
@@ -121,7 +118,6 @@ def user_add(args):
 
     # Required
     while '@' not in data_dict.get('email', ''):
-        print('Error: Invalid email address')
         data_dict['email'] = input('Email address: ').strip()
 
     if 'password' not in data_dict:
@@ -343,6 +339,10 @@ class ManageDb(CkanCommand):
                                      search index
     db upgrade [version no.]       - Data migrate
     db version                     - returns current version of data schema
+    db dump FILE_PATH              - dump to a pg_dump file [DEPRECATED]
+    db load FILE_PATH              - load a pg_dump from a file [DEPRECATED]
+    db load-only FILE_PATH         - load a pg_dump from a file but don\'t do
+                                     the schema upgrade or search indexing [DEPRECATED]
     db create-from-model           - create database from the model (indexes not made)
     db migrate-filestore           - migrate all uploaded data from the 2.1 filesore.
     '''
@@ -354,8 +354,7 @@ class ManageDb(CkanCommand):
     def command(self):
         cmd = self.args[0]
 
-        self._load_config(cmd != 'upgrade')
-
+        self._load_config(cmd!='upgrade')
         import ckan.model as model
         import ckan.lib.search as search
 
@@ -379,17 +378,139 @@ class ManageDb(CkanCommand):
             if self.verbose:
                 print('Cleaning DB: SUCCESS')
         elif cmd == 'upgrade':
-            model.repo.upgrade_db(*self.args[1:])
-        elif cmd == 'downgrade':
-            model.repo.downgrade_db(*self.args[1:])
+            if len(self.args) > 1:
+                model.repo.upgrade_db(self.args[1])
+            else:
+                model.repo.upgrade_db()
         elif cmd == 'version':
             self.version()
+        elif cmd == 'dump':
+            self.dump()
+        elif cmd == 'load':
+            self.load()
+        elif cmd == 'load-only':
+            self.load(only_load=True)
         elif cmd == 'create-from-model':
             model.repo.create_db()
             if self.verbose:
                 print('Creating DB: SUCCESS')
+        elif cmd == 'migrate-filestore':
+            self.migrate_filestore()
         else:
             error('Command %s not recognized' % cmd)
+
+    def _get_db_config(self):
+        return parse_db_config()
+
+    def _get_postgres_cmd(self, command):
+        self.db_details = self._get_db_config()
+        if self.db_details.get('db_type') not in ('postgres', 'postgresql'):
+            raise AssertionError('Expected postgres database - not %r' % self.db_details.get('db_type'))
+        pg_cmd = command
+        pg_cmd += ' -U %(db_user)s' % self.db_details
+        if self.db_details.get('db_pass') not in (None, ''):
+            pg_cmd = 'export PGPASSWORD=%(db_pass)s && ' % self.db_details + pg_cmd
+        if self.db_details.get('db_host') not in (None, ''):
+            pg_cmd += ' -h %(db_host)s' % self.db_details
+        if self.db_details.get('db_port') not in (None, ''):
+            pg_cmd += ' -p %(db_port)s' % self.db_details
+        return pg_cmd
+
+    def _get_psql_cmd(self):
+        psql_cmd = self._get_postgres_cmd('psql')
+        psql_cmd += ' -d %(db_name)s' % self.db_details
+        return psql_cmd
+
+    def _postgres_dump(self, filepath):
+        pg_dump_cmd = self._get_postgres_cmd('pg_dump')
+        pg_dump_cmd += ' %(db_name)s' % self.db_details
+        pg_dump_cmd += ' > %s' % filepath
+        self._run_cmd(pg_dump_cmd)
+        print('Dumped database to: %s' % filepath)
+
+    def _postgres_load(self, filepath):
+        import ckan.model as model
+        assert not model.repo.are_tables_created(), "Tables already found. You need to 'db clean' before a load."
+        pg_cmd = self._get_psql_cmd() + ' -f %s' % filepath
+        self._run_cmd(pg_cmd)
+        print('Loaded CKAN database: %s' % filepath)
+
+    def _run_cmd(self, command_line):
+        import subprocess
+        retcode = subprocess.call(command_line, shell=True)
+        if retcode != 0:
+            raise SystemError('Command exited with errorcode: %i' % retcode)
+
+    def dump(self):
+        deprecation_warning(u"Use PostgreSQL's pg_dump instead.")
+        if len(self.args) < 2:
+            print('Need pg_dump filepath')
+            return
+        dump_path = self.args[1]
+
+        psql_cmd = self._get_psql_cmd() + ' -f %s'
+        pg_cmd = self._postgres_dump(dump_path)
+
+    def load(self, only_load=False):
+        deprecation_warning(u"Use PostgreSQL's pg_restore instead.")
+        if len(self.args) < 2:
+            print('Need pg_dump filepath')
+            return
+        dump_path = self.args[1]
+
+        psql_cmd = self._get_psql_cmd() + ' -f %s'
+        pg_cmd = self._postgres_load(dump_path)
+        if not only_load:
+            print('Upgrading DB')
+            import ckan.model as model
+            model.repo.upgrade_db()
+
+            print('Rebuilding search index')
+            import ckan.lib.search
+            ckan.lib.search.rebuild()
+        else:
+            print('Now remember you have to call \'db upgrade\' and then \'search-index rebuild\'.')
+        print('Done')
+
+    def migrate_filestore(self):
+        from ckan.model import Session
+        import requests
+        from ckan.lib.uploader import ResourceUpload
+        results = Session.execute("select id, revision_id, url from resource "
+                                  "where resource_type = 'file.upload' "
+                                  "and (url_type <> 'upload' or url_type is null)"
+                                  "and url like '%storage%'")
+        for id, revision_id, url in results:
+            response = requests.get(url, stream=True)
+            if response.status_code != 200:
+                print("failed to fetch %s (code %s)" % (url,
+                                                        response.status_code))
+                continue
+            resource_upload = ResourceUpload({'id': id})
+            assert resource_upload.storage_path, "no storage configured aborting"
+
+            directory = resource_upload.get_directory(id)
+            filepath = resource_upload.get_path(id)
+            try:
+                os.makedirs(directory)
+            except OSError as e:
+                ## errno 17 is file already exists
+                if e.errno != 17:
+                    raise
+
+            with open(filepath, 'wb+') as out:
+                for chunk in response.iter_content(1024):
+                    if chunk:
+                        out.write(chunk)
+
+            Session.execute("update resource set url_type = 'upload'"
+                            "where id = :id", {'id': id})
+            Session.execute("update resource_revision set url_type = 'upload'"
+                            "where id = :id and "
+                            "revision_id = :revision_id",
+                            {'id': id, 'revision_id': revision_id})
+            Session.commit()
+            print("Saved url %s" % url)
 
     def version(self):
         from ckan.model import Session
@@ -506,7 +627,7 @@ Default is false.''')
 
     def rebuild_fast(self):
         ###  Get out config but without starting pylons environment ####
-        conf = _get_config()
+        conf = _get_config(self.options.config)
 
         ### Get ids using own engine, otherwise multiprocess will balk
         db_url = conf['sqlalchemy.url']
@@ -618,7 +739,7 @@ class RDFExport(CkanCommand):
             if not dd['state'] == 'active':
                 continue
 
-            url = h.url_for('dataset.read', id=dd['name'])
+            url = h.url_for(controller='package', action='read', id=dd['name'])
 
             url = urljoin(fetch_url, url[1:]) + '.rdf'
             try:
@@ -647,10 +768,8 @@ class Sysadmin(CkanCommand):
                                       (prompts for password and email if not
                                       supplied).
                                       Field can be: apikey
-                                                    email
-                                                    fullname
-                                                    name (this will be the username)
                                                     password
+                                                    email
       sysadmin remove USERNAME      - removes user from sysadmins
     '''
 
@@ -736,10 +855,8 @@ class UserCmd(CkanCommand):
                                       - add a user (prompts for email and
                                         password if not supplied).
                                         Field can be: apikey
-                                                      email
-                                                      fullname
-                                                      name (this will be the username)
                                                       password
+                                                      email
       user setpass USERNAME           - set user password (prompts)
       user remove USERNAME            - removes user from users
       user search QUERY               - searches for a user name
@@ -904,6 +1021,7 @@ class DatasetCmd(CkanCommand):
         dataset = self._get_dataset(dataset_ref)
         old_state = dataset.state
 
+        rev = model.repo.new_revision()
         dataset.delete()
         model.repo.commit_and_remove()
         dataset = self._get_dataset(dataset_ref)
@@ -1885,17 +2003,10 @@ class LessCommand(CkanCommand):
     def less(self):
         ''' Compile less files '''
         import subprocess
-        command = ('npm', 'bin')
-        process = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True)
+        command = 'npm bin'
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         output = process.communicate()
         directory = output[0].strip()
-        if not directory:
-            raise error('Command "{}" returned nothing. Check that npm is '
-                        'installed.'.format(' '.join(command)))
         less_bin = os.path.join(directory, 'lessc')
 
         public = config.get(u'ckan.base_public_folder')
@@ -1919,12 +2030,9 @@ class LessCommand(CkanCommand):
         main_less = os.path.join(root, 'less', 'main.less')
         main_css = os.path.join(root, 'css', '%s.css' % color)
 
-        command = (less_bin, main_less, main_css)
-        process = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True)
+        command = '%s %s %s' % (less_bin, main_less, main_css)
+
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         output = process.communicate()
         print(output)
 
@@ -2272,8 +2380,8 @@ Not used when using the `-d` option.''')
                         view_types=loaded_view_plugins)
 
                     if views:
-                        view_types = list({view['view_type']
-                                           for view in views})
+                        view_types = list(set([view['view_type']
+                                               for view in views]))
                         msg = ('Added {0} view(s) of type(s) {1} to ' +
                                'resources from dataset {2}')
                         log.debug(msg.format(len(views),

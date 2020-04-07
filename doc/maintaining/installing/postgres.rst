@@ -1,11 +1,5 @@
 :orphan:
 
-.. note::
-
-    If you are facing a problem in case postgresql is not running, 
-    execute the command ``sudo service postgresql start`` 
-    
-    
 Check that |postgres| was installed correctly by listing the existing databases::
 
     sudo -u postgres psql -l

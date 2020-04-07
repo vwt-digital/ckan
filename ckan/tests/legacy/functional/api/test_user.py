@@ -1,14 +1,17 @@
 # encoding: utf-8
 
+import paste
+from ckan.common import config
 from nose.tools import assert_equal
 
 import ckan.logic as logic
+import ckan.authz as authz
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests.legacy import TestController as ControllerTestCase
+from ckan.tests.legacy.pylons_controller import PylonsTestCase
 from ckan.tests.legacy import url_for
-from ckan.tests import helpers
-
+import ckan.config.middleware
 from ckan.common import json
 
 
@@ -32,7 +35,7 @@ class TestUserApi(ControllerTestCase):
         print(response.json)
         assert set(response.json[0].keys()) == set(['id', 'name', 'fullname'])
         assert_equal(response.json[0]['name'], u'testsysadmin')
-        assert_equal(response.headers.get('Content-Type'), 'application/json;charset=utf-8')
+        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
     def test_autocomplete_multiple(self):
         response = self.app.get(
@@ -58,7 +61,7 @@ class TestUserApi(ControllerTestCase):
         assert_equal(len(response.json), 1)
 
 
-class TestCreateUserApiDisabled(ControllerTestCase):
+class TestCreateUserApiDisabled(PylonsTestCase):
     '''
     Tests for the creating user when create_user_via_api is disabled.
     '''
@@ -66,11 +69,19 @@ class TestCreateUserApiDisabled(ControllerTestCase):
     @classmethod
     def setup_class(cls):
         CreateTestData.create()
+        cls._original_config = config.copy()
+        wsgiapp = ckan.config.middleware.make_app(
+            config['global_conf'], **config)
+        cls.app = paste.fixture.TestApp(wsgiapp)
         cls.sysadmin_user = model.User.get('testsysadmin')
-        cls.app = helpers._get_test_app()
+        PylonsTestCase.setup_class()
 
     @classmethod
     def teardown_class(cls):
+        config.clear()
+        config.update(cls._original_config)
+        PylonsTestCase.teardown_class()
+
         model.repo.rebuild_db()
 
     def test_user_create_api_enabled_sysadmin(self):
@@ -99,7 +110,7 @@ class TestCreateUserApiDisabled(ControllerTestCase):
         assert res_dict['success'] is False
 
 
-class TestCreateUserApiEnabled(ControllerTestCase):
+class TestCreateUserApiEnabled(PylonsTestCase):
     '''
     Tests for the creating user when create_user_via_api is enabled.
     '''
@@ -107,11 +118,20 @@ class TestCreateUserApiEnabled(ControllerTestCase):
     @classmethod
     def setup_class(cls):
         CreateTestData.create()
+        cls._original_config = config.copy()
+        config['ckan.auth.create_user_via_api'] = True
+        wsgiapp = ckan.config.middleware.make_app(
+            config['global_conf'], **config)
+        cls.app = paste.fixture.TestApp(wsgiapp)
+        PylonsTestCase.setup_class()
         cls.sysadmin_user = model.User.get('testsysadmin')
-        cls.app = helpers._get_test_app()
 
     @classmethod
     def teardown_class(cls):
+        config.clear()
+        config.update(cls._original_config)
+        PylonsTestCase.teardown_class()
+
         model.repo.rebuild_db()
 
     def test_user_create_api_enabled_sysadmin(self):
@@ -127,7 +147,6 @@ class TestCreateUserApiEnabled(ControllerTestCase):
         res_dict = res.json
         assert res_dict['success'] is True
 
-    @helpers.change_config('ckan.auth.create_user_via_api', True)
     def test_user_create_api_enabled_anon(self):
         params = {
             'name': 'testinganewuseranon',
@@ -139,7 +158,7 @@ class TestCreateUserApiEnabled(ControllerTestCase):
         assert res_dict['success'] is True
 
 
-class TestCreateUserWebDisabled(ControllerTestCase):
+class TestCreateUserWebDisabled(PylonsTestCase):
     '''
     Tests for the creating user by create_user_via_web is disabled.
     '''
@@ -147,14 +166,22 @@ class TestCreateUserWebDisabled(ControllerTestCase):
     @classmethod
     def setup_class(cls):
         CreateTestData.create()
-        cls.app = helpers._get_test_app()
+        cls._original_config = config.copy()
+        config['ckan.auth.create_user_via_web'] = False
+        wsgiapp = ckan.config.middleware.make_app(
+            config['global_conf'], **config)
+        cls.app = paste.fixture.TestApp(wsgiapp)
         cls.sysadmin_user = model.User.get('testsysadmin')
+        PylonsTestCase.setup_class()
 
     @classmethod
     def teardown_class(cls):
+        config.clear()
+        config.update(cls._original_config)
+        PylonsTestCase.teardown_class()
+
         model.repo.rebuild_db()
 
-    @helpers.change_config('ckan.auth.create_user_via_web', False)
     def test_user_create_api_disabled(self):
         params = {
             'name': 'testinganewuser',
@@ -167,7 +194,7 @@ class TestCreateUserWebDisabled(ControllerTestCase):
         assert res_dict['success'] is False
 
 
-class TestCreateUserWebEnabled(ControllerTestCase):
+class TestCreateUserWebEnabled(PylonsTestCase):
     '''
     Tests for the creating user by create_user_via_web is enabled.
     '''
@@ -175,14 +202,22 @@ class TestCreateUserWebEnabled(ControllerTestCase):
     @classmethod
     def setup_class(cls):
         CreateTestData.create()
-        cls.app = helpers._get_test_app()
+        cls._original_config = config.copy()
+        config['ckan.auth.create_user_via_web'] = True
+        wsgiapp = ckan.config.middleware.make_app(
+            config['global_conf'], **config)
+        cls.app = paste.fixture.TestApp(wsgiapp)
         cls.sysadmin_user = model.User.get('testsysadmin')
+        PylonsTestCase.setup_class()
 
     @classmethod
     def teardown_class(cls):
+        config.clear()
+        config.update(cls._original_config)
+        PylonsTestCase.teardown_class()
+
         model.repo.rebuild_db()
 
-    @helpers.change_config('ckan.auth.create_user_via_web', True)
     def test_user_create_api_disabled(self):
         params = {
             'name': 'testinganewuser',

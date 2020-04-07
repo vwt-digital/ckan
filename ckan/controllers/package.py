@@ -1,13 +1,13 @@
 # encoding: utf-8
 
 import logging
-from six.moves.urllib.parse import urlencode
+from urllib import urlencode
 import datetime
 import mimetypes
 import cgi
 
 from ckan.common import config
-from ckan.common import asbool
+from paste.deploy.converters import asbool
 import paste.fileapp
 from six import string_types, text_type
 
@@ -230,7 +230,7 @@ class PackageController(base.BaseController):
             # types any search page. Potential alternatives are do show them
             # on the default search page (dataset) or on one other search page
             search_all_type = config.get(
-                'ckan.search.show_all_types', 'dataset')
+                                  'ckan.search.show_all_types', 'dataset')
             search_all = False
 
             try:
@@ -258,7 +258,7 @@ class PackageController(base.BaseController):
                 'tags': _('Tags'),
                 'res_format': _('Formats'),
                 'license_id': _('Licenses'),
-            }
+                }
 
             for facet in h.facets():
                 if facet in default_facet_titles:
@@ -393,12 +393,13 @@ class PackageController(base.BaseController):
 
         # can the resources be previewed?
         for resource in c.pkg_dict['resources']:
+            # Backwards compatibility with preview interface
+            resource['can_be_previewed'] = self._resource_preview(
+                {'resource': resource, 'package': c.pkg_dict})
+
             resource_views = get_action('resource_view_list')(
                 context, {'id': resource['id']})
             resource['has_views'] = len(resource_views) > 0
-
-            # Backwards compatibility with preview interface
-            resource['can_be_previewed'] = bool(len(resource_views))
 
         package_type = c.pkg_dict['type'] or 'dataset'
         self._setup_template_variables(context, {'id': id},
@@ -471,7 +472,7 @@ class PackageController(base.BaseController):
                     revision_dict['timestamp'])
                 try:
                     dayHorizon = int(request.params.get('days'))
-                except ValueError:
+                except:
                     dayHorizon = 30
                 dayAge = (datetime.datetime.now() - revision_date).days
                 if dayAge >= dayHorizon:
@@ -666,12 +667,8 @@ class PackageController(base.BaseController):
                 except NotFound:
                     abort(404, _('The dataset {id} could not be found.'
                                  ).format(id=id))
-                require_resources = asbool(
-                    config.get('ckan.dataset.create_on_ui_requires_resources',
-                               'True')
-                )
-                if require_resources and not len(data_dict['resources']):
-                    # no data and configured to require resource: stay on page
+                if not len(data_dict['resources']):
+                    # no data so keep on page
                     msg = _('You must add at least one data resource')
                     # On new templates do not use flash message
 
@@ -1115,11 +1112,12 @@ class PackageController(base.BaseController):
         c.datastore_api = '%s/api/action' % \
             config.get('ckan.site_url', '').rstrip('/')
 
+        c.resource['can_be_previewed'] = self._resource_preview(
+            {'resource': c.resource, 'package': c.package})
+
         resource_views = get_action('resource_view_list')(
             context, {'id': resource_id})
         c.resource['has_views'] = len(resource_views) > 0
-
-        c.resource['can_be_previewed'] = bool(len(resource_views))
 
         current_resource_view = None
         view_id = request.GET.get('view_id')

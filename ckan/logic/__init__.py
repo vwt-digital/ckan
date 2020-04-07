@@ -88,7 +88,7 @@ class ValidationError(ActionError):
             ''' Do some i18n stuff on the error_dict keys '''
 
             def prettify(field_name):
-                field_name = re.sub(r'(?<!\w)[Uu]rl(?!\w)', 'URL',
+                field_name = re.sub('(?<!\w)[Uu]rl(?!\w)', 'URL',
                                     field_name.replace('_', ' ').capitalize())
                 return _(field_name.replace('_', ' '))
 
@@ -413,9 +413,9 @@ def get_action(action):
     fetched_actions = {}
     chained_actions = defaultdict(list)
     for plugin in p.PluginImplementations(p.IActions):
-        for name, action_function in plugin.get_actions().items():
-            if _is_chained_action(action_function):
-                chained_actions[name].append(action_function)
+        for name, auth_function in plugin.get_actions().items():
+            if _is_chained_action(auth_function):
+                chained_actions[name].append(auth_function)
             elif name in resolved_action_plugins:
                 raise NameConflict(
                     'The action %r is already implemented in %r' % (
@@ -427,16 +427,14 @@ def get_action(action):
                 resolved_action_plugins[name] = plugin.name
                 # Extensions are exempted from the auth audit for now
                 # This needs to be resolved later
-                action_function.auth_audit_exempt = True
-                fetched_actions[name] = action_function
+                auth_function.auth_audit_exempt = True
+                fetched_actions[name] = auth_function
     for name, func_list in chained_actions.iteritems():
-        if name not in fetched_actions and name not in _actions:
-            # nothing to override from plugins or core
+        if name not in fetched_actions:
             raise NotFound('The action %r is not found for chained action' % (
                 name))
         for func in reversed(func_list):
-            # try other plugins first, fall back to core
-            prev_func = fetched_actions.get(name, _actions.get(name))
+            prev_func = fetched_actions[name]
             fetched_actions[name] = functools.partial(func, prev_func)
 
     # Use the updated ones in preference to the originals.

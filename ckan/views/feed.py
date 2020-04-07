@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 import logging
+import urlparse
 
-from six.moves.urllib.parse import urlparse
 from flask import Blueprint, make_response
 from six import text_type
 import webhelpers.feedgenerator
@@ -353,7 +353,7 @@ def _alternate_url(params, **kwargs):
     # view.  So provide an alternate link to the first page, regardless
     # of the page we're looking at in the feed.
     search_params.pop(u'page', None)
-    return _feed_url(search_params, controller=u'dataset', action=u'search')
+    return _feed_url(search_params, controller=u'package', action=u'search')
 
 
 def _feed_url(query, controller, action, **kwargs):
@@ -477,7 +477,7 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
         authority_name = config.get(u'ckan.feeds.authority_name', u'').strip()
         if not authority_name:
             site_url = config.get(u'ckan.site_url', u'').strip()
-            authority_name = urlparse(site_url).netloc
+            authority_name = urlparse.urlparse(site_url).netloc
 
     if not authority_name:
         log.warning(u'No authority_name available for feed generation.  '

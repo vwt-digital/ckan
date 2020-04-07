@@ -1,26 +1,32 @@
 # encoding: utf-8
 
+import re
 import json
+import urllib
 from pprint import pprint
 from nose.tools import assert_equal, assert_raises
+from nose.plugins.skip import SkipTest
 from ckan.common import config
+import datetime
+import mock
 
+import vdm.sqlalchemy
 import ckan
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.dictization.model_dictize import resource_dictize
 import ckan.model as model
 import ckan.tests.legacy as tests
 from ckan.tests.legacy import WsgiAppCase
+from ckan.tests.legacy.functional.api import assert_dicts_equal_ignoring_ordering
 from ckan.tests.legacy import setup_test_search_index
 from ckan.tests.legacy import StatusCodes
 from ckan.logic import get_action, NotAuthorized
 from ckan.logic.action import get_domain_object
 from ckan.tests.legacy import call_action_api
 import ckan.lib.search as search
-import ckan.tests.helpers as helpers
 
+from ckan import plugins
 from ckan.plugins import SingletonPlugin, implements, IPackageController
-
 
 class TestAction(WsgiAppCase):
 
@@ -74,7 +80,7 @@ class TestAction(WsgiAppCase):
         assert len(res['result']) == 1
         assert 'warandpeace' in res['result'] or 'annakarenina' in res['result']
 
-        # Test GET request
+		# Test GET request
         res = json.loads(self.app.get('/api/action/package_list').body)
         assert len(res['result']) == 2
         assert 'warandpeace' in res['result']
@@ -108,10 +114,10 @@ class TestAction(WsgiAppCase):
         assert 'warandpeace' in res
         assert 'annakarenina' in res
         assert 'public_dataset' in res
-        assert 'private_dataset' not in res
+        assert not 'private_dataset' in res
 
     def test_02_package_autocomplete_match_name(self):
-        postparams = '%s=1' % json.dumps({'q': 'war', 'limit': 5})
+        postparams = '%s=1' % json.dumps({'q':'war', 'limit': 5})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
         assert_equal(res_obj['success'], True)
@@ -122,7 +128,7 @@ class TestAction(WsgiAppCase):
         assert_equal(res_obj['result'][0]['match_displayed'], 'warandpeace')
 
     def test_02_package_autocomplete_match_title(self):
-        postparams = '%s=1' % json.dumps({'q': 'won', 'limit': 5})
+        postparams = '%s=1' % json.dumps({'q':'a%20w', 'limit': 5})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
         assert_equal(res_obj['success'], True)
@@ -280,6 +286,7 @@ class TestAction(WsgiAppCase):
         assert 'created' in result
         assert 'display_name' in result
         assert 'number_created_packages' in result
+        assert 'number_of_edits' in result
         assert not 'password' in result
 
         #Sysadmin users can update themselves
@@ -615,7 +622,7 @@ class TestAction(WsgiAppCase):
             {'id': group_id}
         )
         assert len(group_packages) == 2, group_packages
-        group_names = {g.get('name') for g in group_packages}
+        group_names = set([g.get('name') for g in group_packages])
         assert group_names == set(['annakarenina', 'warandpeace']), group_names
 
 
@@ -701,7 +708,7 @@ class TestAction(WsgiAppCase):
         # There shouldn't be any results.  If the '%' character wasn't
         # escaped correctly, then the search would match because of the
         # unescaped wildcard.
-        assert count == 0
+        assert count is 0
 
     def test_42_resource_search_fields_parameter_still_accepted(self):
         '''The fields parameter is deprecated, but check it still works.
@@ -741,10 +748,12 @@ class TestAction(WsgiAppCase):
             assert "json" in resource['format'].lower()
 
     def test_package_create_duplicate_extras_error(self):
+        import paste.fixture
+        import pylons.test
 
         # Posting a dataset dict to package_create containing two extras dicts
         # with the same key, should return a Validation Error.
-        app = helpers._get_test_app()
+        app = paste.fixture.TestApp(pylons.test.pylonsapp)
         error = call_action_api(app, 'package_create',
                 apikey=self.sysadmin_user.apikey, status=409,
                 name='foobar', extras=[{'key': 'foo', 'value': 'bar'},
@@ -753,8 +762,10 @@ class TestAction(WsgiAppCase):
         assert error['extras_validation'] == ['Duplicate key "foo"']
 
     def test_package_update_remove_org_error(self):
+        import paste.fixture
+        import pylons.test
 
-        app = helpers._get_test_app()
+        app = paste.fixture.TestApp(pylons.test.pylonsapp)
         org = call_action_api(app, 'organization_create',
                 apikey=self.sysadmin_user.apikey, name='myorganization')
         package = call_action_api(app, 'package_create',
@@ -767,9 +778,11 @@ class TestAction(WsgiAppCase):
         assert not res['owner_org'], res['owner_org']
 
     def test_package_update_duplicate_extras_error(self):
+        import paste.fixture
+        import pylons.test
 
         # We need to create a package first, so that we can update it.
-        app = helpers._get_test_app()
+        app = paste.fixture.TestApp(pylons.test.pylonsapp)
         package = call_action_api(app, 'package_create',
                 apikey=self.sysadmin_user.apikey, name='foobar')
 
@@ -1194,4 +1207,4 @@ class TestMember(WsgiAppCase):
         groups = user.get_groups(group.type, role)
         group_ids = [g.id for g in groups]
         assert res['success'] is True, res
-        assert group.id in group_ids, (group, group_ids)
+        assert group.id in group_ids, (group, user_groups)

@@ -1,7 +1,6 @@
 # encoding: utf-8
 from ckan.common import config
-
-from six.moves.urllib.parse import urljoin
+import urlparse
 
 import ckan.model as model
 import ckan.plugins as plugins
@@ -52,7 +51,7 @@ class TestTextView(object):
         model.repo.rebuild_db()
 
     def test_can_view(self):
-        url_same_domain = urljoin(
+        url_same_domain = urlparse.urljoin(
             config.get('ckan.site_url', '//localhost:5000'),
             '/resource.txt')
         url_different_domain = 'http://some.com/resource.txt'
@@ -84,7 +83,7 @@ class TestTextView(object):
 
         app = helpers._get_test_app()
         with app.flask_app.test_request_context():
-            url = h.url_for('resource.read',
+            url = h.url_for(controller='package', action='resource_read',
                             id=self.package.name, resource_id=self.resource_id)
         result = app.get(url)
         assert self.resource_view['title'] in result
@@ -102,12 +101,12 @@ class TestTextView(object):
 
         app = helpers._get_test_app()
         with app.flask_app.test_request_context():
-            url = h.url_for('resource.view',
+            url = h.url_for(controller='package', action='resource_view',
                             id=self.package.name, resource_id=self.resource_id,
                             view_id=self.resource_view['id'])
         result = app.get(url)
-        assert (('text_view.js' in result.body) or  # Source file
-                ('textview.js' in result.body))     # Compiled file
+        assert (('text_view.js' in result.body) or
+                ('text_view.min.js' in result.body))
         # Restore the config to its original values
         config.clear()
         config.update(original_config)

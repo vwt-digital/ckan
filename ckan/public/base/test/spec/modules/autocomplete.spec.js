@@ -65,8 +65,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
         formatNoMatches: this.module.formatNoMatches,
         formatInputTooShort: this.module.formatInputTooShort,
         createSearchChoice: this.module.formatTerm, // Not used by tags.
-        initSelection: this.module.formatInitialValue,
-	tokenSeparators: [',']
+        initSelection: this.module.formatInitialValue
       });
     });
 
@@ -83,8 +82,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
         formatResult: this.module.formatResult,
         formatNoMatches: this.module.formatNoMatches,
         formatInputTooShort: this.module.formatInputTooShort,
-        initSelection: this.module.formatInitialValue,
-	tokenSeparators: [',']
+        initSelection: this.module.formatInitialValue
       });
 
       it('should watch the keydown event on the select2 input');
@@ -102,8 +100,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
           formatResult: this.module.formatResult,
           formatNoMatches: this.module.formatNoMatches,
           formatInputTooShort: this.module.formatInputTooShort,
-          initSelection: this.module.formatInitialValue,
-	  tokenSeparators: [',']
+          initSelection: this.module.formatInitialValue
         });
       });
 
@@ -120,8 +117,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
           formatResult: this.module.formatResult,
           formatNoMatches: this.module.formatNoMatches,
           formatInputTooShort: this.module.formatInputTooShort,
-          initSelection: this.module.formatInitialValue,
-	  tokenSeparators: [',']
+          initSelection: this.module.formatInitialValue
         });
       });
 

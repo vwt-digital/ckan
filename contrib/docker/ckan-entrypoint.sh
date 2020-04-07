@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 # URL for the primary database, in the format expected by sqlalchemy (required
 # unless linked to a container called 'db')
@@ -36,8 +37,10 @@ set_environment () {
 
   export CKAN_OAUTH2_AUTHORIZATION_ENDPOINT=${CKAN_OAUTH2_AUTHORIZATION_ENDPOINT}
   export CKAN_OAUTH2_TOKEN_ENDPOINT=${CKAN_OAUTH2_TOKEN_ENDPOINT}
+  export CKAN_OAUTH2_CLIENT_ID="${CKAN_OAUTH2_CLIENT_ID}"
+  export CKAN_OAUTH2_CLIENT_SECRET="${CKAN_OAUTH2_CLIENT_SECRET}"
   export CKAN_OAUTH2_PROFILE_API_URL=${CKAN_OAUTH2_PROFILE_API_URL}
-  export CKAN_OAUTH2_SCOPE=${CKAN_OAUTH2_SCOPE}
+  export CKAN_OAUTH2_SCOPE="${CKAN_OAUTH2_SCOPE}"
   export CKAN_OAUTH2_PROFILE_API_USER_FIELD=${CKAN_OAUTH2_PROFILE_API_USER_FIELD}
   export CKAN_OAUTH2_PROFILE_API_MAIL_FIELD=${CKAN_OAUTH2_PROFILE_API_MAIL_FIELD}
 
@@ -51,8 +54,6 @@ write_config () {
   ckan-paster make-config --no-interactive ckan "$CONFIG"
 }
 
-#startup redis server
-nohup redis-server &
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
   write_config
@@ -71,7 +72,10 @@ if [ -z "$CKAN_REDIS_URL" ]; then
     abort "ERROR: no CKAN_REDIS_URL specified in docker-compose.yml"
 fi
 
+if [ -z "$CKAN_DATAPUSHER_URL" ]; then
+    abort "ERROR: no CKAN_DATAPUSHER_URL specified in docker-compose.yml"
+fi
+
 set_environment
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
-ckan-paster --plugin=ckan search-index rebuild --config="${CKAN_CONFIG}/production.ini"
 exec "$@"

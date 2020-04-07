@@ -3,12 +3,14 @@
 import time
 from nose.tools import assert_equal
 from ckan.common import config
+from email.mime.text import MIMEText
 import hashlib
 
+from ckan.tests.legacy.pylons_controller import PylonsTestCase
 from ckan.tests.legacy.mock_mail_server import SmtpServerHarness
 from ckan.lib.mailer import mail_recipient
 
-class TestMockMailServer(SmtpServerHarness):
+class TestMockMailServer(SmtpServerHarness, PylonsTestCase):
     @classmethod
     def setup_class(cls):
         smtp_server = config.get('smtp.test_server')
@@ -17,6 +19,7 @@ class TestMockMailServer(SmtpServerHarness):
             port = int(port) + int(str(hashlib.md5(cls.__name__).hexdigest())[0], 16)
             config['smtp.test_server'] = '%s:%s' % (host, port)
         SmtpServerHarness.setup_class()
+        PylonsTestCase.setup_class()
 
     @classmethod
     def teardown_class(cls):
@@ -28,7 +31,7 @@ class TestMockMailServer(SmtpServerHarness):
 
         test_email = {'recipient_name': 'Bob',
                       'recipient_email':'bob@bob.net',
-                      'subject': 'Meeting',
+                      'subject': 'Meeting', 
                       'body': 'The meeting is cancelled.',
                       'headers': {'header1': 'value1'}}
         mail_recipient(**test_email)
