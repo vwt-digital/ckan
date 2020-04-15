@@ -18,6 +18,8 @@ abort () {
 }
 
 set_environment () {
+  export CKAN_PORT=${CKAN_PORT}
+
   export CKAN_SITE_ID=${CKAN_SITE_ID}
   export CKAN_SITE_URL=${CKAN_SITE_URL}
   export CKAN_SQLALCHEMY_URL=${CKAN_SQLALCHEMY_URL}
