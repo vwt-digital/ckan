@@ -18,8 +18,6 @@ abort () {
 }
 
 set_environment () {
-  export CKAN_PORT=${CKAN_PORT}
-
   export CKAN_SITE_ID=${CKAN_SITE_ID}
   export CKAN_SITE_URL=${CKAN_SITE_URL}
   export CKAN_SQLALCHEMY_URL=${CKAN_SQLALCHEMY_URL}
@@ -49,9 +47,6 @@ set_environment () {
 
   export OAUTHLIB_INSECURE_TRANSPORT=${OAUTHLIB_INSECURE_TRANSPORT}
   export OAUTHLIB_RELAX_TOKEN_SCOPE=${OAUTHLIB_RELAX_TOKEN_SCOPE}
-
- # Below is needed if we want to run CKAN with GCP SQL database locally
- # export GCP_SQL_INSTANCE=${GCP_SQL_INSTANCE}
 }
 
 write_config () {

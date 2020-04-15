@@ -43,10 +43,13 @@ Local Installation
 To run this CKAN setup locally, use the 
 `CKAN installation instructions for Docker 
 compose <https://docs.ckan.org/en/2.8/maintaining/installing/install-from-docker-compose.html>`_
-in the folder `contrib/docker <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_.
+in the folder `contrib/docker <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_ if you want to run it 
+with a local database. Or in the folder `contrib/docker-GCP <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_ 
+if you want to run it with a Google Cloud Platform database.
 
-**Note:** CKAN cannot be run locally yet via Docker compose in the folder 
-`contrib/docker-GCP <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_.
+Furthermore make sure that the 'port' variable in 
+`deployment.ini_tmpl <https://github.com/vwt-digital/ckan/blob/develop/ckan/config/deployment.ini_tmpl>`_ is set to the right 
+port (probably 5000).
 
 Google Cloud Platform Installation
 ------------
@@ -61,6 +64,8 @@ Environment Variables
 
 The following environment variables need to be set. See the github of 
 `ckanext-oauth2 <https://github.com/conwetlab/ckanext-oauth2/wiki/Activating-and-Installing>_` for more information.
+
+**Note:** the .env files are made by copying the .env.template files and renaming them to .env.
 
 **Locally:** in the .env file in contrib/docker:
 ::
@@ -78,7 +83,7 @@ The following environment variables need to be set. See the github of
 
 Where CKAN_PRIVATE_ORGS are the organisations in CKAN that have datasets that should only be visible to authenticated users.
 ::
-        CKAN_PRIVATE_ORGS='organisation1,organisation2,etcetera'
+        CKAN_PRIVATE_ORGS=organisation1,organisation2,etcetera
 
 **Note:** Organisations are being segregated by a comma (',').
 
