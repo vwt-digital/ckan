@@ -66,6 +66,8 @@ RUN ckan-pip install -U pip && \
     . /usr/lib/ckan/venv/bin/activate && \
     cd $CKAN_VENV/src/ckan/ckanext/ckanext-viewerpermissions && \
     python setup.py develop && \
+    cd ../ckanext-vwt_theme && \
+    python setup.py develop && \
     cd ../../../../.. && \
     deactivate
 
