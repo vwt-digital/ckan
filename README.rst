@@ -45,11 +45,14 @@ To run this CKAN setup locally, use the
 compose <https://docs.ckan.org/en/2.8/maintaining/installing/install-from-docker-compose.html>`_
 in the folder `contrib/docker <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_ if you want to run it 
 with a local database. Or in the folder `contrib/docker-GCP <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_ 
-if you want to run it with a Google Cloud Platform database.
+if you want to run it with a `Google Cloud Platform (GCP) <https://cloud.google.com>`_ database.
 
 Furthermore make sure that the 'port' variable in 
 `deployment.ini_tmpl <https://github.com/vwt-digital/ckan/blob/develop/ckan/config/deployment.ini_tmpl>`_ is set to the right 
 port (probably 5000).
+
+If you want to run CKAN with GCP settings, set the 'GCP' variable in the 
+`Dockerfile <https://github.com/vwt-digital/ckan/blob/develop/Dockerfile>`_ to 'yes'.
 
 Google Cloud Platform Installation
 ------------
