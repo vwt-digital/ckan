@@ -66,7 +66,7 @@ Environment Variables
 ------------
 
 The following environment variables need to be set. See the github of 
-`ckanext-oauth2 <https://github.com/conwetlab/ckanext-oauth2/wiki/Activating-and-Installing>_` for more information.
+`ckanext-oauth2 <https://github.com/conwetlab/ckanext-oauth2/wiki/Activating-and-Installing>`_ for more information.
 
 **Note:** the .env files are made by copying the .env.template files and renaming them to .env.
 
@@ -102,8 +102,8 @@ variables to the Docker image. With addition:
 Updating CKAN
 ------------
 
-When updating CKAN, note that there are `stable versions <https://github.com/ckan/ckan/releases>_`. 
-The `master branch <https://github.com/ckan/ckan>_` can be unstable.
+When updating CKAN, note that there are `stable versions <https://github.com/ckan/ckan/releases>`_. 
+The `master branch <https://github.com/ckan/ckan>`_ can be unstable.
 
 The following adjustments should be kept or adjusted properly when merging to a branch from the forked CKAN repository:
 
@@ -125,7 +125,7 @@ The following adjustments should be kept or adjusted properly when merging to a 
 - `vwt_theme extension folder <https://github.com/vwt-digital/ckan/tree/develop/ckanext/ckanext-vwt_theme>`_:
     | Is the folder containing the vwt_theme extension.
     | Extensions can also be put in different git repositories and cloned to the CKAN repository.
-- original `docker folder <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_:
+- `original docker folder <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_:
     | The environment variables for the extensions in the 
       `entrypoint <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_ (lines 38-50).
     | Also add these env vars to the 
@@ -133,6 +133,7 @@ The following adjustments should be kept or adjusted properly when merging to a 
     | And add these env vars to the 
       `env.template <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker/.env.template>`_ (lines 34-45).
 - `GCP docker folder <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker-GCP>`_:
+    | **Note:** Don't forget to compare this folder to the contrib/docker folder of the branch you want to merge with.
     | The environment variables for the extensions in the 
       `entrypoint <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/ckan-entrypoint.sh>`_ (lines 37-49).
     | The startup of the Redis server is also added (lines 56-57) but this might not be necessary in future versions.
@@ -144,8 +145,6 @@ The following adjustments should be kept or adjusted properly when merging to a 
       `env.template <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/.env.template>`_ (lines 38-49).
       Along with the environment variables to set the GCP SQL database (lines 27-29). And the removal of any environment variables 
       used to setup a database locally.
-    | **Note:** Don't forget to compare this folder to the contrib/docker folder of the branch you want to merge with.
-
 
 **Note:** Don't forget to update the above line numbers if they are changed due to a merge.
 
