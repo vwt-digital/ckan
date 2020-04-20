@@ -127,23 +127,23 @@ The following adjustments should be kept or adjusted properly when merging to a 
     | Extensions can also be put in different git repositories and cloned to the CKAN repository.
 - original `docker folder <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_:
     | The environment variables for the extensions in the 
-    `entrypoint <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_ (lines 38-50).
+      `entrypoint <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_ (lines 38-50).
     | Also add these env vars to the 
-    `docker compose <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker/docker-compose.yml>`_ (lines 36-46).
+      `docker compose <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker/docker-compose.yml>`_ (lines 36-46).
     | And add these env vars to the 
-    `env.template <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker/.env.template>`_ (lines 34-45).
+      `env.template <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker/.env.template>`_ (lines 34-45).
 - `GCP docker folder <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker-GCP>`_:
     | The environment variables for the extensions in the 
-    `entrypoint <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/ckan-entrypoint.sh>`_ (lines 37-49).
+      `entrypoint <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/ckan-entrypoint.sh>`_ (lines 37-49).
     | The startup of the Redis server is also added (lines 56-57) but this might not be necessary in future versions.
     | The search-index rebuild on line 78 is necessary in order for the database to refill after the site being down for too long.
     | The `docker compose <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/docker-compose.yml>`_ 
-    has been adjusted completely to have a GCP SQL proxy to the SQL database instead of a local database. Also the env 
-    vars for the extensions have been added.
+      has been adjusted completely to have a GCP SQL proxy to the SQL database instead of a local database. Also the env 
+      vars for the extensions have been added.
     | The environment variables for the extensions have also been added to the 
-    `env.template <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/.env.template>`_ (lines 38-49).
-    Along with the environment variables to set the GCP SQL database (lines 27-29). And the removal of any environment variables 
-    used to setup a database locally.
+      `env.template <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/.env.template>`_ (lines 38-49).
+      Along with the environment variables to set the GCP SQL database (lines 27-29). And the removal of any environment variables 
+      used to setup a database locally.
     | **Note:** Don't forget to compare this folder to the contrib/docker folder of the branch you want to merge with.
 
 
