@@ -117,14 +117,6 @@ The following adjustments should be kept or adjusted properly when merging to a 
     | The adding of 'vwt_theme oauth2 viewerpermissions' to the ckan.plugins variable (line 118).
 - `environment.py <https://github.com/vwt-digital/ckan/blob/develop/ckan/config/environment.py>`_:
     | The adding of previously mentioned variables to the config_from_env_vars function (lines 157-165).
-- `ODH_logo_original.png <https://github.com/vwt-digital/ckan/blob/develop/ckan/public/base/images/ODH_logo_original.png>`_:
-    | Is used by the vwt_theme extension.
-- `viewerpermissions extension folder <https://github.com/vwt-digital/ckan/tree/develop/ckanext/ckanext-viewerpermissions>`_:
-    | Is the folder containing the viewerpermissions extension.
-    | Extensions can also be put in different git repositories and cloned to the CKAN repository.
-- `vwt_theme extension folder <https://github.com/vwt-digital/ckan/tree/develop/ckanext/ckanext-vwt_theme>`_:
-    | Is the folder containing the vwt_theme extension.
-    | Extensions can also be put in different git repositories and cloned to the CKAN repository.
 - `original docker folder <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_:
     | The environment variables for the extensions in the 
       `entrypoint <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_ (lines 38-50).
@@ -136,8 +128,8 @@ The following adjustments should be kept or adjusted properly when merging to a 
     | **Note:** Don't forget to compare this folder to the contrib/docker folder of the branch you want to merge with.
     | The environment variables for the extensions in the 
       `entrypoint <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/ckan-entrypoint.sh>`_ (lines 37-49).
-    | The startup of the Redis server is also added (lines 56-57) but this might not be necessary in future versions.
-    | The search-index rebuild on line 78 is necessary in order for the database to refill after the site being down for too long.
+    | The startup of the Redis server is also added but this might not be necessary in future versions (lines 56-57).
+    | The search-index rebuild is necessary in order for the database to refill after the site being down for too long (line 78).
     | The `docker compose <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/docker-compose.yml>`_ 
       has been adjusted completely to have a GCP SQL proxy to the SQL database instead of a local database. Also the env 
       vars for the extensions have been added.
