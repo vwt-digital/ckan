@@ -107,32 +107,32 @@ The `master branch <https://github.com/ckan/ckan>_` can be unstable.
 
 The following adjustments should be kept or adjusted properly when merging to a branch from the forked CKAN repository:
 - `Dockerfile <https://github.com/vwt-digital/ckan/blob/develop/Dockerfile>`_:
-  | The variable 'GCP' which is checked when copying the entrypoint in order to know which entrypoint to copy (lines 37, 58-63).
+  The variable 'GCP' which is checked when copying the entrypoint in order to know which entrypoint to copy (lines 37, 58-63).
   | The activation of the virtual environment in order to install extensions (line 66-72).
 - `deployment.ini_tmpl <https://github.com/vwt-digital/ckan/blob/develop/ckan/config/deployment.ini_tmpl>`_:
-  | The changing of the port variable to 8080 (unless running locally, as explained before) (line 22).
+  The changing of the port variable to 8080 (unless running locally, as explained before) (line 22).
   | The OAuth2 configuration settings (all variables starting with 'ckan.oauth2.') for the oauth2 extension (lines 78-86).
   | The 'ckan.viewerpermissions.private_orgs' variable for the viewerpermissions extension (lines 88-89).
   | The adding of 'vwt_theme oauth2 viewerpermissions' to the ckan.plugins variable (line 118).
 - `environment.py <https://github.com/vwt-digital/ckan/blob/develop/ckan/config/environment.py>`_:
-  | The adding of previously mentioned variables to the config_from_env_vars function (lines 157-165).
+  The adding of previously mentioned variables to the config_from_env_vars function (lines 157-165).
 - `ODH_logo_original.png <https://github.com/vwt-digital/ckan/blob/develop/ckan/public/base/images/ODH_logo_original.png>`_:
-  | Is used by the vwt_theme extension.
+  Is used by the vwt_theme extension.
 - `viewerpermissions extension folder <https://github.com/vwt-digital/ckan/tree/develop/ckanext/ckanext-viewerpermissions>`_:
-  | Is the folder containing the viewerpermissions extension.
+  Is the folder containing the viewerpermissions extension.
   | Extensions can also be put in different git repositories and cloned to the CKAN repository.
 - `vwt_theme extension folder <https://github.com/vwt-digital/ckan/tree/develop/ckanext/ckanext-vwt_theme>`_:
-  | Is the folder containing the vwt_theme extension.
+  Is the folder containing the vwt_theme extension.
   | Extensions can also be put in different git repositories and cloned to the CKAN repository.
 - original `docker folder <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_:
-  | The environment variables for the extensions in the 
-    `entrypoint <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_ (lines 38-50).
+  The environment variables for the extensions in the 
+  `entrypoint <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_ (lines 38-50).
   | Also add these env vars to the 
     `docker compose <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker/docker-compose.yml>`_ (lines 36-46).
   | And add these env vars to the 
     `env.template <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker/.env.template>`_ (lines 34-45).
 - `GCP docker folder <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker-GCP>`_:
-  | The environment variables for the extensions in the 
+  The environment variables for the extensions in the 
     `entrypoint <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/ckan-entrypoint.sh>`_ (lines 37-49).
   | The startup of the Redis server is also added (lines 56-57) but this might not be necessary in future versions.
   | The search-index rebuild on line 78 is necessary in order for the database to refill after the site being down for too long.
