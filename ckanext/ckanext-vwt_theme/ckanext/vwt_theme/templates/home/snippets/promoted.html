@@ -1,0 +1,23 @@
+{% set intro = g.site_intro_text %}
+
+<div class="module-content box">
+  <header>
+    {% if intro %}
+      {{ h.render_markdown(intro) }}
+    {% else %}
+      <h1 class="page-heading">{{ _("Welcome to CKAN") }}</h1>
+      <p>
+        {% trans %}This is the CKAN site of VolkerWessels Telecom. Login to view datasets of VolkerWessels Telecom.
+        {% endtrans %}
+      </p>
+    {% endif %}
+  </header>
+
+  {% block home_image %}
+    <section class="featured media-overlay hidden-xs">
+      <a class="media-image" href="#">
+        <img class="img-responsive" src="{{ h.url_for_static('/base/images/ODH_logo_original.png') }}" alt="ODH_logo" width="420" height="218" />
+      </a>
+    </section>
+  {% endblock %}
+</div>

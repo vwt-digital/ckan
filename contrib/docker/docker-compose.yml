@@ -7,7 +7,6 @@ volumes:
   ckan_home:
   ckan_storage:
   pg_data:
-  solr_data:
 
 services:
   ckan:
@@ -20,8 +19,6 @@ services:
       - db
       - solr
       - redis
-    depends_on:
-      - db
     ports:
       - "0.0.0.0:${CKAN_PORT}:5000"
     environment:
@@ -36,6 +33,17 @@ services:
       - CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+      - CKAN_OAUTH2_AUTHORIZATION_ENDPOINT=${CKAN_OAUTH2_AUTHORIZATION_ENDPOINT}
+      - CKAN_OAUTH2_TOKEN_ENDPOINT=${CKAN_OAUTH2_TOKEN_ENDPOINT}
+      - CKAN_OAUTH2_CLIENT_ID=${CKAN_OAUTH2_CLIENT_ID}
+      - CKAN_OAUTH2_CLIENT_SECRET=${CKAN_OAUTH2_CLIENT_SECRET}
+      - CKAN_OAUTH2_PROFILE_API_URL=${CKAN_OAUTH2_PROFILE_API_URL}
+      - CKAN_OAUTH2_SCOPE=${CKAN_OAUTH2_SCOPE}
+      - CKAN_OAUTH2_PROFILE_API_USER_FIELD=${CKAN_OAUTH2_PROFILE_API_USER_FIELD}
+      - CKAN_OAUTH2_PROFILE_API_MAIL_FIELD=${CKAN_OAUTH2_PROFILE_API_MAIL_FIELD}
+      - CKAN_PRIVATE_ORGS=${CKAN_PRIVATE_ORGS}
+      - OAUTHLIB_INSECURE_TRANSPORT=${OAUTHLIB_INSECURE_TRANSPORT}
+      - OAUTHLIB_RELAX_TOKEN_SCOPE=${OAUTHLIB_RELAX_TOKEN_SCOPE}
 
     volumes:
       - ckan_config:/etc/ckan
@@ -61,16 +69,12 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - pg_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
 
   solr:
     container_name: solr
     build:
       context: ../../
       dockerfile: contrib/docker/solr/Dockerfile
-    volumes:
-      - solr_data:/opt/solr/server/solr/ckan/data
 
 
   redis:

@@ -13,14 +13,13 @@
 
 [DEFAULT]
 
-# WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PUBLIC ENVIRONMENT*
-# With debug mode enabled, a visitor to your site could execute malicious commands.
+# WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT*
 debug = false
 
 [server:main]
 use = egg:Paste#http
 host = 0.0.0.0
-port = 5000
+port = 8080
 
 [app:main]
 use = egg:ckan
@@ -67,8 +66,8 @@ ckan.auth.anon_create_dataset = false
 ckan.auth.create_unowned_dataset = false
 ckan.auth.create_dataset_if_not_in_organization = false
 ckan.auth.user_create_groups = false
-ckan.auth.user_create_organizations = false
-ckan.auth.user_delete_groups = true
+ckan.auth.user_create_organizations = true
+ckan.auth.user_delete_groups = false
 ckan.auth.user_delete_organizations = true
 ckan.auth.create_user_via_api = false
 ckan.auth.create_user_via_web = true
@@ -76,6 +75,18 @@ ckan.auth.roles_that_cascade_to_sub_groups = admin
 ckan.auth.public_user_details = true
 ckan.auth.public_activity_stream_detail = true
 
+## OAuth2 configuration
+ckan.oauth2.authorization_endpoint = change_this_with_env_vars
+ckan.oauth2.profile_api_url = change_this_with_env_vars
+ckan.oauth2.token_endpoint = change_this_with_env_vars
+ckan.oauth2.client_id = change_this_with_env_vars
+ckan.oauth2.client_secret = change_this_with_env_vars
+ckan.oauth2.scope = change_this_with_env_vars
+ckan.oauth2.profile_api_user_field = change_this_with_env_vars
+ckan.oauth2.profile_api_mail_field = change_this_with_env_vars
+
+## Viewer permissions configuration
+ckan.viewerpermissions.private_orgs = change_this_with_env_vars
 
 ## Search Settings
 
@@ -104,7 +115,7 @@ ckan.site_id = default
 #       Add ``datapusher`` to enable DataPusher
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view
+ckan.plugins = vwt_theme oauth2 viewerpermissions stats text_view image_view recline_view
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)

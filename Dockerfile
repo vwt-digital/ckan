@@ -25,6 +25,7 @@ RUN apt-get -q -y update \
         git-core \
         vim \
         wget \
+	      redis-server \
     && apt-get -q clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -33,6 +34,7 @@ ENV CKAN_HOME /usr/lib/ckan
 ENV CKAN_VENV $CKAN_HOME/venv
 ENV CKAN_CONFIG /etc/ckan
 ENV CKAN_STORAGE_PATH=/var/lib/ckan
+ENV GCP=yes
 
 # Build-time variables specified by docker-compose.yml / .env
 ARG CKAN_SITE_URL
@@ -53,9 +55,21 @@ RUN ckan-pip install -U pip && \
     ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements.txt && \
     ckan-pip install -e $CKAN_VENV/src/ckan/ && \
     ln -s $CKAN_VENV/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini && \
-    cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh && \
+    # If GCP is used, use entrypoint from docker-GCP folder
+    if [ "$GCP" = "yes" ];then \
+        cp -v $CKAN_VENV/src/ckan/contrib/docker-GCP/ckan-entrypoint.sh /ckan-entrypoint.sh; \
+    else \
+        cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh; \
+    fi && \
     chmod +x /ckan-entrypoint.sh && \
-    chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
+    chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
+    . /usr/lib/ckan/venv/bin/activate && \
+    cd $CKAN_VENV/src/ckan/ckanext/ckanext-viewerpermissions && \
+    python setup.py develop && \
+    cd ../ckanext-vwt_theme && \
+    python setup.py develop && \
+    cd ../../../../.. && \
+    deactivate
 
 ENTRYPOINT ["/ckan-entrypoint.sh"]
 

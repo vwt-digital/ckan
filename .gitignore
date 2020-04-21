@@ -46,3 +46,6 @@ node_modules/
 
 # docker
 contrib/docker/.env
+contrib/docker-GCP/.env
+contrib/docker-GCP/*.json
+
