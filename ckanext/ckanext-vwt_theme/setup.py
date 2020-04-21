@@ -21,7 +21,7 @@ setup(
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/vwt-digital/ckanext-vwt_theme',
+    url='https://github.com/vwt-digital/ckan/tree/develop/ckanext/ckanext-vwt_theme',
 
     # Author details
     author='''Bente van de Pol''',

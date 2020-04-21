@@ -28,17 +28,14 @@
 ckanext-vwt_theme
 =============
 
-.. Put a description of your extension here:
-   What does it do? What features does it have?
-   Consider including some screenshots or embedding a video!
+This is the extension for the CKAN VWT theme.
 
 
 ------------
 Requirements
 ------------
 
-For example, you might want to mention here which versions of CKAN this
-extension works with.
+None.
 
 
 ------------
@@ -57,7 +54,10 @@ To install ckanext-vwt_theme:
 
 2. Install the ckanext-vwt_theme Python package into your virtual environment::
 
-     pip install ckanext-vwt_theme
+     cd ckanext-vwt_theme
+     python setup.py develop
+
+.. Replace with pip install ckanext-vwt_theme if it ever gets on pypi
 
 3. Add ``vwt_theme`` to the ``ckan.plugins`` setting in your CKAN
    config file (by default the config file is located at
@@ -68,78 +68,79 @@ To install ckanext-vwt_theme:
      sudo service apache2 reload
 
 
----------------
-Config settings
----------------
+.. Change the following if the extension gets its own git:
+    ---------------
+    Config settings
+    ---------------
 
-None at present
+    None at present
 
-.. Document any optional config settings here. For example::
+    .. Document any optional config settings here. For example::
 
-.. # The minimum number of hours to wait before re-checking a resource
-   # (optional, default: 24).
-   ckanext.vwt_theme.some_setting = some_default_value
-
-
-----------------------
-Developer installation
-----------------------
-
-To install ckanext-vwt_theme for development, activate your CKAN virtualenv and
-do::
-
-    git clone https://github.com/vwt-digital/ckanext-vwt_theme.git
-    cd ckanext-vwt_theme
-    python setup.py develop
-    pip install -r dev-requirements.txt
+    .. # The minimum number of hours to wait before re-checking a resource
+    # (optional, default: 24).
+    ckanext.vwt_theme.some_setting = some_default_value
 
 
------
-Tests
------
+    ----------------------
+    Developer installation
+    ----------------------
 
-To run the tests, do::
+    To install ckanext-vwt_theme for development, activate your CKAN virtualenv and
+    do::
 
-    nosetests --nologcapture --with-pylons=test.ini
-
-To run the tests and produce a coverage report, first make sure you have
-coverage installed in your virtualenv (``pip install coverage``) then run::
-
-    nosetests --nologcapture --with-pylons=test.ini --with-coverage --cover-package=ckanext.vwt_theme --cover-inclusive --cover-erase --cover-tests
+        git clone https://github.com/vwt-digital/ckanext-vwt_theme.git
+        cd ckanext-vwt_theme
+        python setup.py develop
+        pip install -r dev-requirements.txt
 
 
-----------------------------------------
-Releasing a new version of ckanext-vwt_theme
-----------------------------------------
+    -----
+    Tests
+    -----
 
-ckanext-vwt_theme should be available on PyPI as https://pypi.org/project/ckanext-vwt_theme.
-To publish a new version to PyPI follow these steps:
+    To run the tests, do::
 
-1. Update the version number in the ``setup.py`` file.
-   See `PEP 440 <http://legacy.python.org/dev/peps/pep-0440/#public-version-identifiers>`_
-   for how to choose version numbers.
+        nosetests --nologcapture --with-pylons=test.ini
 
-2. Make sure you have the latest version of necessary packages::
+    To run the tests and produce a coverage report, first make sure you have
+    coverage installed in your virtualenv (``pip install coverage``) then run::
 
-    pip install --upgrade setuptools wheel twine
+        nosetests --nologcapture --with-pylons=test.ini --with-coverage --cover-package=ckanext.vwt_theme --cover-inclusive --cover-erase --cover-tests
 
-3. Create a source and binary distributions of the new version::
 
-       python setup.py sdist bdist_wheel && twine check dist/*
+    ----------------------------------------
+    Releasing a new version of ckanext-vwt_theme
+    ----------------------------------------
 
-   Fix any errors you get.
+    ckanext-vwt_theme should be available on PyPI as https://pypi.org/project/ckanext-vwt_theme.
+    To publish a new version to PyPI follow these steps:
 
-4. Upload the source distribution to PyPI::
+    1. Update the version number in the ``setup.py`` file.
+    See `PEP 440 <http://legacy.python.org/dev/peps/pep-0440/#public-version-identifiers>`_
+    for how to choose version numbers.
 
-       twine upload dist/*
+    2. Make sure you have the latest version of necessary packages::
 
-5. Commit any outstanding changes::
+        pip install --upgrade setuptools wheel twine
 
-       git commit -a
+    3. Create a source and binary distributions of the new version::
 
-6. Tag the new release of the project on GitHub with the version number from
-   the ``setup.py`` file. For example if the version number in ``setup.py`` is
-   0.0.1 then do::
+        python setup.py sdist bdist_wheel && twine check dist/*
 
-       git tag 0.0.1
-       git push --tags
+    Fix any errors you get.
+
+    4. Upload the source distribution to PyPI::
+
+        twine upload dist/*
+
+    5. Commit any outstanding changes::
+
+        git commit -a
+
+    6. Tag the new release of the project on GitHub with the version number from
+    the ``setup.py`` file. For example if the version number in ``setup.py`` is
+    0.0.1 then do::
+
+        git tag 0.0.1
+        git push --tags

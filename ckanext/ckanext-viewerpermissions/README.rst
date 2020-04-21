@@ -50,7 +50,10 @@ To install ckanext-viewerpermissions:
 
 2. Install the ckanext-viewerpermissions Python package into your virtual environment::
 
-     pip install ckanext-viewerpermissions
+     cd ckanext-viewerpermissions
+     python setup.py develop
+
+.. Replace with pip install ckanext-viewerpermissions if it ever gets on pypi
 
 3. Add ``viewerpermissions`` to the ``ckan.plugins`` setting in your CKAN
    config file (by default the config file is located at
