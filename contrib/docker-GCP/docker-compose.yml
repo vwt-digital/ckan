@@ -66,6 +66,9 @@ services:
     build:
       context: ../../
       dockerfile: contrib/docker-GCP/solr/Dockerfile
+      args:
+        - SOLR_USER=${CKAN_SOLR_USER}
+        - SOLR_PASSWORD=${CKAN_SOLR_PASSWORD}
     ports:
       - "127.0.0.1:${SOLR_PORT}:8983"
     environment:
