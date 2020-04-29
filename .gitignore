@@ -48,4 +48,5 @@ node_modules/
 contrib/docker/.env
 contrib/docker-GCP/.env
 contrib/docker-GCP/*.json
+contrib/docker-GCP/solr/*.json
 
