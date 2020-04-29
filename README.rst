@@ -72,6 +72,10 @@ The following environment variables need to be set. See the github of
 
 **Locally:** in the .env file in contrib/docker:
 ::
+        CKAN_SOLR_USER
+        CKAN_SOLR_PASSWORD
+        SOLR_PORT
+        CKAN_SOLR_URL
         CKAN_OAUTH2_AUTHORIZATION_ENDPOINT
         CKAN_OAUTH2_TOKEN_ENDPOINT
         CKAN_OAUTH2_CLIENT_ID
@@ -90,7 +94,12 @@ Where CKAN_PRIVATE_ORGS are the organisations in CKAN that have datasets that sh
 
 **Note:** Organisations are being segregated by a comma (',').
 
-**GCP:** the same values that have to be added to the .env file above have to be added as environment
+**GCP:** Only the following two values do not have to be added, unless running locally:
+::
+        SOLR_PORT
+        CKAN_SOLR_URL
+
+The rest of the values that have to be added to the .env file above have to be added as environment
 variables to the Docker image. With addition:
 ::
         CKAN_SQLALCHEMY_URL=postgresql://{GCP_DATABASE_USER}:{GCP_DATABASE_PASSWORD}@/{GCP_DATABASE_NAME}?host=/cloudsql/{GCP_INSTANCE}
