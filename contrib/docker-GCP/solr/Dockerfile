@@ -1,11 +1,6 @@
 FROM solr:6.6.5
 MAINTAINER Open Knowledge
 
-ARG SOLR_USER
-ARG SOLR_PASSWORD
-ENV SOLR_USER $SOLR_USER
-ENV SOLR_PASSWORD $SOLR_PASSWORD
-
 # Enviroment
 ENV SOLR_CORE ckan
 
@@ -32,8 +27,8 @@ RUN echo name=$SOLR_CORE > /opt/solr/server/solr/$SOLR_CORE/core.properties
 # Giving ownership to Solr
 
 USER root
-RUN chown -R $SOLR_USER:$SOLR_PASSWORD /opt/solr/server/solr/$SOLR_CORE
-RUN chown -R $SOLR_USER:$SOLR_PASSWORD /opt/solr/server/solr/security.json
+RUN chown -R $SOLR_USER:$SOLR_USER /opt/solr/server/solr/$SOLR_CORE
+RUN chown -R $SOLR_USER:$SOLR_USER /opt/solr/server/solr/security.json
 
 # User
-USER $SOLR_USER:$SOLR_PASSWORD
+USER $SOLR_USER:$SOLR_USER

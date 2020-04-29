@@ -27,7 +27,7 @@ services:
       # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
       - CKAN_SQLALCHEMY_URL=${CKAN_SQLALCHEMY_URL}
       - CKAN_SOLR_URL=http://solr:8983/solr/ckan
-      - CKAN_SOLR_USER="solr"
+      - CKAN_SOLR_USER=${CKAN_SOLR_USER}
       - CKAN_SOLR_PASSWORD=${CKAN_SOLR_PASSWORD}
       - CKAN_REDIS_URL=redis://redis:6379/1
       - CKAN_SITE_URL=${CKAN_SITE_URL}
@@ -68,8 +68,6 @@ services:
       dockerfile: contrib/docker-GCP/solr/Dockerfile
     ports:
       - "127.0.0.1:${SOLR_PORT}:8983"
-    environment:
-      - SOLR_PASSWORD=${CKAN_SOLR_PASSWORD}
 
   redis:
     container_name: redis
