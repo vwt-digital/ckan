@@ -40,7 +40,8 @@ if(len(sys.argv) > 1):
     user = gen_word(2, 4)
     salt = gen_word(2, 4)
     password = gen_word(2, 4)
-    hashed_password = hashlib.sha256(salt.encode()).hexdigest()
+    pass_salt = password + salt
+    hashed_password = hashlib.sha256(pass_salt.encode()).hexdigest()
     security_json = {
         "authentication": {
             "blockUnknown": "true",
@@ -62,7 +63,7 @@ if(len(sys.argv) > 1):
     user_file.write(user)
     user_file.close()
     password_file = open(os.path.join(output_path_answers, 'password.txt'), "w")
-    password_file.write(password)
+    password_file.write(pass_salt)
     password_file.close()
 else:
     print("You should give output paths")
