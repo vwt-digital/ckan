@@ -11,8 +11,11 @@ RUN mkdir -p /opt/solr/server/solr/$SOLR_CORE/data
 # Copy security to container
 COPY ./contrib/docker-GCP/solr/security.json /opt/solr/server/solr/
 
+# Add user and password environment variables
 ARG SOLR_USER
 ARG SOLR_PASSWORD
+ENV SOLR_USER=$SOLR_USER
+ENV SOLR_PASSWORD=$SOLR_PASSWORD
 
 # Adding Files
 ADD ./contrib/docker-GCP/solr/solrconfig.xml \
