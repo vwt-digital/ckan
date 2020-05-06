@@ -72,9 +72,6 @@ The following environment variables need to be set. See the github of
 
 **Locally:** in the .env file in contrib/docker:
 ::
-        CKAN_SOLR_PASSWORD
-        SOLR_PORT
-        CKAN_SOLR_URL
         CKAN_OAUTH2_AUTHORIZATION_ENDPOINT
         CKAN_OAUTH2_TOKEN_ENDPOINT
         CKAN_OAUTH2_CLIENT_ID
@@ -93,21 +90,7 @@ Where CKAN_PRIVATE_ORGS are the organisations in CKAN that have datasets that sh
 
 **Note:** Organisations are being segregated by a comma (',').
 
-**Note:** When using GCP, make sure that CKAN_SOLR_PASSWORD is the unhashed password of 
-`security.json <https://lucene.apache.org/solr/guide/6_6/basic-authentication-plugin.html>`_. Security.json should 
-be placed in contrib/docker-GCP/solr.
-To change SOLR's password, the file contrib/docker-GCP/solr/solr_set_user.py can be used. The set_user.json file 
-that is made via this script should be uploaded via 
-::
-        curl --user solr:SolrRocks http://localhost:8983/solr/admin/authentication -H 'Content-type:application/json' -d 
-        @contrib/docker-GCP/solr/set_user.json
-
-**GCP:** Only the following two values do not have to be added, unless running locally:
-::
-        SOLR_PORT
-        CKAN_SOLR_URL
-
-The rest of the values that have to be added to the .env file above have to be added as environment
+**GCP:** the same values that have to be added to the .env file above have to be added as environment
 variables to the Docker image. With addition:
 ::
         CKAN_SQLALCHEMY_URL=postgresql://{GCP_DATABASE_USER}:{GCP_DATABASE_PASSWORD}@/{GCP_DATABASE_NAME}?host=/cloudsql/{GCP_INSTANCE}

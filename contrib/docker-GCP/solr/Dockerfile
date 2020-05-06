@@ -8,9 +8,6 @@ ENV SOLR_CORE ckan
 RUN mkdir -p /opt/solr/server/solr/$SOLR_CORE/conf
 RUN mkdir -p /opt/solr/server/solr/$SOLR_CORE/data
 
-# Copy security to container
-COPY ./contrib/docker-GCP/solr/security.json /opt/solr/server/solr/
-
 # Adding Files
 ADD ./contrib/docker-GCP/solr/solrconfig.xml \
 ./ckan/config/solr/schema.xml \
@@ -28,7 +25,6 @@ RUN echo name=$SOLR_CORE > /opt/solr/server/solr/$SOLR_CORE/core.properties
 
 USER root
 RUN chown -R $SOLR_USER:$SOLR_USER /opt/solr/server/solr/$SOLR_CORE
-RUN chown -R $SOLR_USER:$SOLR_USER /opt/solr/server/solr/security.json
 
 # User
 USER $SOLR_USER:$SOLR_USER
