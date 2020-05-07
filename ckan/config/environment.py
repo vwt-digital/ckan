@@ -154,14 +154,14 @@ CONFIG_FROM_ENV_VARS = {
     'smtp.password': 'CKAN_SMTP_PASSWORD',
     'smtp.mail_from': 'CKAN_SMTP_MAIL_FROM',
     'ckan.max_resource_size': 'CKAN_MAX_UPLOAD_SIZE_MB',
-    # 'ckan.oauth2.authorization_endpoint': 'CKAN_OAUTH2_AUTHORIZATION_ENDPOINT',
-    # 'ckan.oauth2.profile_api_url': 'CKAN_OAUTH2_PROFILE_API_URL',
-    # 'ckan.oauth2.token_endpoint': 'CKAN_OAUTH2_TOKEN_ENDPOINT',
-    # 'ckan.oauth2.client_id': 'CKAN_OAUTH2_CLIENT_ID',
-    # 'ckan.oauth2.client_secret': 'CKAN_OAUTH2_CLIENT_SECRET',
-    # 'ckan.oauth2.scope': 'CKAN_OAUTH2_SCOPE',
-    # 'ckan.oauth2.profile_api_user_field': 'CKAN_OAUTH2_PROFILE_API_USER_FIELD',
-    # 'ckan.oauth2.profile_api_mail_field': 'CKAN_OAUTH2_PROFILE_API_MAIL_FIELD',
+    'ckan.oauth2.authorization_endpoint': 'CKAN_OAUTH2_AUTHORIZATION_ENDPOINT',
+    'ckan.oauth2.profile_api_url': 'CKAN_OAUTH2_PROFILE_API_URL',
+    'ckan.oauth2.token_endpoint': 'CKAN_OAUTH2_TOKEN_ENDPOINT',
+    'ckan.oauth2.client_id': 'CKAN_OAUTH2_CLIENT_ID',
+    'ckan.oauth2.client_secret': 'CKAN_OAUTH2_CLIENT_SECRET',
+    'ckan.oauth2.scope': 'CKAN_OAUTH2_SCOPE',
+    'ckan.oauth2.profile_api_user_field': 'CKAN_OAUTH2_PROFILE_API_USER_FIELD',
+    'ckan.oauth2.profile_api_mail_field': 'CKAN_OAUTH2_PROFILE_API_MAIL_FIELD',
     'ckan.viewerpermissions.private_orgs': 'CKAN_PRIVATE_ORGS'
 }
 # End CONFIG_FROM_ENV_VARS
