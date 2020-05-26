@@ -68,6 +68,8 @@ RUN ckan-pip install -U pip && \
     python setup.py develop && \
     cd ../ckanext-vwt_theme && \
     python setup.py develop && \
+    cd ../ckanext-custom_vocabulary && \
+    python setup.py develop && \
     cd ../../../../.. && \
     deactivate
 
