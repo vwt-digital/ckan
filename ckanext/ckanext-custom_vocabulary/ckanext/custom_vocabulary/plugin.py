@@ -71,7 +71,8 @@ class Custom_VocabularyPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetFor
     def _modify_package_schema(self, schema):
         schema.update({
             'domain': [toolkit.get_validator('ignore_missing'), toolkit.get_converter('convert_to_tags')('domains')],
-            'solution': [toolkit.get_validator('ignore_missing'), toolkit.get_converter('convert_to_tags')('solutions')]
+            'solution': [toolkit.get_validator('ignore_missing'), toolkit.get_converter('convert_to_tags')('solutions')],
+            'github_url': [toolkit.get_validator('ignore_missing'), toolkit.get_converter('convert_to_extras')]
         })
         return schema
 
@@ -90,6 +91,7 @@ class Custom_VocabularyPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetFor
         schema['tags']['__extras'].append(toolkit.get_converter('free_tags_only'))
         schema.update({
             'domain': [toolkit.get_converter('convert_from_tags')('domains'), toolkit.get_validator('ignore_missing')],
-            'solution': [toolkit.get_converter('convert_from_tags')('solutions'), toolkit.get_validator('ignore_missing')]
+            'solution': [toolkit.get_converter('convert_from_tags')('solutions'), toolkit.get_validator('ignore_missing')],
+            'github_url': [toolkit.get_converter('convert_from_extras'), toolkit.get_validator('ignore_missing')]
         })
         return schema
