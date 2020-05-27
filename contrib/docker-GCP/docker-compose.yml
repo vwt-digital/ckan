@@ -50,15 +50,25 @@ services:
       - ckan_home:/usr/lib/ckan
       - ckan_storage:/var/lib/ckan
 
+  # cloudsql-proxy:
+  #     container_name: cloudsql-proxy
+  #     image: gcr.io/cloudsql-docker/gce-proxy:1.16
+  #     command: /cloud_sql_proxy --dir=/cloudsql -instances=${GCP_SQL_INSTANCE}=tcp:0.0.0.0:5432 -credential_file=./contrib/docker-GCP/credentials.json
+  #     ports:
+  #       - 5432:5432
+  #     volumes:
+  #       - ./mnt/stateful_partition/cloudsql:/cloudsql
+  #       - ./credentials.json:/contrib/docker-GCP/credentials.json
+  #     restart: always
+
   cloudsql-proxy:
       container_name: cloudsql-proxy
       image: gcr.io/cloudsql-docker/gce-proxy:1.16
-      command: /cloud_sql_proxy --dir=/cloudsql -instances=${GCP_SQL_INSTANCE}=tcp:0.0.0.0:5432 -credential_file=./contrib/docker-GCP/credentials.json
+      command: /cloud_sql_proxy --dir=/cloudsql -instances=${GCP_SQL_INSTANCE}=tcp:0.0.0.0:5432
       ports:
         - 5432:5432
       volumes:
         - ./mnt/stateful_partition/cloudsql:/cloudsql
-        - ./credentials.json:/contrib/docker-GCP/credentials.json
       restart: always
 
   solr:
