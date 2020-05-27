@@ -52,6 +52,9 @@ class Custom_VocabularyPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetFor
 
         return facets_dict
 
+    def group_facets(self, facets_dict, group_type, package_type):
+        return facets_dict
+
     def get_helpers(self):
         return {'domains': domains, 'solutions': solutions}
 
