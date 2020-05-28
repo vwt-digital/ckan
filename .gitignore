@@ -50,7 +50,4 @@ contrib/docker-GCP/.env
 contrib/docker-GCP/*.json
 contrib/docker-GCP/solr/*.json
 contrib/docker-GCP/solr/*.txt
-contrib/docker-GCP/cloud-compute-instance/google-cloud-init.sh
-contrib/docker-GCP/cloud-compute-instance/google-cloud-init.yml
-contrib/docker-GCP/cloud-compute-instance/init.sh
 
