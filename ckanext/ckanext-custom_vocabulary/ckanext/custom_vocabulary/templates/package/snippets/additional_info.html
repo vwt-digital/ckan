@@ -1,0 +1,11 @@
+{% ckan_extends %}
+
+{% block extras %}
+  {{ super() }}
+  {% if pkg_dict.project_id %}
+    <tr>
+      <th scope="row" class="dataset-label">{{ _("Project ID") }}</th>
+      <td class="dataset-details">{{ pkg_dict.project_id }}</td>
+    </tr>
+  {% endif %}
+{% endblock %}
