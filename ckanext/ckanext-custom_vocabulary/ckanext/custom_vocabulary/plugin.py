@@ -45,11 +45,18 @@ class Custom_VocabularyPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetFor
     plugins.implements(plugins.IFacets)
     plugins.implements(plugins.IDatasetForm)
     plugins.implements(plugins.ITemplateHelpers)
+    plugins.implements(plugins.IConfigurer)
+
+    def update_config(self, config):
+        toolkit.add_template_directory(config, 'templates')
 
     def dataset_facets(self, facets_dict, package_type):
         facets_dict['vocab_domain'] = plugins.toolkit._('Domains')
         facets_dict['vocab_solution'] = plugins.toolkit._('Solutions')
 
+        return facets_dict
+
+    def group_facets(self, facets_dict, group_type, package_type):
         return facets_dict
 
     def get_helpers(self):
@@ -68,7 +75,9 @@ class Custom_VocabularyPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetFor
     def _modify_package_schema(self, schema):
         schema.update({
             'domain': [toolkit.get_validator('ignore_missing'), toolkit.get_converter('convert_to_tags')('domains')],
-            'solution': [toolkit.get_validator('ignore_missing'), toolkit.get_converter('convert_to_tags')('solutions')]
+            'solution': [toolkit.get_validator('ignore_missing'), toolkit.get_converter('convert_to_tags')('solutions')],
+            'project_id': [toolkit.get_validator('ignore_missing'), toolkit.get_converter('convert_to_extras')]
+
         })
         return schema
 
@@ -87,6 +96,7 @@ class Custom_VocabularyPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetFor
         schema['tags']['__extras'].append(toolkit.get_converter('free_tags_only'))
         schema.update({
             'domain': [toolkit.get_converter('convert_from_tags')('domains'), toolkit.get_validator('ignore_missing')],
-            'solution': [toolkit.get_converter('convert_from_tags')('solutions'), toolkit.get_validator('ignore_missing')]
+            'solution': [toolkit.get_converter('convert_from_tags')('solutions'), toolkit.get_validator('ignore_missing')],
+            'project_id': [toolkit.get_converter('convert_from_extras'), toolkit.get_validator('ignore_missing')]
         })
         return schema
