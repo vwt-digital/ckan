@@ -55,7 +55,7 @@ services:
   cloudsql-proxy:
       container_name: cloudsql-proxy
       image: gcr.io/cloudsql-docker/gce-proxy:1.17
-      command: /cloud_sql_proxy --dir=/cloudsql -instances=${GCP_SQL_INSTANCE}=tcp:0.0.0.0:5432
+      command: /cloud_sql_proxy --dir=/cloudsql -instances=${GCP_SQL_INSTANCE}
       volumes:
         - /mnt/stateful_partition/cloudsql:/cloudsql
       restart: always
