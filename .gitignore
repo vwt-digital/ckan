@@ -51,3 +51,6 @@ contrib/docker-GCP/*.json
 contrib/docker-GCP/solr/*.json
 contrib/docker-GCP/solr/*.txt
 contrib/docker-GCP/cloud-compute-instance/*.sh
+contrib/docker-GCP/cloud-compute-instance/ssl-certs
+contrib/docker-GCP/cloud-compute-instance/mnt
+contrib/docker-GCP/cloud-compute-instance/nginx
