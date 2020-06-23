@@ -18,6 +18,7 @@ write_files:
     ExecStopPost=/usr/bin/docker rm ckan solr redis cloudsql-proxy
     
 runcmd:
+- chmod 777 /etc
 - cd /etc
 - git clone https://github.com/vwt-digital/ckan.git
 - cp ckan/contrib/docker-GCP/cloud-compute-instance/docker-compose.yml ckan/contrib/docker-GCP/
