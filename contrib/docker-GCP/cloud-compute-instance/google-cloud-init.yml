@@ -23,6 +23,13 @@ runcmd:
 - cp ckan/contrib/docker-GCP/cloud-compute-instance/docker-compose.yml ckan/contrib/docker-GCP/
 - cp ckan/contrib/docker-GCP/cloud-compute-instance/deployment.ini_tmpl ckan/ckan/config/
 - cd ckan/contrib/docker-GCP
+- mkdir ssl-certs
+- cd ssl-certs
+- openssl genrsa -out ckan-ssl.key 2048
+- openssl rsa -in ckan-ssl.key -out ckan-ssl.key
+- openssl req -new -key ckan-ssl.key -out ckan-ssl.csr
+- openssl x509 -req -days 365 -in ckan-ssl.csr -signkey ckan-ssl.key -out ckan-ssl.crt
+- cd ..
 - python ./solr/solr_generate_pass.py "./solr/"
 - 'echo "CKAN_SOLR_PASSWORD="`cat ./solr/password.txt` >> .env'
 - 'echo "CKAN_SOLR_USER="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_solr_user" -H "Metadata-Flavor: Google"` >> .env'
