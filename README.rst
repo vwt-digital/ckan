@@ -34,8 +34,9 @@ Additions
 ------------
 
 In this CKAN setup, `oauth2 authentication <https://github.com/conwetlab/ckanext-oauth2>`_ 
-is added as well as the `rule <https://github.com/vwt-digital/ckan/tree/develop/ckanext/ckanext-viewerpermissions>`_ 
-that only authenticated users can see certain datasets.
+is added together with the `rule <https://github.com/vwt-digital/ckan/tree/develop/ckanext/ckanext-viewerpermissions>`_ 
+that only authenticated users can see certain datasets and the addition of a 
+`custom VWT vocabulary <https://github.com/vwt-digital/ckan/tree/develop/ckanext/ckanext-custom_vocabulary>`_ 
 
 Local Installation
 ------------
@@ -45,7 +46,12 @@ To run this CKAN setup locally, use the
 compose <https://docs.ckan.org/en/2.8/maintaining/installing/install-from-docker-compose.html>`_
 in the folder `contrib/docker <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_ if you want to run it 
 with a local database. Or in the folder `contrib/docker-GCP <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_ 
-if you want to run it with a `Google Cloud Platform (GCP) <https://cloud.google.com>`_ database.
+if you want to run it with a `Google Cloud Platform (GCP) <https://cloud.google.com>`_ database. And if you want to run it with 
+a nginx instance, copy the 
+`Docker-compose file <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/cloud-compute-instance/docker-compose.yml>`_ 
+into `contrib/docker-GCP <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_ and the 
+`deployment.ini_tmpl <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/cloud-compute-instance/deployment.ini_tmpl>`_ 
+file into `ckan/config <https://github.com/vwt-digital/ckan/tree/develop/ckan/config>`_.
 
 Furthermore make sure that the 'port' variable in 
 `deployment.ini_tmpl <https://github.com/vwt-digital/ckan/blob/develop/ckan/config/deployment.ini_tmpl>`_ is set to the right 
@@ -54,21 +60,39 @@ port (probably 5000).
 If you want to run CKAN with GCP settings, set the 'GCP' variable in the 
 `Dockerfile <https://github.com/vwt-digital/ckan/blob/develop/Dockerfile>`_ to 'yes'.
 
-Google Cloud Platform Installation
+Google Cloud Platform Cloud Run Installation
 ------------
 
-To run this CKAN setup on `Google Cloud Platform (GCP) <https://cloud.google.com>`_ build the container image via the 
+To run this CKAN setup on `Google Cloud Platform (GCP) Cloud Run <https://cloud.google.com/run>`_ build the container image via the 
 `Dockerfile <https://github.com/vwt-digital/ckan/blob/develop/Dockerfile>`_ and push it to GCP.
 For more information see 
 `Build Using Dockerfile <https://cloud.google.com/cloud-build/docs/quickstart-build#build_using_dockerfile>`_.
+Do not forget to add the environment variables.
+
+Google Cloud Platform Compute Engine Installation
+------------
+
+To run this CKAN setup on `Google Cloud Platform (GCP) Compute Engine <https://cloud.google.com/compute>`_ first create a network and then
+create firewall-rules on this network to open access to the ssl port and, if you want, the ssh port.
+Then create the compute instance, for more information see 
+`gcloud compute instance create <https://cloud.google.com/sdk/gcloud/reference/compute/instances/create>`_. 
+The `google-cloud-init.yml <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/cloud-compute-instance/google-cloud-init.yml>`_
+should be used as the user-data in the metadata-from-file parameter.
+Nginx also needs ssl certificates, these are made via google-cloud-init.yml but this does need a 
+.cnf file, see `How to create a CSR with OpenSSL <https://www.switch.ch/pki/manage/request/csr-openssl/>`_ 
+for more information about creating such a file.
 
 Environment Variables
 ------------
 
 The following environment variables need to be set. See the github of 
 `ckanext-oauth2 <https://github.com/conwetlab/ckanext-oauth2/wiki/Activating-and-Installing>`_ for more information.
-
-**Note:** the .env files are made by copying the .env.template files and renaming them to .env.
+If you are using Cloud Run, these variables have to be added as environment variables when deploying the image to GCP.
+If you are using Cloud Engine, these variables have to be added as metadata when creating the engine. The 
+`google-cloud-init file <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/cloud-compute-instance/google-cloud-init.yml>`_ 
+shows what the names of these variables should be.
+If you are running CKAN locally, only the .env file is needed, it can be made by copying the 
+`.env.template <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/.env.template>`_ file and renaming it to .env.
 
 **Locally:** in the .env file in contrib/docker:
 ::
@@ -96,17 +120,17 @@ Where CKAN_PRIVATE_ORGS are the organisations in CKAN that have datasets that sh
 **Note:** When using GCP, make sure that CKAN_SOLR_PASSWORD is the unhashed password of 
 `security.json <https://lucene.apache.org/solr/guide/6_6/basic-authentication-plugin.html>`_. Security.json should 
 be placed in contrib/docker-GCP/solr.
-To change SOLR's password, the file contrib/docker-GCP/solr/solr_set_user.py can be used. The set_user.json file 
-that is made via this script should be uploaded via 
-::
-        curl --user solr:SolrRocks http://localhost:8983/solr/admin/authentication -H 'Content-type:application/json' -d 
-        @contrib/docker-GCP/solr/set_user.json
+To change SOLR's password, the file 
+`solr_generate_pass.py <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/solr/solr_generate_pass.py>`_ can be used. 
 
-**GCP:** Only the following two values do not have to be added, unless running locally:
+**Note:** When running locally, make sure that the generated password is set as the solr password in the .env file.
+
+**GCP Cloud Run:** Only the following two values do not have to be added, unless running locally:
 ::
         SOLR_PORT
         CKAN_SOLR_URL
 
+**GCP Cloud Run + Locally:**
 The rest of the values that have to be added to the .env file above have to be added as environment
 variables to the Docker image. With addition:
 ::
@@ -115,6 +139,11 @@ variables to the Docker image. With addition:
 **Note:** the following also needs to be added to the .env file in contrib/docker-GCP when wanting to run that one locally.
 ::
         GCP_SQL_INSTANCE
+
+**GCP Compute Engine:**
+All the necessary variables for the Compute Engine can be found in the 
+`google-cloud-init file <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/cloud-compute-instance/google-cloud-init.yml>`_.
+Note that this file also makes the .env file. When using nginx, the OAUTHLIB_INSECURE_TRANSPORT variable can be set to false.
 
 Updating CKAN
 ------------
@@ -125,37 +154,35 @@ The `master branch <https://github.com/ckan/ckan>`_ can be unstable.
 The following adjustments should be kept or adjusted properly when merging to a branch from the forked CKAN repository:
 
 - `Dockerfile <https://github.com/vwt-digital/ckan/blob/develop/Dockerfile>`_:
-    | The variable 'GCP' which is checked when copying the entrypoint in order to know which entrypoint to copy (lines 37, 58-63).
-    | The activation of the virtual environment in order to install extensions (line 66-72).
+    | The variable 'GCP' which is checked when copying the entrypoint in order to know which entrypoint to copy.
+    | The activation of the virtual environment in order to install extensions.
 - `deployment.ini_tmpl <https://github.com/vwt-digital/ckan/blob/develop/ckan/config/deployment.ini_tmpl>`_:
-    | The changing of the port variable to 8080 (unless running locally, as explained before) (line 22).
-    | The OAuth2 configuration settings (all variables starting with 'ckan.oauth2.') for the oauth2 extension (lines 78-86).
-    | The 'ckan.viewerpermissions.private_orgs' variable for the viewerpermissions extension (lines 88-89).
-    | The adding of 'vwt_theme oauth2 viewerpermissions' to the ckan.plugins variable (line 118).
+    | The changing of the port variable to 8080 (unless running locally, as explained before).
+    | The OAuth2 configuration settings (all variables starting with 'ckan.oauth2.') for the oauth2 extension,
+    | The 'ckan.viewerpermissions.private_orgs' variable for the viewerpermissions extension.
+    | The adding of 'vwt_theme oauth2 viewerpermissions' to the ckan.plugins variable.
 - `environment.py <https://github.com/vwt-digital/ckan/blob/develop/ckan/config/environment.py>`_:
-    | The adding of previously mentioned variables to the config_from_env_vars function (lines 157-165).
+    | The adding of previously mentioned variables to the config_from_env_vars function.
 - `original docker folder <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_:
     | The environment variables for the extensions in the 
-      `entrypoint <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_ (lines 38-50).
+      `entrypoint <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_.
     | Also add these env vars to the 
-      `docker compose <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker/docker-compose.yml>`_ (lines 36-46).
+      `docker compose <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker/docker-compose.yml>`_.
     | And add these env vars to the 
-      `env.template <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker/.env.template>`_ (lines 34-45).
+      `env.template <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker/.env.template>`_.
 - `GCP docker folder <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker-GCP>`_:
     | **Note:** Don't forget to compare this folder to the contrib/docker folder of the branch you want to merge with.
     | The environment variables for the extensions in the 
-      `entrypoint <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/ckan-entrypoint.sh>`_ (lines 37-49).
-    | The startup of the Redis server is also added but this might not be necessary in future versions (lines 56-57).
-    | The search-index rebuild is necessary in order for the database to refill after the site being down for too long (line 78).
+      `entrypoint <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/ckan-entrypoint.sh>`_.
+    | The startup of the Redis server is also added but this might not be necessary in future versions.
+    | The search-index rebuild is necessary in order for the database to refill after the site being down for too long.
     | The `docker compose <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/docker-compose.yml>`_ 
       has been adjusted completely to have a GCP SQL proxy to the SQL database instead of a local database. Also the env 
       vars for the extensions have been added.
     | The environment variables for the extensions have also been added to the 
-      `env.template <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/.env.template>`_ (lines 38-49).
-      Along with the environment variables to set the GCP SQL database (lines 27-29). And the removal of any environment variables 
+      `env.template <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/.env.template>`_.
+      Along with the environment variables to set the GCP SQL database. And the removal of any environment variables 
       used to setup a database locally.
-
-**Note:** Don't forget to update the above line numbers if they are changed due to a merge.
 
 Support
 -------
