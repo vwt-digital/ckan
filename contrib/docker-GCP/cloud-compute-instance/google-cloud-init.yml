@@ -25,10 +25,10 @@ runcmd:
 - cd ckan/contrib/docker-GCP
 - mkdir ssl-certs
 - cd ssl-certs
+- 'echo `curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_ssl_config" -H "Metadata-Flavor: Google"` >> ckan-ssl.cnf'
 - openssl genrsa -out ckan-ssl.key 2048
 - openssl rsa -in ckan-ssl.key -out ckan-ssl.key
-- openssl req -new -key ckan-ssl.key -out ckan-ssl.csr
-- openssl x509 -req -days 365 -in ckan-ssl.csr -signkey ckan-ssl.key -out ckan-ssl.crt
+- openssl req -days 365 -nodes -new -x509 -config ckan-ssl.cnf -keyout ckan-ssl.key -out ckan-ssl.crt
 - cd ..
 - python ./solr/solr_generate_pass.py "./solr/"
 - 'echo "CKAN_SOLR_PASSWORD="`cat ./solr/password.txt` >> .env'
