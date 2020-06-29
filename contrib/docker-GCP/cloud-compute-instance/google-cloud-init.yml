@@ -21,7 +21,6 @@ runcmd:
 - cd /etc
 - git clone https://github.com/vwt-digital/ckan.git
 - cp ckan/contrib/docker-GCP/cloud-compute-instance/docker-compose.yml ckan/contrib/docker-GCP/
-- cp ckan/contrib/docker-GCP/cloud-compute-instance/deployment.ini_tmpl ckan/ckan/config/
 - cd ckan/contrib/docker-GCP
 - mkdir ssl-certs
 - cd ssl-certs

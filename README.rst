@@ -55,7 +55,7 @@ file into `ckan/config <https://github.com/vwt-digital/ckan/tree/develop/ckan/co
 
 Furthermore make sure that the 'port' variable in 
 `deployment.ini_tmpl <https://github.com/vwt-digital/ckan/blob/develop/ckan/config/deployment.ini_tmpl>`_ is set to the right 
-port (probably 5000).
+port (probably 5000 when running locally and using Google Compute Engine and 8080 when using Cloud Run).
 
 If you want to run CKAN with GCP settings, set the 'GCP' variable in the 
 `Dockerfile <https://github.com/vwt-digital/ckan/blob/develop/Dockerfile>`_ to 'yes'.
