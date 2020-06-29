@@ -49,9 +49,7 @@ with a local database. Or in the folder `contrib/docker-GCP <https://github.com/
 if you want to run it with a `Google Cloud Platform (GCP) <https://cloud.google.com>`_ database. And if you want to run it with 
 a nginx instance, copy the 
 `Docker-compose file <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/cloud-compute-instance/docker-compose.yml>`_ 
-into `contrib/docker-GCP <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_ and the 
-`deployment.ini_tmpl <https://github.com/vwt-digital/ckan/blob/develop/contrib/docker-GCP/cloud-compute-instance/deployment.ini_tmpl>`_ 
-file into `ckan/config <https://github.com/vwt-digital/ckan/tree/develop/ckan/config>`_.
+into `contrib/docker-GCP <https://github.com/vwt-digital/ckan/tree/develop/contrib/docker>`_.
 
 Furthermore make sure that the 'port' variable in 
 `deployment.ini_tmpl <https://github.com/vwt-digital/ckan/blob/develop/ckan/config/deployment.ini_tmpl>`_ is set to the right 
