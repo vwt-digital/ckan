@@ -1,0 +1,21 @@
+{#
+  Displays a button to go to the schema of the resource
+  
+  pkg       - The package dict that owns the resources.
+  active    - The id of the currently displayed resource.
+  
+  Example:
+  
+    {% snippet "package/snippets/view_schema.html", pkg=pkg, active=res.id %}
+  
+  #}
+{% block view_schema %}
+  <section class="module module-narrow view_schema">
+    {% block view_schema_title %}
+      <h2 class="module-heading"><i class="fa fa-file-text-o"></i> {{ _('View schema') }}</h2>
+    {% endblock %}
+    <a href="{{ h.url_for('schema.read', dataset_name=pkg.name, dataset_id=pkg.id, resource_id=active.id, _external=True) }}" class="btn btn-primary" title="{{ _('Schema') }}">
+      <span class="text">{{ _('Schema') }}</span>
+    </a>
+  </section>
+{% endblock %}

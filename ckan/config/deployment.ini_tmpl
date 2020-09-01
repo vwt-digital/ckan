@@ -116,6 +116,7 @@ ckan.site_id = default
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
 ckan.plugins = vwt_theme oauth2 viewerpermissions stats text_view image_view recline_view custom_vocabulary
+#ckan.plugins = vwt_theme stats text_view image_view recline_view custom_vocabulary
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)

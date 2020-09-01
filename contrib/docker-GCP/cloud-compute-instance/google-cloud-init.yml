@@ -24,10 +24,8 @@ runcmd:
 - cd ckan/contrib/docker-GCP
 - mkdir ssl-certs
 - cd ssl-certs
-- '`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_ssl_config" -H "Metadata-Flavor: Google" --output ckan-ssl.cnf`'
-- openssl genrsa -out ckan-ssl.key 2048
-- openssl rsa -in ckan-ssl.key -out ckan-ssl.key
-- openssl req -days 365 -nodes -new -x509 -config ckan-ssl.cnf -keyout ckan-ssl.key -out ckan-ssl.crt
+- '`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_ssl_key" -H "Metadata-Flavor: Google" --output ckan-ssl.key`'
+- '`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_ssl_cert" -H "Metadata-Flavor: Google" --output ckan-ssl.crt`'
 - cd ..
 - python ./solr/solr_generate_pass.py "./solr/"
 - 'echo "CKAN_SOLR_PASSWORD="`cat ./solr/password.txt` >> .env'
@@ -44,9 +42,7 @@ runcmd:
 - 'echo "CKAN_PRIVATE_ORGS="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_private_orgs" -H "Metadata-Flavor: Google"` >> .env'
 - 'echo "SOLR_PORT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/solr_port" -H "Metadata-Flavor: Google"` >> .env'
 - 'echo "CKAN_SOLR_URL="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_solr_url" -H "Metadata-Flavor: Google"` >> .env'
-- 'export "CKAN_VM_IP="`curl "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip" -H "Metadata-Flavor: Google"`'
-- 'export "CKAN_PORT_SSL="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_port_ssl" -H "Metadata-Flavor: Google"`'
-- 'echo "CKAN_SITE_URL="https://$CKAN_VM_IP:$CKAN_PORT_SSL"" >> .env'
+- 'echo "CKAN_SITE_URL="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_url" -H "Metadata-Flavor: Google"` >> .env'
 - 'echo "CKAN_PORT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_port" -H "Metadata-Flavor: Google"` >> .env'
 - 'echo "OAUTHLIB_INSECURE_TRANSPORT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/oauthlib_insecure_transport" -H "Metadata-Flavor: Google"` >> .env'
 - 'echo "OAUTHLIB_RELAX_TOKEN_SCOPE="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/oauthlib_relax_token_scope" -H "Metadata-Flavor: Google"` >> .env'
