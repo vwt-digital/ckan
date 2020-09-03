@@ -31,9 +31,12 @@ def schema_to_list(schema):
 def get_schema_title(schema):
     # Convert unicode to json
     #schema_json = json.loads(schema)
+    log.info("schema")
+    log.info(schema)
     # Get schema title from json
     schema_title = schema.get('$id')
-    logging.info(schema_title)
+    log.info("Schema title")
+    log.info(schema_title)
     schema_title_list = schema_title.split(':')
     schema_title_final = schema_title_list[1]
     return schema_title_final
