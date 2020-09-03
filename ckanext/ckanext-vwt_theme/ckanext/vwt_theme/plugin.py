@@ -36,7 +36,7 @@ def get_schemas(schemas):
 def schema_to_list(schema):
     # Make schema into string if necessary
     if type(schema) is dict:
-        schema = str(schema)
+        schema = json.dumps(schema, indent=2)
     # Make schema into list so that every newline can be printed
     schema_list = schema.split('\n')
     # Replace every whitespace with its html code, otherwise there are no indents
