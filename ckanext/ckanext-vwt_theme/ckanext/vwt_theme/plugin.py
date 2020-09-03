@@ -11,6 +11,19 @@ import ast
 log = logging.getLogger(__name__)
 
 
+def get_schemas_from_resource(resource):
+    # Get schemas list
+    if 'schemas' in resource:
+        schemas = resource['schemas']
+        # Get schemas from schema list
+        schemas = ast.literal_eval(schemas)
+        schemas_list = []
+        for s in schemas:
+            schemas_list.append(s)
+        return schemas_list
+    return []
+
+
 def get_schemas(schemas):
     # Get schemas from schema list
     schemas = ast.literal_eval(schemas)
@@ -30,13 +43,9 @@ def schema_to_list(schema):
 
 def get_schema_title(schema):
     # Convert unicode to json
-    #schema_json = json.loads(schema)
-    log.info("schema")
-    log.info(schema)
     # Get schema title from json
     schema_title = schema.get('$id')
-    log.info("Schema title")
-    log.info(schema_title)
+    schema_title = str(schema_title)
     schema_title_list = schema_title.split(':')
     schema_title_final = schema_title_list[1]
     return schema_title_final
@@ -72,7 +81,8 @@ class Vwt_ThemePlugin(plugins.SingletonPlugin):
         # other extensions.
         return {'vwt_theme_get_schemas': get_schemas,
                 'vwt_theme_schema_to_list': schema_to_list,
-                'vwt_theme_get_schema_title': get_schema_title}
+                'vwt_theme_get_schema_title': get_schema_title,
+                'vwt_theme_get_schemas_from_resource': get_schemas_from_resource}
 
     def before_map(self, map):
         controller = 'ckanext.vwt_theme.controller:Vwt_ThemeController'
