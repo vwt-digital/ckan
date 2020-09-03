@@ -34,6 +34,9 @@ def get_schemas(schemas):
 
 
 def schema_to_list(schema):
+    # Make schema into string if necessary
+    if type(schema) is dict:
+        schema = str(schema)
     # Make schema into list so that every newline can be printed
     schema_list = schema.split('\n')
     # Replace every whitespace with its html code, otherwise there are no indents
@@ -44,8 +47,12 @@ def schema_to_list(schema):
 def get_schema_title(schema):
     # Convert unicode to json
     # Get schema title from json
-    schema_title = schema.get('$id')
-    schema_title = str(schema_title)
+    schema_title = ''
+    if type(schema) is unicode:
+        schema_json = json.loads(schema)
+        schema_title = schema_json.get('$id')
+    elif type(schema) is dict:
+        schema_title = schema.get('$id')
     schema_title_list = schema_title.split(':')
     schema_title_final = schema_title_list[1]
     return schema_title_final
