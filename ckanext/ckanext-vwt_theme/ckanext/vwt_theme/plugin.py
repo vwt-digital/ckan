@@ -33,6 +33,7 @@ def get_schema_title(schema):
     #schema_json = json.loads(schema)
     # Get schema title from json
     schema_title = schema.get('$id')
+    logging.info(schema_title)
     schema_title_list = schema_title.split(':')
     schema_title_final = schema_title_list[1]
     return schema_title_final
