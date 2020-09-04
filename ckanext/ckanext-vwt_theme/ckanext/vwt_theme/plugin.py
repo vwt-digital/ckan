@@ -20,6 +20,8 @@ def get_schema_from_resource(resource):
 
 
 def schema_to_list(schema):
+    if type(schema) is unicode:  # noqa: F821
+        schema = ast.literal_eval(schema)
     # Make schema into string if necessary
     if type(schema) is dict:
         schema = json.dumps(schema, indent=2)
