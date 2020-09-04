@@ -6,6 +6,7 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import logging
 import json
+import ast
 
 log = logging.getLogger(__name__)
 
@@ -33,9 +34,8 @@ def get_schema_title(schema):
     # Convert unicode to json
     # Get schema title from json
     if type(schema) is unicode:  # noqa: F821
-        schema = json.dumps(schema)
-        schema_json = json.loads(schema)
-        schema_title = schema_json.get('$id')
+        schema = ast.literal_eval(schema)
+        schema_title = schema.get('$id')
     elif type(schema) is dict:
         schema_title = schema.get('$id')
         schema_title = str(schema_title)
