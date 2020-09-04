@@ -76,8 +76,9 @@ class Custom_VocabularyPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetFor
         schema.update({
             'domain': [toolkit.get_validator('ignore_missing'), toolkit.get_converter('convert_to_tags')('domains')],
             'solution': [toolkit.get_validator('ignore_missing'), toolkit.get_converter('convert_to_tags')('solutions')],
-            'project_id': [toolkit.get_validator('ignore_missing'), toolkit.get_converter('convert_to_extras')]
-
+            'project_id': [toolkit.get_validator('ignore_missing'), toolkit.get_converter('convert_to_extras')],
+            'schema': [toolkit.get_validator('ignore_missing'), toolkit.get_converter('convert_to_extras')],
+            'schema_urn': [toolkit.get_validator('ignore_missing'), toolkit.get_converter('convert_to_extras')]
         })
         return schema
 
@@ -97,6 +98,8 @@ class Custom_VocabularyPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetFor
         schema.update({
             'domain': [toolkit.get_converter('convert_from_tags')('domains'), toolkit.get_validator('ignore_missing')],
             'solution': [toolkit.get_converter('convert_from_tags')('solutions'), toolkit.get_validator('ignore_missing')],
-            'project_id': [toolkit.get_converter('convert_from_extras'), toolkit.get_validator('ignore_missing')]
+            'project_id': [toolkit.get_converter('convert_from_extras'), toolkit.get_validator('ignore_missing')],
+            'schema': [toolkit.get_converter('convert_from_extras'), toolkit.get_validator('ignore_missing')],
+            'schema_urn': [toolkit.get_converter('convert_from_extras'), toolkit.get_validator('ignore_missing')]
         })
         return schema
