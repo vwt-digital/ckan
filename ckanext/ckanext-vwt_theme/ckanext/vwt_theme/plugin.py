@@ -6,31 +6,16 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import logging
 import json
-import ast
 
 log = logging.getLogger(__name__)
 
 
-def get_schemas_from_resource(resource):
-    # Get schemas list
-    if 'schemas' in resource:
-        schemas = resource['schemas']
-        # Get schemas from schema list
-        schemas = ast.literal_eval(schemas)
-        schemas_list = []
-        for s in schemas:
-            schemas_list.append(s)
-        return schemas_list
-    return []
-
-
-def get_schemas(schemas):
-    # Get schemas from schema list
-    schemas = ast.literal_eval(schemas)
-    schemas_list = []
-    for s in schemas:
-        schemas_list.append(s)
-    return schemas_list
+def get_schema_from_resource(resource):
+    # Get schema
+    if 'schema' in resource:
+        schema = resource['schema']
+        return schema
+    return False
 
 
 def schema_to_list(schema):
@@ -47,15 +32,28 @@ def schema_to_list(schema):
 def get_schema_title(schema):
     # Convert unicode to json
     # Get schema title from json
-    schema_title = ''
-    if type(schema) is unicode:
+    if type(schema) is unicode:  # noqa: F821
         schema_json = json.loads(schema)
         schema_title = schema_json.get('$id')
     elif type(schema) is dict:
         schema_title = schema.get('$id')
+        schema_title = str(schema_title)
+    else:
+        schema_title = ''
     schema_title_list = schema_title.split(':')
     schema_title_final = schema_title_list[1]
     return schema_title_final
+
+
+def schema_title_to_url(schema):
+    schema_title = get_schema_title(schema)
+    schema_title = schema_title.replace("/", "-")
+    return schema_title
+
+
+def schema_title_from_url(schema_title):
+    schema_title = schema_title.replace("-", "/")
+    return schema_title
 
 
 class Vwt_ThemePlugin(plugins.SingletonPlugin):
@@ -86,15 +84,16 @@ class Vwt_ThemePlugin(plugins.SingletonPlugin):
         # Template helper function names should begin with the name of the
         # extension they belong to, to avoid clashing with functions from
         # other extensions.
-        return {'vwt_theme_get_schemas': get_schemas,
-                'vwt_theme_schema_to_list': schema_to_list,
+        return {'vwt_theme_schema_to_list': schema_to_list,
                 'vwt_theme_get_schema_title': get_schema_title,
-                'vwt_theme_get_schemas_from_resource': get_schemas_from_resource}
+                'vwt_theme_get_schema_from_resource': get_schema_from_resource,
+                'vwt_theme_schema_title_to_url': schema_title_to_url,
+                'vwt_theme_schema_title_from_url': schema_title_from_url}
 
     def before_map(self, map):
         controller = 'ckanext.vwt_theme.controller:Vwt_ThemeController'
-        map.connect('schema.read', '/dataset/{dataset_name}/resource/{resource_id}/schema',
-            controller=controller, action='read')
+        map.connect('schema.read', '/dataset/{dataset_name}/resource/{resource_id}/schema/{active_schema_title}',
+                    controller=controller, action='read')
         return map
 
     def after_map(self, map):

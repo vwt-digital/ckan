@@ -171,16 +171,16 @@
       <section class="module">
         {% block resource_schema_inner %}
         <div class="module-content">
-          <h2>{{ _('Schemas') }}</h2>
+          <h2>{{ _('Schema') }}</h2>
               {% for key, value in h.format_resource_items(res.items()) %}
-                {% if key == "schemas" %}
-                  {% for schema in h.vwt_theme_get_schemas(value) %}
-                    <h3>{{ h.vwt_theme_get_schema_title(schema) }}</h3>
-                      {% for newline in h.vwt_theme_schema_to_list(schema) %}
+                {% if key == "schema" %}
+                  {% if h.vwt_theme_schema_title_from_url(active_schema_title) == h.vwt_theme_get_schema_title(value) %}
+                    <h3>{{ h.vwt_theme_get_schema_title(value) }}</h3>
+                      {% for newline in h.vwt_theme_schema_to_list(value) %}
                           <p>{{ newline | safe }}</p>
                       {% endfor %}
                     {{ _("") }}
-                  {% endfor %}
+                  {% endif %}
                 {% endif %}
               {% endfor %}
         </div>
@@ -196,6 +196,6 @@
   {% endblock %}
 
   {% block resource_schema_button %}
-    {% snippet "package/snippets/view_schema.html", pkg=pkg, active=res %}
+    {% snippet "package/snippets/view_schema.html", pkg=pkg, active=res, active_schema_title=active_schema_title %}
   {% endblock %}
 {% endblock %}

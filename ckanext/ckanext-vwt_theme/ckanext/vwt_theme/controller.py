@@ -15,10 +15,10 @@ NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 get_action = logic.get_action
 
+
 class Vwt_ThemeController(base.BaseController):
 
-
-    def read(self, dataset_name, resource_id):
+    def read(self, dataset_name, resource_id, active_schema_title):
         context = {
             u'model': model,
             u'session': model.Session,
@@ -48,11 +48,12 @@ class Vwt_ThemeController(base.BaseController):
         # logger.info(json.dumps(resource_dict, indent=4, sort_keys=False))
 
         return base.render(
-        u'package/schema.html', {
-                                u'package': pkg,
-                                u'pkg': pkg,
-                                u'pkg_dict': pkg_dict,
-                                u'resource': resource_dict,
-                                u'current_resource_view': resource_dict
-        }
-    )
+            u'package/schema.html', {
+                u'package': pkg,
+                u'pkg': pkg,
+                u'pkg_dict': pkg_dict,
+                u'resource': resource_dict,
+                u'current_resource_view': resource_dict,
+                u'active_schema_title': active_schema_title
+            }
+        )
