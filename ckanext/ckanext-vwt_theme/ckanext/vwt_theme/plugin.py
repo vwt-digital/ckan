@@ -33,7 +33,6 @@ def get_schema_title(schema):
     # Convert unicode to json
     # Get schema title from json
     if type(schema) is unicode:  # noqa: F821
-        schema = schema.replace("\'", "\"")
         schema_json = json.loads(schema)
         schema_title = schema_json.get('$id')
     elif type(schema) is dict:
