@@ -1,53 +1,56 @@
-#cloud-config
+# cloud-config
+---
 
 users:
-- name: cloudservice
-  uid: 2000
+    - name: cloudservice
+      uid: 2000
 
 write_files:
-- path: /etc/systemd/system/ckan.service
-  permissions: 0644
-  owner: root
-  content: |
-    [Unit]
-    Description=Start CKAN using docker compose
+    - path: /etc/systemd/system/ckan.service
+      permissions: 0644
+      owner: root
+      content: |
+        [Unit]
+        Description=Start CKAN using docker compose
 
-    [Service]
-    ExecStart=/usr/bin/docker run -v /var/run/docker.sock:/var/run/docker.sock -v "/etc/ckan:/etc/ckan" -w="/etc/ckan/contrib/docker-GCP" docker/compose:1.24.0 up
-    ExecStop=/usr/bin/docker stop ckan solr redis cloudsql-proxy
-    ExecStopPost=/usr/bin/docker rm ckan solr redis cloudsql-proxy
-    
+        [Service]
+        ExecStart=/usr/bin/docker run -v /var/run/docker.sock:/var/run/docker.sock -v "/etc/ckan:/etc/ckan" -w="/etc/ckan/contrib/docker-GCP" docker/compose:1.24.0 up
+        ExecStop=/usr/bin/docker stop ckan solr redis cloudsql-proxy
+        ExecStopPost=/usr/bin/docker rm ckan solr redis cloudsql-proxy
+
 runcmd:
-- cd /etc
-- git clone https://github.com/vwt-digital/ckan.git
-- cp ckan/contrib/docker-GCP/cloud-compute-instance/docker-compose.yml ckan/contrib/docker-GCP/
-- cd ckan/contrib/docker-GCP
-- mkdir ssl-certs
-- cd ssl-certs
-- '`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_ssl_key" -H "Metadata-Flavor: Google" --output ckan-ssl.key`'
-- '`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_ssl_cert" -H "Metadata-Flavor: Google" --output ckan-ssl.crt`'
-- cd ..
-- python ./solr/solr_generate_pass.py "./solr/"
-- 'echo "CKAN_SOLR_PASSWORD="`cat ./solr/password.txt` >> .env'
-- 'echo "CKAN_SOLR_USER="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_solr_user" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "CKAN_SQLALCHEMY_URL="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_sqlalchemy_url" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "CKAN_OAUTH2_CLIENT_SECRET="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_client_secret" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "CKAN_OAUTH2_AUTHORIZATION_ENDPOINT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_authorization_endpoint" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "CKAN_OAUTH2_TOKEN_ENDPOINT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_token_endpoint" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "CKAN_OAUTH2_CLIENT_ID="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_client_id" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "CKAN_OAUTH2_SCOPE="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_scope" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "CKAN_OAUTH2_PROFILE_API_URL="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_profile_api_url" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "CKAN_OAUTH2_PROFILE_API_USER_FIELD="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_profile_api_user_field" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "CKAN_OAUTH2_PROFILE_API_MAIL_FIELD="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_profile_api_mail_field" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "CKAN_PRIVATE_ORGS="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_private_orgs" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "SOLR_PORT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/solr_port" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "CKAN_SOLR_URL="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_solr_url" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "CKAN_SITE_URL="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_url" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "CKAN_PORT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_port" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "OAUTHLIB_INSECURE_TRANSPORT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/oauthlib_insecure_transport" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "OAUTHLIB_RELAX_TOKEN_SCOPE="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/oauthlib_relax_token_scope" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "GCP_SQL_INSTANCE="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/gcp_sql_instance" -H "Metadata-Flavor: Google"` >> .env'
-- mkdir /mnt/stateful_partition/cloudsql
-- chmod 777 /mnt/stateful_partition/cloudsql
-- systemctl daemon-reload
-- systemctl start ckan.service
+    - cd /etc
+    - git clone https://github.com/vwt-digital/ckan.git
+    - cp ckan/contrib/docker-GCP/cloud-compute-instance/docker-compose.yml ckan/contrib/docker-GCP/
+    - cd ckan/contrib/docker-GCP
+    - mkdir ssl-certs
+    - cd ssl-certs
+    - '`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_ssl_key" -H "Metadata-Flavor: Google" --output ckan-ssl.key`'
+    - '`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_ssl_cert" -H "Metadata-Flavor: Google" --output ckan-ssl.crt`'
+    - cd ..
+    - python ./solr/solr_generate_pass.py "./solr/"
+    - 'echo "CKAN_SOLR_PASSWORD="`cat ./solr/password.txt` >> .env'
+    - 'echo "CKAN_SOLR_USER="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_solr_user" -H "Metadata-Flavor: Google"` >> .env'
+    - 'CKAN_SQLALCHEMY_URL_SECRET_ID=`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_sqlalchemy_url_secret_id" -H "Metadata-Flavor: Google"`'
+    - 'echo "CKAN_SQLALCHEMY_URL=$(gcloud secrets versions access latest --secret=${CKAN_SQLALCHEMY_URL_SECRET_ID})" >> .env'
+    - 'CKAN_OAUTH2_CLIENT_SECRET_SECRET_ID=`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_client_secret_secret_id" -H "Metadata-Flavor: Google"`'
+    - 'echo "CKAN_OAUTH2_CLIENT_SECRET=$(gcloud secrets versions access latest --secret=${CKAN_OAUTH2_CLIENT_SECRET_SECRET_ID})" >> .env'
+    - 'echo "CKAN_OAUTH2_AUTHORIZATION_ENDPOINT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_authorization_endpoint" -H "Metadata-Flavor: Google"` >> .env'
+    - 'echo "CKAN_OAUTH2_TOKEN_ENDPOINT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_token_endpoint" -H "Metadata-Flavor: Google"` >> .env'
+    - 'echo "CKAN_OAUTH2_CLIENT_ID="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_client_id" -H "Metadata-Flavor: Google"` >> .env'
+    - 'echo "CKAN_OAUTH2_SCOPE="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_scope" -H "Metadata-Flavor: Google"` >> .env'
+    - 'echo "CKAN_OAUTH2_PROFILE_API_URL="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_profile_api_url" -H "Metadata-Flavor: Google"` >> .env'
+    - 'echo "CKAN_OAUTH2_PROFILE_API_USER_FIELD="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_profile_api_user_field" -H "Metadata-Flavor: Google"` >> .env'
+    - 'echo "CKAN_OAUTH2_PROFILE_API_MAIL_FIELD="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_profile_api_mail_field" -H "Metadata-Flavor: Google"` >> .env'
+    - 'echo "CKAN_PRIVATE_ORGS="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_private_orgs" -H "Metadata-Flavor: Google"` >> .env'
+    - 'echo "SOLR_PORT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/solr_port" -H "Metadata-Flavor: Google"` >> .env'
+    - 'echo "CKAN_SOLR_URL="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_solr_url" -H "Metadata-Flavor: Google"` >> .env'
+    - 'echo "CKAN_SITE_URL="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_url" -H "Metadata-Flavor: Google"` >> .env'
+    - 'echo "CKAN_PORT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_port" -H "Metadata-Flavor: Google"` >> .env'
+    - 'echo "OAUTHLIB_INSECURE_TRANSPORT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/oauthlib_insecure_transport" -H "Metadata-Flavor: Google"` >> .env'
+    - 'echo "OAUTHLIB_RELAX_TOKEN_SCOPE="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/oauthlib_relax_token_scope" -H "Metadata-Flavor: Google"` >> .env'
+    - 'echo "GCP_SQL_INSTANCE="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/gcp_sql_instance" -H "Metadata-Flavor: Google"` >> .env'
+    - mkdir /mnt/stateful_partition/cloudsql
+    - chmod 777 /mnt/stateful_partition/cloudsql
+    - systemctl daemon-reload
+    - systemctl start ckan.service
