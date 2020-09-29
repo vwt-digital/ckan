@@ -30,6 +30,8 @@ runcmd:
 - python ./solr/solr_generate_pass.py "./solr/"
 - 'echo "CKAN_SOLR_PASSWORD="`cat ./solr/password.txt` >> .env'
 - 'echo "CKAN_SOLR_USER="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_solr_user" -H "Metadata-Flavor: Google"` >> .env'
+- 'echo "CKAN_SQLALCHEMY_URL="blabla >> .env'
+- 'echo "CKAN_OAUTH2_CLIENT_SECRET="blabla >> .env'
 - 'echo "CKAN_OAUTH2_AUTHORIZATION_ENDPOINT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_authorization_endpoint" -H "Metadata-Flavor: Google"` >> .env'
 - 'echo "CKAN_OAUTH2_TOKEN_ENDPOINT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_token_endpoint" -H "Metadata-Flavor: Google"` >> .env'
 - 'echo "CKAN_OAUTH2_CLIENT_ID="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_client_id" -H "Metadata-Flavor: Google"` >> .env'
