@@ -31,7 +31,7 @@ def gen_syllable():
 
 def word_part(type):
     if type == 'c':
-        return random.sample([ch for ch in list(string.lowercase) if ch not in vowels], 1)[0]
+        return random.sample([ch for ch in list(string.ascii_lowercase) if ch not in vowels], 1)[0]
     if type == 'v':
         return random.sample(vowels, 1)[0]
 
