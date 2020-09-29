@@ -2,21 +2,21 @@
 ---
 
 users:
-    - name: cloudservice
-      uid: 2000
+- name: cloudservice
+  uid: 2000
 
 write_files:
-    - path: /etc/systemd/system/ckan.service
-      permissions: 0644
-      owner: root
-      content: |
-        [Unit]
-        Description=Start CKAN using docker compose
+- path: /etc/systemd/system/ckan.service
+  permissions: 0644
+  owner: root
+  content: |
+    [Unit]
+    Description=Start CKAN using docker compose
 
-        [Service]
-        ExecStart=/usr/bin/docker run -v /var/run/docker.sock:/var/run/docker.sock -v "/etc/ckan:/etc/ckan" -w="/etc/ckan/contrib/docker-GCP" docker/compose:1.24.0 up
-        ExecStop=/usr/bin/docker stop ckan solr redis cloudsql-proxy
-        ExecStopPost=/usr/bin/docker rm ckan solr redis cloudsql-proxy
+    [Service]
+    ExecStart=/usr/bin/docker run -v /var/run/docker.sock:/var/run/docker.sock -v "/etc/ckan:/etc/ckan" -w="/etc/ckan/contrib/docker-GCP" docker/compose:1.24.0 up
+    ExecStop=/usr/bin/docker stop ckan solr redis cloudsql-proxy
+    ExecStopPost=/usr/bin/docker rm ckan solr redis cloudsql-proxy
 
 runcmd:
     - cd /etc
