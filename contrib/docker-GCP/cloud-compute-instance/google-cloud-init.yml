@@ -10,6 +10,8 @@ write_files:
   owner: root
   content: |
     #!/usr/bin/env bash
+    curl https://sdk.cloud.google.com > install.sh
+    bash install.sh --disable-prompts
     CKAN_OAUTH2_CLIENT_SECRET_SECRET_ID=`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_client_secret_secret_id" -H "Metadata-Flavor: Google"`
     CKAN_SQLALCHEMY_URL_SECRET_ID=`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_sqlalchemy_url_secret_id" -H "Metadata-Flavor: Google"`
     echo "CKAN_SQLALCHEMY_URL="`gcloud secrets versions access latest --secret=${CKAN_SQLALCHEMY_URL_SECRET_ID}` >> ckan/contrib/docker-GCP/.env
