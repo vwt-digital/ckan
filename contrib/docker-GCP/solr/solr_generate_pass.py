@@ -59,7 +59,7 @@ def solrBasicAuthString(password, salt):
     hashed = solrBasicAuthHash(password, salt)
     b64hashed = b64encode(hashed)
     b64salt = b64encode(salt)
-    return "{} {}".format(str(b64hashed), str(b64salt))
+    return "{} {}".format(str(b64hashed.decode("utf-8")), str(b64salt.decode("utf-8")))
 
 
 def genSolrBasicAuth(password, saltlength):
