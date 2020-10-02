@@ -57,13 +57,7 @@ RUN ckan-pip install -U pip && \
     ln -s $CKAN_VENV/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini && \
     # If GCP is used, use entrypoint from docker-GCP folder
     if [ "$GCP" = "yes" ];then \
-        cp -v $CKAN_VENV/src/ckan/contrib/docker-GCP/ckan-entrypoint.sh /ckan-entrypoint.sh && \
-        # Also add secrets to env file
-        CKAN_OAUTH2_CLIENT_SECRET_SECRET_ID=$(grep CKAN_OAUTH2_CLIENT_SECRET_SECRET_ID $CKAN_VENV/src/ckan/contrib/docker-GCP/temp.env | cut -d '=' -f2) && \
-        CKAN_SQLALCHEMY_URL_SECRET_ID=$(grep CKAN_SQLALCHEMY_URL_SECRET_ID $CKAN_VENV/src/ckan/contrib/docker-GCP/temp.env | cut -d '=' -f2) && \
-        PROJECT_ID=$(grep PROJECT_ID $CKAN_VENV/src/ckan/contrib/docker-GCP/temp.env | cut -d '=' -f2) && \
-        ckan-pip install google-cloud-secret-manager && \
-        python $CKAN_VENV/src/ckan/contrib/docker-GCP/cloud-compute-instance/access_secrets.py -ocs $CKAN_OAUTH2_CLIENT_SECRET_SECRET_ID -sus $CKAN_SQLALCHEMY_URL_SECRET_ID -p $PROJECT_ID -f "$CKAN_VENV/src/ckan/contrib/docker-GCP/.env"; \
+        cp -v $CKAN_VENV/src/ckan/contrib/docker-GCP/ckan-entrypoint.sh /ckan-entrypoint.sh; \
     else \
         cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh; \
     fi && \
