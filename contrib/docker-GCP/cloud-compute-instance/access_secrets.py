@@ -1,15 +1,17 @@
 from google.cloud import secretmanager
 import argparse
-import os
 
 parser = argparse.ArgumentParser()
+parser.add_argument('-oas', '--oauth2-client-secret', required=True)
+parser.add_argument('-sus', '--sqlalchemy-url-secret', required=True)
+parser.add_argument('-p', '--project-id', required=True)
 parser.add_argument('-f', '--file-path', required=True)
 args = parser.parse_args()
 env_file_path = args.file_path
+project_id = args.project_id
+client_secret_secret_id = args.oauth2_client_secret
+sqlalchemy_url_secret_id = args.sqlalchemy_url_secret
 
-project_id = os.environ.get('PROJECT_ID', 'Required parameter is missing').replace('\"', '')
-client_secret_secret_id = os.environ.get('CKAN_OAUTH2_CLIENT_SECRET_SECRET_ID', 'Required parameter is missing')
-sqlalchemy_url_secret_id = os.environ.get('CKAN_SQLALCHEMY_URL_SECRET_ID', 'Required parameter is missing')
 client = secretmanager.SecretManagerServiceClient()
 client_secret_name = f"projects/{project_id}/secrets/{client_secret_secret_id}/versions/latest"
 sqlalchemy_url_secret_name = f"projects/{project_id}/secrets/{sqlalchemy_url_secret_id}/versions/latest"
