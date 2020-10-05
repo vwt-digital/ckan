@@ -5,6 +5,32 @@ users:
   uid: 2000
 
 write_files:
+- path: /etc/get_secret.sh
+  permissions: 0744
+  owner: root
+  content: |
+    #!/usr/bin/env bash
+    SA_TOKEN=`curl "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" -H "Metadata-Flavor: Google" | \
+      python3 -c "import sys, json; print(json.load(sys.stdin)['access_token'])"`
+    CKAN_OAUTH2_CLIENT_SECRET_SECRET_ID=`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_client_secret_secret_id" -H "Metadata-Flavor: Google"`
+    CKAN_SQLALCHEMY_URL_SECRET_ID=`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_sqlalchemy_url_secret_id" -H "Metadata-Flavor: Google"`
+    PROJECT_ID=`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/project_id" -H "Metadata-Flavor: Google"`
+    C_S_U=$(curl "https://secretmanager.googleapis.com/v1/projects/${PROJECT_ID}/secrets/${CKAN_SQLALCHEMY_URL_SECRET_ID}/versions/latest:access" \
+      --request "GET" \
+      --header "authorization: Bearer ${SA_TOKEN}" \
+      --header "content-type: application/json" \
+      --header "x-goog-user-project: ${PROJECT_ID}" | \
+        python3 -c "import sys, json; print(json.load(sys.stdin)['payload']['data'])" | \
+        base64 --decode)
+    CKAN_OA_C_S=$(curl "https://secretmanager.googleapis.com/v1/projects/${PROJECT_ID}/secrets/${CKAN_OAUTH2_CLIENT_SECRET_SECRET_ID}/versions/latest:access" \
+      --request "GET" \
+      --header "authorization: Bearer ${SA_TOKEN}" \
+      --header "content-type: application/json" \
+      --header "x-goog-user-project: ${PROJECT_ID}" | \
+        python3 -c "import sys, json; print(json.load(sys.stdin)['payload']['data'])" | \
+        base64 --decode)
+    echo "CKAN_SQLALCHEMY_URL=${C_S_U}" >> .env
+    echo "CKAN_OAUTH2_CLIENT_SECRET=${CKAN_OA_C_S}" >> .env
 - path: /etc/systemd/system/ckan.service
   permissions: 0644
   owner: root
@@ -27,14 +53,9 @@ runcmd:
 - '`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_ssl_key" -H "Metadata-Flavor: Google" --output ckan-ssl.key`'
 - '`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_ssl_cert" -H "Metadata-Flavor: Google" --output ckan-ssl.crt`'
 - cd ..
-- 'echo "CKAN_OAUTH2_CLIENT_SECRET_SECRET_ID="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_client_secret_secret_id" -H "Metadata-Flavor: Google"` >> temp.env'
-- 'echo "CKAN_SQLALCHEMY_URL_SECRET_ID="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_sqlalchemy_url_secret_id" -H "Metadata-Flavor: Google"` >> temp.env'
-- 'echo "PROJECT_ID="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/project_id" -H "Metadata-Flavor: Google"` >> temp.env'
 - python ./solr/solr_generate_pass.py "./solr/"
 - 'echo "CKAN_SOLR_PASSWORD="`cat ./solr/password.txt` >> .env'
 - 'echo "CKAN_SOLR_USER="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_solr_user" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "CKAN_SQLALCHEMY_URL="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_sqlalchemy_url" -H "Metadata-Flavor: Google"` >> .env'
-- 'echo "CKAN_OAUTH2_CLIENT_SECRET="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_client_secret" -H "Metadata-Flavor: Google"` >> .env'
 - 'echo "CKAN_OAUTH2_AUTHORIZATION_ENDPOINT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_authorization_endpoint" -H "Metadata-Flavor: Google"` >> .env'
 - 'echo "CKAN_OAUTH2_TOKEN_ENDPOINT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_token_endpoint" -H "Metadata-Flavor: Google"` >> .env'
 - 'echo "CKAN_OAUTH2_CLIENT_ID="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ckan_oauth2_client_id" -H "Metadata-Flavor: Google"` >> .env'
@@ -50,6 +71,7 @@ runcmd:
 - 'echo "OAUTHLIB_INSECURE_TRANSPORT="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/oauthlib_insecure_transport" -H "Metadata-Flavor: Google"` >> .env'
 - 'echo "OAUTHLIB_RELAX_TOKEN_SCOPE="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/oauthlib_relax_token_scope" -H "Metadata-Flavor: Google"` >> .env'
 - 'echo "GCP_SQL_INSTANCE="`curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/gcp_sql_instance" -H "Metadata-Flavor: Google"` >> .env'
+- bash /etc/get_secret.sh
 - mkdir /mnt/stateful_partition/cloudsql
 - chmod 777 /mnt/stateful_partition/cloudsql
 - systemctl daemon-reload
