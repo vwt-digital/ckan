@@ -31,7 +31,7 @@ def gen_syllable():
 
 def word_part(type):
     if type == 'c':
-        return random.sample([ch for ch in list(string.lowercase) if ch not in vowels], 1)[0]
+        return random.sample([ch for ch in list(string.ascii_lowercase) if ch not in vowels], 1)[0]
     if type == 'v':
         return random.sample(vowels, 1)[0]
 
@@ -59,7 +59,7 @@ def solrBasicAuthString(password, salt):
     hashed = solrBasicAuthHash(password, salt)
     b64hashed = b64encode(hashed)
     b64salt = b64encode(salt)
-    return "{} {}".format(str(b64hashed), str(b64salt))
+    return "{} {}".format(str(b64hashed.decode("utf-8")), str(b64salt.decode("utf-8")))
 
 
 def genSolrBasicAuth(password, saltlength):
