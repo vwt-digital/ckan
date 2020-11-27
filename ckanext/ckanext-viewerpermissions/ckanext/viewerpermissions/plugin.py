@@ -36,7 +36,6 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         # Always add 'public' to label
         label = label + ' public'
         labels = labels + [unicode(label)]  # noqa: F821
-        log.info("get_dataset_labels are: {}".format(labels))
         return labels
 
     def get_user_dataset_labels(self, user_obj):
@@ -54,7 +53,6 @@ class ViewerpermissionsPlugin(plugins.SingletonPlugin, DefaultPermissionLabels):
         # Always allow access to public datasets
         label = label + ' public'
         labels = labels + [unicode(label)]  # noqa: F821
-        log.info("get_user_dataset_labels are: {}".format(labels))
         return labels
 
     def update_config(self, config):
