@@ -43,8 +43,8 @@ def get_schema_title(schema):
         schema_title = str(schema_title)
     else:
         schema_title = ''
-    schema_title_list = schema_title.split(':')
-    schema_title_final = schema_title_list[1]
+    schema_title_list = schema_title.split('/')
+    schema_title_final = schema_title_list[-1]
     return schema_title_final
 
 
@@ -55,7 +55,6 @@ def schema_title_to_url(schema):
 
 
 def schema_title_from_url(schema_title):
-    schema_title = schema_title.replace("-", "/")
     return schema_title
 
 
