@@ -11,12 +11,15 @@ import ast
 log = logging.getLogger(__name__)
 
 
-def get_schema_from_resource(resource):
+def get_schemas_from_resource(resource):
     # Get schema
-    if 'schema' in resource:
-        schema = resource['schema']
-        return schema
-    return False
+    schemas_dict = []
+    if 'schemas' in resource:
+        schemas = resource['schemas']
+        schemas = ast.literal_eval(schemas)
+        for s in schemas:
+            schemas_dict.append(json.loads(s))
+    return schemas_dict
 
 
 def schema_to_list(schema):
@@ -38,9 +41,14 @@ def get_schema_title(schema):
     if type(schema) is unicode:  # noqa: F821
         schema = ast.literal_eval(schema)
         schema_title = schema.get('$id')
+        if not schema_title:
+            schema_title = ''
     elif type(schema) is dict:
         schema_title = schema.get('$id')
-        schema_title = str(schema_title)
+        if schema_title:
+            schema_title = str(schema_title)
+        else:
+            schema_title = ''
     else:
         schema_title = ''
     schema_title_list = schema_title.split('/')
@@ -56,6 +64,17 @@ def schema_title_to_url(schema):
 
 def schema_title_from_url(schema_title):
     return schema_title
+
+
+def get_schema_from_schemas(schema_title, resource):
+    schema_dict = {}
+    schemas_list = get_schemas_from_resource(resource)
+    for schema in schemas_list:
+        schema_title_res = get_schema_title(schema)
+        if schema_title_res:
+            if schema_title_res == schema_title:
+                schema_dict = schema
+    return schema_dict
 
 
 class Vwt_ThemePlugin(plugins.SingletonPlugin):
@@ -88,9 +107,10 @@ class Vwt_ThemePlugin(plugins.SingletonPlugin):
         # other extensions.
         return {'vwt_theme_schema_to_list': schema_to_list,
                 'vwt_theme_get_schema_title': get_schema_title,
-                'vwt_theme_get_schema_from_resource': get_schema_from_resource,
+                'vwt_theme_get_schemas_from_resource': get_schemas_from_resource,
                 'vwt_theme_schema_title_to_url': schema_title_to_url,
-                'vwt_theme_schema_title_from_url': schema_title_from_url}
+                'vwt_theme_schema_title_from_url': schema_title_from_url,
+                'vwt_theme_get_schema_from_schemas': get_schema_from_schemas}
 
     def before_map(self, map):
         controller = 'ckanext.vwt_theme.controller:Vwt_ThemeController'

@@ -9,8 +9,8 @@
     {% snippet "package/snippets/view_schema.html", pkg=pkg, active=res.id %}
   
   #}
-{% set schema = h.vwt_theme_get_schema_from_resource(active) or [] %}
-{% if schema %}
+{% set schemas = h.vwt_theme_get_schemas_from_resource(active) or [] %}
+{% if schemas %}
   {% block schema %}
     <section class="module module-narrow resources">
       {% block schema_inner %}
@@ -19,16 +19,18 @@
         {% endblock %}
         {% block schema_list %}
           <ul class="list-unstyled nav nav-simple">
-            {% set active_button = False %}
-            {% if active_schema_title %}
-            <li class="nav-item{{ ' active' if h.vwt_theme_schema_title_from_url(active_schema_title) == h.vwt_theme_get_schema_title(schema) }}">
-              <a href="{{ h.url_for('schema.read', dataset_name=pkg.name, resource_id=active.id, active_schema_title=h.vwt_theme_schema_title_to_url(schema), _external=True) }}">{{ h.vwt_theme_get_schema_title(schema)|truncate(25) }}</a>
-            </li>
-            {% else %}
-              <li class="nav-item{{ ' active' if active_button == True }}">
+            {% for schema in schemas %}
+              {% set active_button = False %}
+              {% if active_schema_title %}
+              <li class="nav-item{{ ' active' if h.vwt_theme_schema_title_from_url(active_schema_title) == h.vwt_theme_get_schema_title(schema) }}">
                 <a href="{{ h.url_for('schema.read', dataset_name=pkg.name, resource_id=active.id, active_schema_title=h.vwt_theme_schema_title_to_url(schema), _external=True) }}">{{ h.vwt_theme_get_schema_title(schema)|truncate(25) }}</a>
               </li>
-            {% endif %}
+              {% else %}
+                <li class="nav-item{{ ' active' if active_button == True }}">
+                  <a href="{{ h.url_for('schema.read', dataset_name=pkg.name, resource_id=active.id, active_schema_title=h.vwt_theme_schema_title_to_url(schema), _external=True) }}">{{ h.vwt_theme_get_schema_title(schema)|truncate(25) }}</a>
+                </li>
+              {% endif %}
+            {% endfor %}
           </ul>
         {% endblock %}
       {% endblock %}
